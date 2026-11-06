@@ -1,13 +1,17 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
     <footer className="bg-dark text-bg">
       <div className="mx-auto grid grid-cols-2 gap-8 px-4 py-16 sm:px-6 sm:grid-cols-3 md:grid-cols-5" style={{ maxWidth: 1280 }}>
         <div className="col-span-2 flex flex-col gap-3 sm:col-span-1">
-          <span className="font-display text-2xl font-extrabold text-white">
-            Hamza<span className="text-accent">One</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <Image src="/HamzaOne_Icon_light.png" alt="" width={160} height={160} className="h-9 w-9 object-contain" />
+            <span className="font-display text-2xl font-extrabold text-white">
+              Hamza<span className="text-accent">One</span>
+            </span>
+          </div>
           <p className="text-sm text-[#B9BBC1]">
             Your Ideas. Made Real.
             <br />
