@@ -119,8 +119,10 @@ export default function CartPage() {
           <form onSubmit={applyCoupon} className="rounded-card bg-surface p-4 shadow-sm">
             <h3 className="mb-2 text-sm font-semibold">Coupon code</h3>
             <div className="flex gap-2">
-              <Field id="coupon" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="FIRST100" className="flex-1" error={couponError ?? undefined} />
-              <Button type="submit" variant="outline">Apply</Button>
+              <div className="min-w-0 flex-1">
+                <Field id="coupon" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="FIRST100" error={couponError ?? undefined} />
+              </div>
+              <Button type="submit" variant="outline" className="shrink-0">Apply</Button>
             </div>
             {applied && <p className="mt-2 text-sm text-success-text">Coupon {applied.code} applied — ₹{applied.discount} off.</p>}
           </form>

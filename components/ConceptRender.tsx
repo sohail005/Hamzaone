@@ -49,9 +49,6 @@ export function ConceptRender({ shape, color = "#C2693C", className }: Props) {
         className={cx("shadow-[inset_0_6px_14px_rgba(0,0,0,0.12),0_10px_24px_rgba(0,0,0,0.12)]", shapeStyle[shape])}
         style={{ backgroundColor: color, clipPath: shapeClipPath[shape] }}
       />
-      <span className="absolute bottom-2 right-2 rounded-chip bg-surface/90 px-2 py-0.5 text-[11px] font-medium text-text-muted">
-        Concept render
-      </span>
     </div>
   );
 }

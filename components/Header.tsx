@@ -34,7 +34,7 @@ export function Header() {
         Free standard shipping on orders above ₹1,499 · Every order printed in-house in India
       </div>
       <header className="sticky top-0 z-30 border-b border-border bg-bg">
-        <div className="relative mx-auto flex flex-wrap items-center gap-6 px-4 py-3 sm:px-6" style={{ maxWidth: 1280 }}>
+        <div className="relative mx-auto flex flex-wrap items-center gap-6 px-4 py-1 sm:px-6" style={{ maxWidth: 1280 }}>
           <button
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
@@ -43,7 +43,7 @@ export function Header() {
             <Menu className="h-5 w-5" />
           </button>
           <Link href="/" aria-label="HamzaOne home" className="flex items-center">
-            <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} priority className="h-12 w-12 object-contain md:h-14 md:w-14" />
+            <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} priority className="h-14 w-14 object-contain md:h-18 md:w-18" />
           </Link>
           <nav aria-label="Primary" className="hidden flex-wrap items-center gap-1 md:flex">
             <Link href="/shop" className="rounded-full px-3 py-3 font-medium text-text hover:bg-black/5">
