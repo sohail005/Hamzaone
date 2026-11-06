@@ -9,7 +9,6 @@ import { categories } from "@/data/categories";
 import { products } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
-import { cx } from "@/lib/format";
 
 function categoryCount(slug: string) {
   return products.filter((p) => p.category === slug).length;

@@ -25,6 +25,7 @@ export type ServiceabilityResult = {
 
 type CachedToken = { token: string; expiresAt: number };
 let cachedToken: CachedToken | null = null;
+let loginPromise: Promise<string> | null = null;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -43,7 +44,18 @@ function jwtExpiryMs(token: string): number | null {
   }
 }
 
-async function login(): Promise<string> {
+function login(): Promise<string> {
+  // Collapse concurrent callers (e.g. simultaneous requests from different
+  // users) into a single NimbusPost login call instead of one each.
+  if (!loginPromise) {
+    loginPromise = performLogin().finally(() => {
+      loginPromise = null;
+    });
+  }
+  return loginPromise;
+}
+
+async function performLogin(): Promise<string> {
   const email = requireEnv("NIMBUSPOST_EMAIL");
   const password = requireEnv("NIMBUSPOST_PASSWORD");
 
@@ -74,9 +86,7 @@ async function getToken(): Promise<string> {
 }
 
 type Courier = {
-  name?: string;
   edd?: string; // "DD-MM-YYYY"
-  total_charges?: number;
   cod_charges?: number;
 };
 
