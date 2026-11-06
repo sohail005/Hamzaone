@@ -33,7 +33,7 @@ export function Header() {
       <div className="bg-dark py-2 text-center text-[13px] text-bg">
         Free standard shipping on orders above ₹1,499 · Every order printed in-house in India
       </div>
-      <header className="sticky top-0 z-30 border-b border-border bg-bg">
+      <header className="sticky top-0 z-30 border-b border-border bg-surface">
         <div className="relative mx-auto flex flex-wrap items-center gap-6 px-4 py-1 sm:px-6" style={{ maxWidth: 1280 }}>
           <button
             aria-label="Open menu"
@@ -66,7 +66,7 @@ export function Header() {
           <form
             role="search"
             onSubmit={submitSearch}
-            className="flex h-11 min-w-[200px] flex-1 items-center gap-2 rounded-full border border-border-input bg-surface pl-4 pr-1.5"
+            className="flex h-11 min-w-[200px] flex-1 items-center gap-2 rounded-full border border-border-input bg-surface pl-4 pr-1.5 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent"
             style={{ flexBasis: 240 }}
           >
             <label htmlFor="q" className="sr-only">Search products</label>
@@ -76,7 +76,7 @@ export function Header() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search vases, stands, nameplates"
-              className="min-w-0 flex-1 border-0 bg-transparent text-[15px] outline-none"
+              className="min-w-0 flex-1 border-0 bg-transparent text-[15px] outline-none focus-visible:outline-none"
             />
             <button type="submit" className="rounded-full bg-dark px-3.5 py-2 text-xs font-semibold text-white">
               Search
@@ -113,7 +113,7 @@ export function Header() {
 
         {catOpen && (
           <div className="absolute left-0 right-0 top-full border-b border-border bg-surface shadow-md">
-            <div className="mx-auto grid grid-cols-2 gap-4 px-4 py-6 sm:px-6 sm:grid-cols-3 md:grid-cols-5" style={{ maxWidth: 1280 }}>
+            <div className="mx-auto grid grid-cols-2 gap-4 px-2 sm:px-4 sm:grid-cols-3 md:grid-cols-5" style={{ maxWidth: 1280 }}>
               {categories.map((c) => (
                 <Link
                   key={c.slug}
@@ -129,6 +129,10 @@ export function Header() {
           </div>
         )}
       </header>
+
+      {catOpen && (
+        <div className="fixed inset-0 z-20 bg-black/20" onClick={() => setCatOpen(false)} />
+      )}
 
       {menuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
