@@ -7,31 +7,12 @@ import { ConceptRender } from "./ConceptRender";
 import { AvailabilityChip } from "./StatusChip";
 import { PriceDisplay } from "./PriceDisplay";
 import { useWishlist } from "@/store/wishlist";
-import { useCart } from "@/store/cart";
-import { useToast } from "@/store/toast";
 import { cx } from "@/lib/format";
 
 export function ProductCard({ product }: { product: Product }) {
   const { has, toggle } = useWishlist();
-  const addLine = useCart((s) => s.addLine);
-  const push = useToast((s) => s.push);
   const wished = has(product.slug);
   const isOOS = product.availability === "out-of-stock";
-
-  function quickAdd(e: React.MouseEvent) {
-    e.preventDefault();
-    if (isOOS) return;
-    addLine({
-      slug: product.slug,
-      name: product.name,
-      color: product.colors[0].name,
-      size: "Standard",
-      price: product.price,
-      qty: 1,
-      availability: product.availability,
-    });
-    push(`Added ${product.name} to cart`);
-  }
 
   return (
     <div className="group relative flex flex-col gap-3">
@@ -60,14 +41,22 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
         <PriceDisplay amount={product.price} />
       </div>
-      <button
-        type="button"
-        onClick={quickAdd}
-        disabled={isOOS}
-        className="h-11 rounded-full border border-text text-sm font-semibold text-text transition-colors hover:bg-dark hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {isOOS ? "Notify me when back" : "Choose options"}
-      </button>
+      {isOOS ? (
+        <button
+          type="button"
+          disabled
+          className="h-11 rounded-full border border-text text-sm font-semibold text-text disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Notify me when back
+        </button>
+      ) : (
+        <Link
+          href={`/products/${product.slug}`}
+          className="flex h-11 items-center justify-center rounded-full border border-text text-sm font-semibold text-text transition-colors hover:bg-dark hover:text-white"
+        >
+          Choose options
+        </Link>
+      )}
     </div>
   );
 }
