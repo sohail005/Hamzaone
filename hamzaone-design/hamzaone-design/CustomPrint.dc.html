@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Custom 3D Printing · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C;color:#111318}
+.btn-d{background:#111318;color:#fff}.btn-d:hover{background:#2A2D33;color:#fff}
+.btn-o{background:transparent;border-color:#111318;color:#111318}.btn-o:hover{background:#111318;color:#fff}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;border:1px solid #CFCDC6;background:#fff;color:#111318;cursor:pointer;font-size:18px}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:28px;box-sizing:border-box}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f label,.lbl{font-size:14px;font-weight:600}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.err{font-size:13px;color:#B02A37}
+.pill{min-height:44px;padding:0 16px;border-radius:999px;cursor:pointer;font:600 14px Inter,sans-serif}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+.proto{border:1px dashed #8E9097;border-radius:14px;padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:#F6F5F1;font-size:13px}
+.proto button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid #8E9097;background:#fff;cursor:pointer;font:500 13px Inter,sans-serif}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="border-bottom:1px solid #E8E8E5;background:#F6F5F1">
+<div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Shop</a><a href="CustomPrint.dc.html" aria-current="page" style="padding:12px;font-weight:600;color:#C2410C">Custom 3D Print</a><a href="Track.dc.html" style="padding:12px;font-weight:500">Track order</a></nav>
+<a href="Account.dc.html" style="font-weight:500;padding:12px">My requests</a>
+</div>
+</header>
+<main class="wrap" style="flex:1;padding-top:32px;padding-bottom:80px;display:flex;flex-direction:column;gap:24px">
+
+<sc-if value="{{isLanding}}" hint-placeholder-val="{{ true }}">
+<section style="display:flex;flex-wrap:wrap;gap:48px;align-items:center;padding:32px 0">
+<div style="flex:1 1 440px;display:flex;flex-direction:column;gap:20px">
+<span class="eyebrow">Custom 3D printing</span>
+<h1 style="font-size:clamp(40px,5vw,68px);line-height:1.04">Your Design.<br>Our Precision.</h1>
+<p class="muted" style="font-size:18px;max-width:520px">Upload your 3D model, choose material and finish, and our print team reviews it and sends you a fixed quote. You pay only after you accept.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-p" onClick="{{toUpload}}">Upload Your 3D Model</button><a href="#how" class="btn btn-o">See how it works</a></div>
+<p class="muted" style="font-size:14px">Supported files: <strong style="color:#111318">STL, 3MF</strong> · up to 100 MB · Materials: PLA, PETG, TPU</p>
+</div>
+<div style="flex:1 1 440px;background:#17191D;border-radius:24px;aspect-ratio:5/4;display:flex;align-items:center;justify-content:center;position:relative;min-height:300px">
+<svg width="60%" viewBox="0 0 200 160" role="img" aria-label="Concept render of a printed bracket"><path d="M40 110 L100 80 L160 110 L100 140 Z" fill="#3A3E45"/><path d="M40 110 L40 70 L100 40 L100 80 Z" fill="#F97316"/><path d="M100 80 L100 40 L120 50 L120 90 Z" fill="#C2410C"/><path d="M120 90 L160 110 L160 95 L120 75 Z" fill="#5A5D63"/></svg>
+<span style="position:absolute;right:14px;bottom:10px;font-size:11px;color:#9EA1A8">Concept render</span>
+</div>
+</section>
+<section id="how" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+<sc-for list="{{process}}" as="p" hint-placeholder-count="5"><div class="card" style="padding:20px;display:flex;flex-direction:column;gap:6px"><span style="font:700 14px Manrope,sans-serif;color:#C2410C">{{p.n}}</span><strong style="font-family:Manrope,sans-serif;font-size:18px">{{p.t}}</strong><span class="muted" style="font-size:14px">{{p.d}}</span></div></sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{inWizard}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap"><h1 style="font-size:32px">{{stepTitle}}</h1><span class="muted" style="font-size:14px">Step {{stepNo}} of 5</span></div>
+<ol aria-label="Request steps" style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px">
+<sc-for list="{{wsteps}}" as="w" hint-placeholder-count="5"><li style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;border-radius:2px;{{w.bar}}"></span><span style="font-size:13px;font-weight:600;{{w.txt}}">{{w.label}}</span></li></sc-for>
+</ol>
+</sc-if>
+
+<sc-if value="{{isUpload}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<sc-if value="{{upIdle}}" hint-placeholder-val="{{ true }}">
+<div style="border:2px dashed {{dropColor}};border-radius:20px;padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;background:#FBFAF8">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#111318" stroke-width="1.5" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+<strong style="font:700 20px Manrope,sans-serif">Drag and drop your 3D file here</strong>
+<span class="muted">or</span>
+<button class="btn btn-d" onClick="{{startUpload}}">Browse files</button>
+<span class="muted" style="font-size:14px">STL or 3MF · one model per request · max 100 MB</span>
+</div>
+<sc-if value="{{upError}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FDE7E9;border:1px solid #F5B5BC;color:#8E1F2B;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><strong>{{errTitle}}</strong> {{errBody}}</span><sc-if value="{{canRetry}}" hint-placeholder-val="{{ false }}"><button class="link" style="color:#8E1F2B" onClick="{{startUpload}}">Retry upload</button></sc-if></div></sc-if>
+</sc-if>
+<sc-if value="{{upBusy}}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid #E8E8E5;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px" role="status" aria-live="polite">
+<div style="display:flex;justify-content:space-between;gap:12px"><strong>bracket_v3.stl</strong><span class="muted">{{progress}}% · 12.4 MB</span></div>
+<div style="height:8px;border-radius:4px;background:#E8E8E5;overflow:hidden"><div style="height:100%;background:#F97316;width:{{progress}}%;transition:width .2s"></div></div>
+<button class="link" style="align-self:flex-start" onClick="{{cancelUpload}}">Cancel upload</button>
+</div>
+</sc-if>
+<sc-if value="{{upDone}}" hint-placeholder-val="{{ false }}">
+<div style="border:1px solid #BFE3D3;background:#F1FAF6;border-radius:16px;padding:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap" role="status">
+<div style="display:flex;gap:14px;align-items:center"><span style="width:44px;height:44px;border-radius:12px;background:#16845B;color:#fff;display:flex;align-items:center;justify-content:center" aria-hidden="true">✓</span><div><strong>bracket_v3.stl</strong><div class="muted" style="font-size:14px">12.4 MB · uploaded and checked</div></div></div>
+<div style="display:flex;gap:12px"><button class="link" onClick="{{replaceFile}}">Replace file</button><button class="link" style="color:#B02A37" onClick="{{removeFile}}">Remove</button></div>
+</div>
+</sc-if>
+<div class="proto"><strong>Prototype states:</strong><button onClick="{{errType}}">Unsupported .obj file</button><button onClick="{{errSize}}">Oversized 140 MB file</button><button onClick="{{errNet}}">Network failure</button></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toLanding}}">Back</button><button class="btn btn-d" onClick="{{toPreview}}" aria-disabled="{{notDone}}">Continue to preview</button></div>
+<sc-if value="{{needFile}}" hint-placeholder-val="{{ false }}"><span class="err" role="alert">Upload a model to continue.</span></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isPreview}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:24px">
+<div style="flex:999 1 520px;min-width:0;background:#17191D;border-radius:20px;position:relative;min-height:440px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+<sc-if value="{{viewLoading}}" hint-placeholder-val="{{ false }}"><div role="status" style="color:#C9CBD0;display:flex;flex-direction:column;align-items:center;gap:10px"><div aria-hidden="true" style="width:40px;height:40px;border-radius:50%;border:4px solid #2F3237;border-top-color:#F97316"></div>Loading 3D preview…</div></sc-if>
+<sc-if value="{{viewReady}}" hint-placeholder-val="{{ true }}"><svg width="70%" viewBox="0 0 200 160" role="img" aria-label="3D preview of bracket_v3.stl" style="transform:rotate({{rot}}deg) scale({{zoom}});transition:transform .25s"><path d="M40 110 L100 80 L160 110 L100 140 Z" fill="#3A3E45"/><path d="M40 110 L40 70 L100 40 L100 80 Z" fill="#8C8F96"/><path d="M100 80 L100 40 L120 50 L120 90 Z" fill="#5A5D63"/><path d="M120 90 L160 110 L160 95 L120 75 Z" fill="#6E7178"/><circle cx="70" cy="75" r="6" fill="#17191D"/></svg></sc-if>
+<sc-if value="{{viewFallback}}" hint-placeholder-val="{{ false }}"><div style="color:#C9CBD0;text-align:center;max-width:320px;display:flex;flex-direction:column;gap:8px;padding:24px"><strong style="color:#fff">Preview is not available for this file</strong><span style="font-size:14px">Your file uploaded correctly. Our team will review the geometry manually, and you can still continue.</span></div></sc-if>
+<div style="position:absolute;left:16px;top:16px;display:flex;gap:8px"><button class="ibtn" aria-label="Rotate left" onClick="{{rotL}}">↺</button><button class="ibtn" aria-label="Rotate right" onClick="{{rotR}}">↻</button><button class="ibtn" aria-label="Zoom in" onClick="{{zin}}">+</button><button class="ibtn" aria-label="Zoom out" onClick="{{zout}}">−</button><button class="ibtn" style="width:auto;padding:0 12px;font-size:14px" onClick="{{resetCam}}">Reset view</button></div>
+<span style="position:absolute;left:16px;bottom:12px;color:#9EA1A8;font-size:13px">Drag to rotate · scroll to zoom</span>
+</div>
+<aside class="card" style="flex:1 1 300px;display:flex;flex-direction:column;gap:14px">
+<strong>bracket_v3.stl</strong>
+<dl style="margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px"><dt class="muted">Bounding box</dt><dd style="margin:0">82 × 46 × 30 mm</dd><dt class="muted">Volume</dt><dd style="margin:0">38.6 cm³</dd><dt class="muted">Triangles</dt><dd style="margin:0">48,212</dd><dt class="muted">Printable</dt><dd style="margin:0;color:#0F5E41">✓ Fits our build volume</dd></dl>
+<div class="proto"><button onClick="{{showLoading}}">Show loading</button><button onClick="{{showFallback}}">Show fallback</button><button onClick="{{showReady}}">Show model</button></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:auto"><button class="btn btn-o" onClick="{{toUpload}}">Back</button><button class="btn btn-d" onClick="{{toOptions}}">Continue to options</button></div>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isOptions}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:24px">
+<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:10px">Material</legend>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px"><sc-for list="{{materials}}" as="m" hint-placeholder-count="3"><button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="text-align:left;padding:16px;border-radius:16px;cursor:pointer;background:#fff;font:14px Inter,sans-serif;color:#111318;display:flex;flex-direction:column;gap:4px;{{m.style}}"><strong style="font-size:16px">{{m.name}}</strong><span class="muted">{{m.d}}</span></button></sc-for></div></fieldset>
+<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:10px">Colour · {{colorName}}</legend>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><sc-for list="{{colors}}" as="c" hint-placeholder-count="4"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" aria-label="{{c.name}}" style="width:44px;height:44px;border-radius:50%;cursor:pointer;background:{{c.hex}};{{c.ring}}"></button></sc-for></div>
+<p class="muted" style="font-size:13px;margin-top:8px">Only colours we stock for {{matName}} are shown.</p></fieldset>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px">
+<div class="f"><span class="lbl">Quantity</span><div style="display:flex;align-items:center;gap:8px"><button class="ibtn" aria-label="Decrease quantity" onClick="{{qDec}}">−</button><output style="min-width:32px;text-align:center;font-weight:600">{{qty}}</output><button class="ibtn" aria-label="Increase quantity" onClick="{{qInc}}">+</button></div></div>
+<div class="f"><span class="lbl">Scale · {{scale}}%</span><div style="display:flex;align-items:center;gap:8px"><button class="ibtn" aria-label="Smaller" onClick="{{sDec}}">−</button><span class="muted" style="font-size:14px;min-width:150px;text-align:center">{{dims}}</span><button class="ibtn" aria-label="Larger" onClick="{{sInc}}">+</button></div></div>
+</div>
+<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:10px">Finish</legend>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{finishes}}" as="x" hint-placeholder-count="3"><button class="pill" onClick="{{x.pick}}" aria-pressed="{{x.on}}" style="{{x.style}}">{{x.name}}</button></sc-for></div></fieldset>
+<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:10px">Intended use</legend>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{uses}}" as="u" hint-placeholder-count="4"><button class="pill" onClick="{{u.pick}}" aria-pressed="{{u.on}}" style="{{u.style}}">{{u.name}}</button></sc-for></div></fieldset>
+<div class="f"><label for="ins">Additional instructions <span class="muted" style="font-weight:400">(optional)</span></label><textarea id="ins" rows="3" style="border:1px solid #8E9097;border-radius:12px;padding:12px 14px;font:16px Inter,sans-serif;resize:vertical">Holes must fit M4 bolts. Prefer 40% infill.</textarea></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toPreview}}">Back</button><button class="btn btn-d" onClick="{{toContact}}">Continue to contact details</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isContact}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+<div class="f"><label for="cn">Full name</label><input id="cn" class="in" value="{{c.name}}" onChange="{{con.name}}" style="{{ce.nameB}}"><sc-if value="{{ce.name}}" hint-placeholder-val="{{ false }}"><span class="err">{{ce.name}}</span></sc-if></div>
+<div class="f"><label for="ce">Email</label><input id="ce" class="in" type="email" value="{{c.email}}" onChange="{{con.email}}" style="{{ce.emailB}}"><sc-if value="{{ce.email}}" hint-placeholder-val="{{ false }}"><span class="err">{{ce.email}}</span></sc-if></div>
+<div class="f"><label for="cm">Mobile number</label><input id="cm" class="in" inputmode="numeric" value="{{c.mobile}}" onChange="{{con.mobile}}" style="{{ce.mobileB}}"><sc-if value="{{ce.mobile}}" hint-placeholder-val="{{ false }}"><span class="err">{{ce.mobile}}</span></sc-if></div>
+<div class="f"><label for="cpn">Delivery PIN code</label><input id="cpn" class="in" inputmode="numeric" maxlength="6" value="{{c.pin}}" onChange="{{con.pin}}" style="{{ce.pinB}}"><sc-if value="{{ce.pin}}" hint-placeholder-val="{{ false }}"><span class="err">{{ce.pin}}</span></sc-if></div>
+<div class="f" style="grid-column:1/-1"><label for="cno">Notes for the print team <span class="muted" style="font-weight:400">(optional)</span></label><input id="cno" class="in" value="{{c.notes}}" onChange="{{con.notes}}"></div>
+</div>
+<p class="muted" style="font-size:13px">We use these details only for this request and its quote.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toOptions}}">Back</button><button class="btn btn-d" onClick="{{toReview}}">Review request</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+<div style="background:#F6F5F1;border-radius:14px;padding:16px"><div style="display:flex;justify-content:space-between"><strong>File</strong><button class="link" onClick="{{toUpload}}">Change</button></div><p class="muted" style="font-size:14px">bracket_v3.stl · 12.4 MB<br>82 × 46 × 30 mm at 100%</p></div>
+<div style="background:#F6F5F1;border-radius:14px;padding:16px"><div style="display:flex;justify-content:space-between"><strong>Print options</strong><button class="link" onClick="{{toOptions}}">Edit</button></div><p class="muted" style="font-size:14px">{{matName}} · {{colorName}} · {{finishName}}<br>Qty {{qty}} · Scale {{scale}}% · {{useName}}</p></div>
+<div style="background:#F6F5F1;border-radius:14px;padding:16px"><div style="display:flex;justify-content:space-between"><strong>Contact</strong><button class="link" onClick="{{toContact}}">Edit</button></div><p class="muted" style="font-size:14px">{{c.name}}<br>{{c.email}} · +91 {{c.mobile}}<br>PIN {{c.pin}}</p></div>
+</div>
+<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer"><input type="checkbox" checked="{{consent}}" onChange="{{toggleConsent}}" style="width:20px;height:20px;margin:0;accent-color:#111318"> I confirm I own or have rights to print this model, and I agree to the <a href="States.dc.html" style="color:#C2410C;font-weight:600">custom print terms</a>. Submitting is free and does not commit me to pay.</label>
+<sc-if value="{{consentErr}}" hint-placeholder-val="{{ false }}"><span class="err" role="alert">Please confirm to submit your request.</span></sc-if>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toContact}}">Back</button><button class="btn btn-p" onClick="{{submit}}">Submit Request</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isSubmitted}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width:680px;margin:24px auto;display:flex;flex-direction:column;gap:16px">
+<span style="width:56px;height:56px;border-radius:50%;background:#E3F3EC;color:#16845B;display:flex;align-items:center;justify-content:center;font-size:28px" aria-hidden="true">✓</span>
+<h1 style="font-size:32px">Request submitted</h1>
+<p>Your request number is <strong style="font-family:Manrope,sans-serif">CPR-2611-0738</strong>.</p>
+<p class="muted">Our print team will check your model and email a quote to {{c.email}}, usually within 1 business day. Nothing is charged until you accept a quote.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-d" onClick="{{toQuote}}">View quotation status</button><a href="Home.dc.html" class="btn btn-o">Back to home</a></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isQuote}}" hint-placeholder-val="{{ false }}">
+<div class="proto"><strong>Prototype quote state:</strong><sc-for list="{{qStates}}" as="q" hint-placeholder-count="5"><button onClick="{{q.pick}}" aria-pressed="{{q.on}}" style="{{q.style}}">{{q.label}}</button></sc-for></div>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<div class="card" style="flex:999 1 520px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><span class="muted" style="font-size:14px">Request CPR-2611-0738 · submitted 6 Nov 2026, 4:20 PM</span><h2 style="font-size:26px;margin-top:4px">Quotation</h2></div><span style="border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;{{qChip}}">{{qLabel}}</span></div>
+<sc-if value="{{qAwaiting}}" hint-placeholder-val="{{ false }}"><div style="background:#F6F5F1;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px"><strong>Our team is reviewing your model</strong><span class="muted" style="font-size:14px">We check printability, wall thickness and support needs before quoting. Expect a quote by 7 Nov 2026, 6:00 PM.</span></div></sc-if>
+<sc-if value="{{qHasPrice}}" hint-placeholder-val="{{ true }}">
+<dl style="margin:0;display:flex;flex-direction:column;gap:10px;font-size:15px">
+<div style="display:flex;justify-content:space-between"><dt>Printing · PETG Black · 3 pcs</dt><dd style="margin:0">₹1,560</dd></div>
+<div style="display:flex;justify-content:space-between"><dt>Post-processing · sanded finish</dt><dd style="margin:0">₹280</dd></div>
+<div style="display:flex;justify-content:space-between"><dt>Standard shipping</dt><dd style="margin:0">₹79</dd></div>
+<div style="display:flex;justify-content:space-between;border-top:1px solid #E8E8E5;padding-top:10px;font:700 22px Manrope,sans-serif"><dt>Total</dt><dd style="margin:0">₹1,919</dd></div>
+</dl>
+<p class="muted" style="font-size:13px">Inclusive of GST. Production 4–5 business days after payment, then 3–6 business days shipping (estimate).</p>
+<div style="background:#F6F5F1;border-radius:14px;padding:14px 16px;font-size:14px"><strong>Note from the print team:</strong> Wall near the mounting hole was thickened to 2 mm for strength. No other changes. <span class="muted">(demo)</span></div>
+</sc-if>
+<sc-if value="{{qReceived}}" hint-placeholder-val="{{ true }}"><p style="font-size:14px;color:#6B3F06;background:#FFF4E0;border-radius:12px;padding:10px 14px">Valid until 13 Nov 2026, 11:59 PM</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-p" onClick="{{accept}}">Accept and proceed to payment</button><button class="btn btn-o" onClick="{{reject}}">Reject quote</button></div></sc-if>
+<sc-if value="{{qAccepted}}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><span style="color:#0F5E41;font-weight:600">✓ You accepted this quote on 6 Nov 2026.</span><button class="btn btn-p" onClick="{{toPay}}">Proceed to Payment · ₹1,919</button></div></sc-if>
+<sc-if value="{{qRejected}}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:10px"><p class="muted">You rejected this quote. Want changes? Reply with what to adjust and we will requote, or start a new request.</p><div style="display:flex;gap:12px;flex-wrap:wrap"><a href="States.dc.html" class="btn btn-o">Ask for a revised quote</a><button class="btn btn-d" onClick="{{newRequest}}">Start a new request</button></div></div></sc-if>
+<sc-if value="{{qExpired}}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:10px"><p class="muted">This quote expired on 13 Nov 2026. Material prices can change, so we need to requote before printing.</p><button class="btn btn-d" style="align-self:flex-start" onClick="{{requote}}">Request a new quote</button></div></sc-if>
+</div>
+<aside class="card" style="flex:1 1 280px;display:flex;flex-direction:column;gap:10px;font-size:14px"><strong>Request details</strong><span class="muted">bracket_v3.stl · 82 × 46 × 30 mm</span><span class="muted">{{matName}} · {{colorName}} · {{finishName}} · Qty {{qty}}</span><span class="muted">Deliver to PIN {{c.pin}}</span></aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isPay}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<div class="card" style="flex:999 1 520px;display:flex;flex-direction:column;gap:16px">
+<h1 style="font-size:28px">Pay for custom print</h1>
+<p class="muted">Quote CPR-2611-0738 · accepted. Delivery to {{c.name}}, PIN {{c.pin}}. <a href="Checkout.dc.html" style="color:#C2410C;font-weight:600">Change address</a></p>
+<div style="border:2px dashed #8E9097;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:600;color:#45474C">Conceptual · Razorpay-hosted checkout opens here</span>
+<div class="proto" style="background:#fff"><strong>Prototype result:</strong><button onClick="{{paid}}">Payment success</button><button onClick="{{payFail}}">Payment failure</button></div></div>
+<sc-if value="{{payFailed}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FDE7E9;color:#8E1F2B;border-radius:14px;padding:12px 16px;font-size:14px"><strong>Payment failed.</strong> Your accepted quote is still valid until 13 Nov 2026. Try again or use another method.</div></sc-if>
+<button class="btn btn-p" style="align-self:flex-start" onClick="{{paid}}">🔒 Pay ₹1,919 with Razorpay</button>
+</div>
+<aside class="card" style="flex:1 1 280px;font-size:14px;display:flex;flex-direction:column;gap:8px"><strong>Summary</strong><div style="display:flex;justify-content:space-between"><span>Quote</span><span>₹1,840</span></div><div style="display:flex;justify-content:space-between"><span>Shipping</span><span>₹79</span></div><div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid #E8E8E5;padding-top:8px"><span>Total</span><span>₹1,919</span></div></aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isTrack}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><span class="muted" style="font-size:14px">Payment confirmed · Order HO-2026-10517 · from request CPR-2611-0738</span><h1 style="font-size:28px;margin-top:4px">Your custom print is in production</h1></div><span style="align-self:flex-start;background:#FDEBD8;color:#8A4A0A;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600">Printing</span></div>
+<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+<sc-for list="{{timeline}}" as="t" hint-placeholder-count="7"><li style="display:flex;gap:16px"><div style="display:flex;flex-direction:column;align-items:center"><span style="width:24px;height:24px;border-radius:50%;flex:0 0 auto;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:12px;{{t.dot}}">{{t.mark}}</span><span style="width:2px;flex:1;min-height:28px;{{t.line}}"></span></div><div style="padding-bottom:18px"><strong style="{{t.txt}}">{{t.name}}</strong><div class="muted" style="font-size:13px">{{t.time}}</div></div></li></sc-for>
+</ol>
+<p class="muted" style="font-size:13px">Shipping dates are courier estimates and appear once the parcel is handed over.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><a href="Track.dc.html" class="btn btn-d">Open full tracking</a><a href="Account.dc.html" class="btn btn-o">My orders</a></div>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+const WSTEPS = [['upload','Upload'],['preview','Preview'],['options','Options'],['contact','Contact'],['review','Review']];
+const TITLES = {upload:'Upload your 3D model',preview:'Check your model',options:'Printing options',contact:'Contact details',review:'Review your request'};
+const MATS = {
+  PLA:{d:'Rigid, crisp detail. Best for decor and display.',colors:[['Black','#111318'],['White','#F4F2EC'],['Terracotta','#C96F4A'],['Sage','#5E7A6A']],fin:['Standard','Sanded','Primed for paint']},
+  PETG:{d:'Tough and heat resistant to about 70 °C. Good for functional parts.',colors:[['Black','#111318'],['White','#F4F2EC'],['Transparent','#D6E3E8']],fin:['Standard','Sanded']},
+  TPU:{d:'Flexible and impact absorbing. Gaskets, grips, bumpers.',colors:[['Black','#111318'],['White','#F4F2EC']],fin:['Standard']}
+};
+const USES = ['Functional','Decorative','Prototype','Gift'];
+const Q = [['awaiting','Awaiting review'],['received','Quote received'],['accepted','Accepted'],['rejected','Rejected'],['expired','Expired']];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { step:'landing', up:'idle', progress:0, err:null, needFile:false, view:'ready', rot:0, zoom:1,
+    mat:'PETG', color:'Black', qty:3, scale:100, finish:'Sanded', use:'Functional', triedC:false, consent:false, consentErr:false, q:'received', payFailed:false,
+    c:{name:'Arjun Mehta',email:'arjun.mehta@example.com',mobile:'98450',pin:'411014',notes:''} }; }
+  componentWillUnmount(){ clearInterval(this.iv); clearTimeout(this.vt); }
+  go(step){ this.setState({step,needFile:false}); }
+  startUpload(){ clearInterval(this.iv); this.setState({up:'busy',progress:0,err:null}); this.iv=setInterval(()=>{ const p=this.state.progress+12; if(p>=100){ clearInterval(this.iv); this.setState({up:'done',progress:100}); } else this.setState({progress:p}); },180); }
+  cerrs(){ const c=this.state.c, e={};
+    if(c.name.trim().length<2) e.name='Enter your full name.';
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email)) e.email='Enter a valid email address.';
+    if(!/^[6-9][0-9]{9}$/.test(c.mobile)) e.mobile='Enter a 10-digit mobile number starting with 6–9.';
+    if(!/^[1-9][0-9]{5}$/.test(c.pin)) e.pin='Enter a 6-digit PIN code.';
+    return e; }
+  renderVals() {
+    const s = this.state, M = MATS[s.mat];
+    const sel = on => on ? 'border:2px solid #111318;background:#111318;color:#fff' : 'border:1px solid #8E9097;background:#fff;color:#111318';
+    const wIdx = WSTEPS.findIndex(w=>w[0]===s.step);
+    const all = this.cerrs(), ce = {}; if(s.triedC) Object.keys(all).forEach(k=>{ ce[k]=all[k]; ce[k+'B']='border:2px solid #DC3545'; });
+    const con = {}; Object.keys(s.c).forEach(k=>{ con[k]=ev=>this.setState({c:{...s.c,[k]:k==='pin'||k==='mobile'?ev.target.value.replace(/\D/g,''):ev.target.value}}); });
+    const ERR = {type:['Unsupported file type.','“bracket.obj” is an OBJ file. Upload STL or 3MF, or export your model to one of these.',false],size:['File is too large.','“assembly_full.stl” is 140 MB. The limit is 100 MB. Try reducing mesh resolution or splitting parts.',false],net:['Upload interrupted.','Your connection dropped at 64%. Your file was not saved.',true]};
+    const er = s.err ? ERR[s.err] : null;
+    const sc = s.scale/100;
+    const qChips = {awaiting:'background:#ECECEA;color:#45474C',received:'background:#FDEBD8;color:#8A4A0A',accepted:'background:#E3F3EC;color:#0F5E41',rejected:'background:#FDE7E9;color:#8E1F2B',expired:'background:#ECECEA;color:#45474C'};
+    const TL = [['Payment confirmed','6 Nov 2026, 5:02 PM'],['Queued for printing','6 Nov 2026, 5:10 PM'],['Printing','Started 7 Nov 2026, 9:30 AM · 3 of 3 parts on printer'],['Post processing','Sanding and cleaning'],['Quality check','Fit and finish inspection'],['Packed',''],['Shipped','Courier and tracking ID appear here'],['Delivered','']];
+    return {
+      isLanding:s.step==='landing', inWizard: wIdx>=0, stepTitle: TITLES[s.step]||'', stepNo: wIdx+1,
+      wsteps: WSTEPS.map(([k,l],i)=>({label:l,bar:i<=wIdx?'background:#111318':'background:#E8E8E5',txt:i<=wIdx?'color:#111318':'color:#686B72'})),
+      process:[{n:'01',t:'Upload',d:'STL or 3MF up to 100 MB.'},{n:'02',t:'Preview',d:'Rotate, zoom and check dimensions.'},{n:'03',t:'Configure',d:'Material, colour, finish, quantity.'},{n:'04',t:'Get a quote',d:'Reviewed by a person within about 1 business day.'},{n:'05',t:'Pay and track',d:'Accept, pay securely, follow each production step.'}],
+      toLanding:()=>this.go('landing'), toUpload:()=>this.go('upload'),
+      toPreview:()=>{ if(s.up!=='done') this.setState({needFile:true}); else { this.go('preview'); } },
+      toOptions:()=>this.go('options'), toContact:()=>this.go('contact'),
+      toReview:()=>{ if(Object.keys(this.cerrs()).length) this.setState({triedC:true}); else this.go('review'); },
+      isUpload:s.step==='upload', upIdle:s.up==='idle', upBusy:s.up==='busy', upDone:s.up==='done', upError:!!er, notDone:s.up!=='done', needFile:s.needFile,
+      dropColor: er?'#DC3545':'#8E9097', errTitle: er?er[0]:'', errBody: er?er[1]:'', canRetry: er?er[2]:false,
+      progress:s.progress, startUpload:()=>this.startUpload(), cancelUpload:()=>{ clearInterval(this.iv); this.setState({up:'idle',progress:0}); },
+      replaceFile:()=>this.startUpload(), removeFile:()=>this.setState({up:'idle',progress:0}),
+      errType:()=>{ clearInterval(this.iv); this.setState({up:'idle',err:'type'}); }, errSize:()=>{ clearInterval(this.iv); this.setState({up:'idle',err:'size'}); }, errNet:()=>{ clearInterval(this.iv); this.setState({up:'idle',err:'net'}); },
+      isPreview:s.step==='preview', viewLoading:s.view==='loading', viewReady:s.view==='ready', viewFallback:s.view==='fallback',
+      rot:s.rot, zoom:s.zoom, rotL:()=>this.setState({rot:s.rot-30}), rotR:()=>this.setState({rot:s.rot+30}),
+      zin:()=>this.setState({zoom:Math.min(2,+(s.zoom+0.2).toFixed(1))}), zout:()=>this.setState({zoom:Math.max(0.6,+(s.zoom-0.2).toFixed(1))}), resetCam:()=>this.setState({rot:0,zoom:1}),
+      showLoading:()=>{ this.setState({view:'loading'}); clearTimeout(this.vt); this.vt=setTimeout(()=>this.setState({view:'ready'}),1500); }, showFallback:()=>this.setState({view:'fallback'}), showReady:()=>this.setState({view:'ready'}),
+      isOptions:s.step==='options', matName:s.mat,
+      materials:Object.keys(MATS).map(k=>({name:k,d:MATS[k].d,on:s.mat===k,style:s.mat===k?'border:2px solid #111318':'border:1px solid #CFCDC6',
+        pick:()=>this.setState({mat:k,color:MATS[k].colors.some(c=>c[0]===s.color)?s.color:MATS[k].colors[0][0],finish:MATS[k].fin.includes(s.finish)?s.finish:'Standard'})})),
+      colorName:s.color, colors:M.colors.map(([n,h])=>({name:n,hex:h,on:s.color===n,ring:s.color===n?'border:3px solid #fff;outline:2px solid #111318':'border:1px solid #CFCDC6',pick:()=>this.setState({color:n})})),
+      qty:s.qty, qDec:()=>this.setState({qty:Math.max(1,s.qty-1)}), qInc:()=>this.setState({qty:Math.min(50,s.qty+1)}),
+      scale:s.scale, sDec:()=>this.setState({scale:Math.max(50,s.scale-10)}), sInc:()=>this.setState({scale:Math.min(200,s.scale+10)}),
+      dims:`${Math.round(82*sc)} × ${Math.round(46*sc)} × ${Math.round(30*sc)} mm`,
+      finishName:s.finish, finishes:M.fin.map(f=>({name:f,on:s.finish===f,style:sel(s.finish===f),pick:()=>this.setState({finish:f})})),
+      useName:s.use, uses:USES.map(u=>({name:u,on:s.use===u,style:sel(s.use===u),pick:()=>this.setState({use:u})})),
+      isContact:s.step==='contact', c:s.c, con, ce,
+      isReview:s.step==='review', consent:s.consent, consentErr:s.consentErr, toggleConsent:()=>this.setState({consent:!s.consent,consentErr:false}),
+      submit:()=>{ if(!s.consent) this.setState({consentErr:true}); else this.go('submitted'); },
+      isSubmitted:s.step==='submitted', toQuote:()=>this.setState({step:'quote',q:'awaiting'}),
+      isQuote:s.step==='quote',
+      qStates:Q.map(([k,l])=>({label:l,on:s.q===k,style:s.q===k?'background:#111318;color:#fff;border-color:#111318':'',pick:()=>this.setState({q:k})})),
+      qLabel:Q.find(x=>x[0]===s.q)[1], qChip:qChips[s.q],
+      qAwaiting:s.q==='awaiting', qHasPrice:s.q!=='awaiting', qReceived:s.q==='received', qAccepted:s.q==='accepted', qRejected:s.q==='rejected', qExpired:s.q==='expired',
+      accept:()=>this.setState({q:'accepted'}), reject:()=>this.setState({q:'rejected'}), requote:()=>this.setState({q:'awaiting'}),
+      newRequest:()=>this.setState({step:'upload',up:'idle',progress:0}), toPay:()=>this.setState({step:'pay',payFailed:false}),
+      isPay:s.step==='pay', payFailed:s.payFailed, paid:()=>this.go('track'), payFail:()=>this.setState({payFailed:true}),
+      isTrack:s.step==='track',
+      timeline: TL.map(([n,t],i)=>({name:n,time:t,mark:i<2?'✓':'',dot:i<2?'background:#16845B;color:#fff':i===2?'background:#F97316;border:4px solid #FDEBD8':'background:#fff;border:2px solid #CFCDC6',line:i<2?'background:#16845B':'background:#E8E8E5',txt:i<=2?'color:#111318':'color:#686B72'}))
+    };
+  }
+}
+</script>
+</body>
+</html>

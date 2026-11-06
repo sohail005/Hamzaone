@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin Orders · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:20px;box-sizing:border-box}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}.btn-x{background:#DC3545;color:#fff}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label,.lbl{font-size:13px;font-weight:600}
+.in{height:40px;border:1px solid #8E9097;border-radius:10px;padding:0 12px;font:14px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer;min-height:28px}
+td,th{padding:12px;border-bottom:1px solid #E8E8E5;text-align:left;white-space:nowrap}
+th{font-size:12px;color:#686B72;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.ov{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
+.scrim{position:absolute;inset:0;background:rgba(17,19,24,.45);border:0}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="12"><a href="{{n.href}}" class="side" aria-current="{{n.cur}}" style="{{n.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px;display:flex;gap:16px;flex-wrap:wrap"><nav aria-label="Breadcrumb" class="muted" style="flex:1">Admin / <button class="link" style="color:#686B72" onClick="{{toList}}">Orders</button>{{crumbTail}}</nav></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="font-size:26px">Orders</h1><button class="btn btn-o">Export CSV</button></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{filters}}" as="f" hint-placeholder-count="5"><button onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="btn" style="{{f.style}}">{{f.label}} <span class="muted" style="{{f.countStyle}}">{{f.n}}</span></button></sc-for></div>
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:860px"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Fulfilment</th><th></th></tr></thead><tbody>
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="7"><tr><td><strong>{{o.id}}</strong></td><td class="muted">{{o.date}}</td><td>{{o.c}}</td><td class="muted">{{o.items}}</td><td>₹{{o.t}}</td><td><span class="chip" style="{{o.ps}}">{{o.p}}</span></td><td><span class="chip" style="{{o.fs}}">{{o.f}}</span></td><td><button class="link" onClick="{{o.open}}">Open</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h1 style="font-size:26px">HO-2026-10482</h1><p class="muted">Placed 6 Nov 2026, 4:46 PM · Website · Guest checkout</p></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{openRefund}}">Review refund</button><button class="btn btn-o" style="color:#B02A37" onClick="{{openCancel}}">Cancel order</button><button class="btn btn-p" onClick="{{openStatus}}">{{nextLabel}}</button></div></div>
+<sc-if value="{{canceled}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#ECECEA;border-radius:12px;padding:12px 16px"><strong>Order canceled.</strong> Refund ₹1,176 initiated via Razorpay. Customer notified by email.</div></sc-if>
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px">Fulfilment</h2>
+<ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+<sc-for list="{{flow}}" as="s" hint-placeholder-count="7"><li style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;border-radius:2px;{{s.bar}}"></span><strong style="font-size:13px;{{s.txt}}">{{s.n}}</strong><span class="muted" style="font-size:12px">{{s.t}}</span></li></sc-for></ol>
+<sc-if value="{{needTracking}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{saveTracking}}" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;background:#F6F5F1;border-radius:12px;padding:14px" novalidate="">
+<div class="f" style="flex:1 1 180px"><label for="cr">Courier</label><select id="cr" class="in"><option>[COURIER PARTNER A]</option><option>[COURIER PARTNER B]</option></select></div>
+<div class="f" style="flex:1 1 200px"><label for="awb">Tracking / AWB number</label><input id="awb" class="in" value="{{awb}}" onChange="{{onAwb}}" style="{{awbB}}"><sc-if value="{{awbErr}}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#B02A37">{{awbErr}}</span></sc-if></div>
+<button type="submit" class="btn btn-d">Add tracking and mark shipped</button>
+</form>
+</sc-if>
+</section>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<section class="card" style="flex:2 1 420px;display:flex;flex-direction:column;gap:10px"><h2 style="font-size:16px">Items</h2>
+<div style="display:flex;justify-content:space-between;border-bottom:1px solid #E8E8E5;padding-bottom:10px"><span><strong>Spiral Decor Vase</strong> · Terracotta · Small<br><span class="muted">HO-VAS-SPR-TER-S · Ready-made · Qty 1</span></span><strong>₹699</strong></div>
+<div style="display:flex;justify-content:space-between;border-bottom:1px solid #E8E8E5;padding-bottom:10px"><span><strong>Minimal Phone Stand</strong> · Charcoal<br><span class="muted">HO-DSK-PHS-CHA · Ready-made · Qty 2 × ₹249</span></span><strong>₹498</strong></div>
+<dl style="margin:0;display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><dt>Subtotal</dt><dd style="margin:0">₹1,197</dd></div><div style="display:flex;justify-content:space-between"><dt>Coupon FIRST100</dt><dd style="margin:0">−₹100</dd></div><div style="display:flex;justify-content:space-between"><dt>Standard shipping</dt><dd style="margin:0">₹79</dd></div><div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px"><dt>Total</dt><dd style="margin:0">₹1,176</dd></div></dl>
+</section>
+<div style="flex:1 1 280px;display:flex;flex-direction:column;gap:16px">
+<section class="card" style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><h2 style="font-size:16px">Payment</h2><span class="chip" style="{{payChip}}">{{payLabel}}</span></div>
+<span class="muted">Razorpay · UPI · pay_DEMO••••8K2Q</span><span class="muted">Captured 6 Nov 2026, 4:48 PM · ₹1,176</span><span class="muted" style="font-size:12px">Card and UPI identifiers are masked. Full details live in the Razorpay dashboard.</span></section>
+<section class="card" style="display:flex;flex-direction:column;gap:6px"><h2 style="font-size:16px">Customer</h2><span>Riya Sharma</span><span class="muted">riya.sharma@example.com · +91 98765 43210</span><span class="muted">Flat 402, Lakeview Residency, HSR Layout Sector 2, Bengaluru, Karnataka 560102</span><a href="AdminMore.dc.html" class="link" style="display:inline-flex;align-items:center">View customer →</a></section>
+<section class="card" style="display:flex;flex-direction:column;gap:6px"><h2 style="font-size:16px">Activity</h2><sc-for list="{{log}}" as="l" hint-placeholder-count="3"><div style="font-size:13px;border-top:1px solid #E8E8E5;padding-top:6px"><strong>{{l.t}}</strong><br><span class="muted">{{l.w}}</span></div></sc-for></section>
+</div>
+</div>
+</sc-if>
+</main>
+</div>
+
+<sc-if value="{{dlgStatus}}" hint-placeholder-val="{{ false }}"><div class="ov"><button class="scrim" aria-label="Close" onClick="{{closeDlg}}"></button>
+<div role="dialog" aria-modal="true" aria-labelledby="su-t" class="card" style="position:relative;width:min(460px,100%);display:flex;flex-direction:column;gap:12px">
+<h2 id="su-t" style="font-size:20px">Update fulfilment status</h2>
+<p class="muted">Current: <strong style="color:#111318">{{curStatus}}</strong></p>
+<div class="f"><span class="lbl">Move to</span><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{nextOpts}}" as="n" hint-placeholder-count="2"><button onClick="{{n.pick}}" aria-pressed="{{n.on}}" class="btn" style="{{n.style}}">{{n.label}}</button></sc-for></div></div>
+<div class="f"><label for="nt">Internal note <span class="muted" style="font-weight:400">(optional)</span></label><input id="nt" class="in"></div>
+<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked="" style="width:18px;height:18px;margin:0;accent-color:#111318"> Notify customer by email and WhatsApp</label>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closeDlg}}">Cancel</button><button class="btn btn-p" onClick="{{applyStatus}}">Update status</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{dlgRefund}}" hint-placeholder-val="{{ false }}"><div class="ov"><button class="scrim" aria-label="Close" onClick="{{closeDlg}}"></button>
+<div role="dialog" aria-modal="true" aria-labelledby="rf-t" class="card" style="position:relative;width:min(500px,100%);display:flex;flex-direction:column;gap:12px">
+<h2 id="rf-t" style="font-size:20px">Refund review</h2>
+<div style="background:#F6F5F1;border-radius:12px;padding:12px;font-size:13px"><strong>Customer request (demo):</strong> “One phone stand arrived with a cracked base.” · 2 photos attached</div>
+<div class="f"><span class="lbl">Refund amount</span><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{refundOpts}}" as="r" hint-placeholder-count="3"><button onClick="{{r.pick}}" aria-pressed="{{r.on}}" class="btn" style="{{r.style}}">{{r.label}}</button></sc-for></div></div>
+<p class="muted" style="font-size:13px">Refunds go to the original method via Razorpay. Max refundable ₹1,176.</p>
+<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-o" onClick="{{closeDlg}}">Decline with reason</button><button class="btn btn-d" onClick="{{approveRefund}}">Approve ₹{{refundAmt}} refund</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{dlgCancel}}" hint-placeholder-val="{{ false }}"><div class="ov"><button class="scrim" aria-label="Close" onClick="{{closeDlg}}"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="cx-t" class="card" style="position:relative;width:min(440px,100%);display:flex;flex-direction:column;gap:12px">
+<h2 id="cx-t" style="font-size:20px">Cancel HO-2026-10482?</h2><p class="muted">The customer is refunded ₹1,176 in full and notified. Reserved stock returns to inventory. This cannot be undone.</p>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closeDlg}}">Keep order</button><button class="btn btn-x" onClick="{{confirmCancel}}">Cancel and refund</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;right:24px;bottom:24px;z-index:70;background:#111318;color:#fff;border-radius:12px;padding:12px 16px">✓ {{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Categories','AdminProducts.dc.html','▤'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Customers','AdminMore.dc.html','◉'],['Inventory','AdminInventory.dc.html','▦'],['Coupons','AdminMore.dc.html','%'],['Payments','AdminMore.dc.html','₹'],['Analytics','AdminMore.dc.html','◔'],['Settings','AdminMore.dc.html','⚙']];
+const FLOW = ['Paid','Queued','Printing','Post Processing','Quality Check','Packed','Shipped'];
+const PAID='background:#E3F3EC;color:#0F5E41', PEND='background:#FFF4E0;color:#8A5209', FAIL='background:#FDE7E9;color:#8E1F2B', NEU='background:#ECECEA;color:#45474C', ACT='background:#FDEBD8;color:#8A4A0A', DARK='background:#111318;color:#fff';
+const ORDERS = [
+ ['HO-2026-10517','6 Nov','Arjun Mehta','Custom · bracket × 3','1,919','Paid',PAID,'Printing',ACT],
+ ['HO-2026-10482','6 Nov','Riya Sharma','Vase, Phone Stand × 2','1,176','Paid',PAID,'Packing',ACT],
+ ['HO-2026-10479','6 Nov','Kabir Rao','Keychain × 2, Cable Organizer × 2','648','Pending',PEND,'On hold',NEU],
+ ['HO-2026-10471','5 Nov','Sneha Iyer','Headphone Stand, Lamp Shade','2,147','Paid',PAID,'Shipped',DARK],
+ ['HO-2026-10466','5 Nov','Vikram Nair','Custom Name Plate','399','Failed',FAIL,'Not started',NEU],
+ ['HO-2026-10452','4 Nov','Meera Joshi','Mini Ganesha','678','Refund pending',PEND,'Delivered',PAID],
+ ['HO-2026-10440','3 Nov','Farhan Ali','Gear Fidget × 3','826','Paid',PAID,'Delivered',PAID]
+];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view:'list', filter:'All', idx:4, pick:5, dlg:'', awb:'', awbErr:'', refund:249, canceled:false, toast:'', log:[{t:'Quality check passed',w:'7 Nov 2026, 9:50 AM'},{t:'Payment captured via Razorpay',w:'6 Nov 2026, 4:48 PM'}] }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  flash(m,patch){ this.setState({...patch,toast:m}); clearTimeout(this.t); this.t=setTimeout(()=>this.setState({toast:''}),2600); }
+  renderVals() {
+    const s = this.state, sel = on => on?'background:#111318;color:#fff;border-color:#111318':'background:#fff;border-color:#CFCDC6';
+    const F = {All:()=>true,'Awaiting payment':o=>o[5]==='Pending','To fulfil':o=>o[5]==='Paid'&&o[7]!=='Delivered'&&o[7]!=='Shipped','Shipped':o=>o[7]==='Shipped','Payment issues':o=>o[5]==='Failed'||o[5]==='Refund pending'};
+    const nextIdx = Math.min(s.idx+1, FLOW.length-1);
+    const shipped = s.idx>=6;
+    return {
+      nav: NAV.map(([l,h,ic],i)=>({label:l,href:h,ic,cur:i===3?'page':undefined,style:i===3?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':''})),
+      isList:s.view==='list', isDetail:s.view==='detail', crumbTail: s.view==='detail'?' / HO-2026-10482':'', toList:()=>this.setState({view:'list'}),
+      filters: Object.keys(F).map(k=>({label:k,n:ORDERS.filter(F[k]).length,on:s.filter===k,style:sel(s.filter===k),countStyle:s.filter===k?'color:#C9CBD0':'',pick:()=>this.setState({filter:k})})),
+      orders: ORDERS.filter(F[s.filter]).map(o=>({id:o[0],date:o[1],c:o[2],items:o[3],t:o[4],p:o[5],ps:o[6],f:o[0]==='HO-2026-10482'?(s.canceled?'Canceled':FLOW[s.idx]):o[7],fs:o[8],open:()=>this.setState({view:'detail'})})),
+      flow: FLOW.map((n,i)=>({n,t:i<=s.idx?['6 Nov, 4:48 PM','6 Nov, 5:00 PM','7 Nov, 8:10 AM','7 Nov, 9:05 AM','7 Nov, 9:50 AM','7 Nov, 10:15 AM','Now'][i]:'',bar:i<=s.idx?'background:#16845B':'background:#E8E8E5',txt:i<=s.idx?'':'color:#686B72'})),
+      canceled:s.canceled, payChip: s.canceled?PEND:PAID, payLabel: s.canceled?'Refund initiated':'Paid · captured',
+      nextLabel: shipped?'Mark delivered':(s.idx===5?'Add tracking below':'Update status'),
+      needTracking: s.idx===5 && !s.canceled,
+      awb:s.awb, onAwb:e=>this.setState({awb:e.target.value.toUpperCase(),awbErr:''}), awbErr:s.awbErr, awbB:s.awbErr?'border:2px solid #DC3545':'',
+      saveTracking:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(!/^[A-Z0-9]{8,20}$/.test(s.awb)){ this.setState({awbErr:'Enter 8–20 letters or numbers.'}); return; }
+        this.flash('Marked shipped. Customer notified with tracking.',{idx:6,log:[{t:`Shipped · AWB ${s.awb}`,w:'Just now'},...s.log]}); },
+      openStatus:()=>{ if(s.idx===5) return; if(shipped){ this.flash('Marked delivered',{log:[{t:'Delivered',w:'Just now'},...s.log]}); return; } this.setState({dlg:'status',pick:nextIdx}); },
+      dlgStatus:s.dlg==='status', dlgRefund:s.dlg==='refund', dlgCancel:s.dlg==='cancel', closeDlg:()=>this.setState({dlg:''}),
+      curStatus: FLOW[s.idx],
+      nextOpts: FLOW.slice(s.idx+1, s.idx+3).map((n,k)=>({label:n,on:s.pick===s.idx+1+k,style:sel(s.pick===s.idx+1+k),pick:()=>this.setState({pick:s.idx+1+k})})),
+      applyStatus:()=>this.flash(`Status updated to ${FLOW[s.pick]}`,{idx:s.pick,dlg:'',log:[{t:FLOW[s.pick],w:'Just now'},...s.log]}),
+      openRefund:()=>this.setState({dlg:'refund'}), openCancel:()=>this.setState({dlg:'cancel'}),
+      refundOpts:[[249,'One item · ₹249'],[498,'Both stands · ₹498'],[1176,'Full order · ₹1,176']].map(([v,l])=>({label:l,on:s.refund===v,style:sel(s.refund===v),pick:()=>this.setState({refund:v})})),
+      refundAmt: s.refund.toLocaleString('en-IN'),
+      approveRefund:()=>this.flash(`Refund of ₹${s.refund.toLocaleString('en-IN')} sent to Razorpay`,{dlg:'',log:[{t:`Refund ₹${s.refund} approved`,w:'Just now'},...s.log]}),
+      confirmCancel:()=>this.flash('Order canceled and refund initiated',{dlg:'',canceled:true}),
+      log:s.log, toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

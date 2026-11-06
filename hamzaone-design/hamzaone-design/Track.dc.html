@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Track Order · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:transparent;border-color:#111318;color:#111318}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:28px;box-sizing:border-box}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label{font-size:14px;font-weight:600}
+.in{height:52px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+.proto{border:1px dashed #8E9097;border-radius:14px;padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px;background:#F6F5F1}
+.proto button{min-height:34px;padding:0 10px;border-radius:999px;border:1px solid #8E9097;background:#fff;cursor:pointer;font:500 13px Inter,sans-serif}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="border-bottom:1px solid #E8E8E5"><div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px;max-width:1280px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Shop</a><a href="CustomPrint.dc.html" style="padding:12px;font-weight:500">Custom 3D Print</a><a href="Track.dc.html" aria-current="page" style="padding:12px;font-weight:600;color:#C2410C">Track order</a></nav>
+<a href="Account.dc.html" style="padding:12px;font-weight:500">Account</a></div></header>
+<main class="wrap" style="flex:1;padding-top:40px;padding-bottom:80px;display:flex;flex-direction:column;gap:24px">
+
+<sc-if value="{{isForm}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px">
+<h1 style="font-size:32px">Track your order</h1>
+<p class="muted">No account needed. Use the order number from your confirmation email.</p>
+<form onSubmit="{{find}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<div class="f"><label for="on">Order number</label><input id="on" class="in" value="{{orderNo}}" onChange="{{onOrder}}" placeholder="HO-2026-00000" style="text-transform:uppercase;{{orderB}}"><sc-if value="{{orderErr}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B02A37">{{orderErr}}</span></sc-if></div>
+<div class="f"><label for="cm">Email or mobile used at checkout</label><input id="cm" class="in" value="{{contact}}" onChange="{{onContact}}"></div>
+<button type="submit" class="btn btn-p">Find my order</button>
+</form>
+<p class="muted" style="font-size:13px">Prototype: HO-2026-10482 is found. Any other number shows Not found.</p>
+<p style="font-size:14px">Signed in? <a href="Account.dc.html" style="color:#C2410C;font-weight:600">See all orders in your account</a></p>
+</div>
+</sc-if>
+
+<sc-if value="{{isVerify}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:18px">
+<h1 style="font-size:28px">Verify it is you</h1>
+<p class="muted">We sent a 6-digit code to +91 ••••• •3210. It is valid for 10 minutes.</p>
+<form onSubmit="{{verify}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<div class="f"><label for="otp">Verification code</label><input id="otp" class="in" inputmode="numeric" maxlength="6" autocomplete="one-time-code" value="{{otp}}" onChange="{{onOtp}}" style="letter-spacing:.4em;font-size:22px;text-align:center;{{otpB}}"><sc-if value="{{otpErr}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B02A37">{{otpErr}}</span></sc-if></div>
+<button type="submit" class="btn btn-p">Verify and view order</button>
+</form>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><button class="link" onClick="{{back}}">← Change order number</button><button class="link" onClick="{{resend}}">{{resendLabel}}</button></div>
+<p class="muted" style="font-size:13px">Prototype: any 6 digits work.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{isNotFound}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px;text-align:center;align-items:center">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+<h1 style="font-size:26px">We could not find that order</h1>
+<p class="muted">No order matches <strong style="color:#111318">{{orderNo}}</strong> with those contact details. Check the number in your confirmation email. Order numbers look like HO-2026-10482.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-d" onClick="{{back}}">Try again</button><a href="States.dc.html" class="btn btn-o">Contact support</a></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isFound}}" hint-placeholder-val="{{ false }}">
+<div class="proto"><strong>Prototype status:</strong><sc-for list="{{statusBtns}}" as="b" hint-placeholder-count="7"><button onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="{{b.style}}">{{b.label}}</button></sc-for></div>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<div class="card" style="flex:999 1 520px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start"><div><span class="muted" style="font-size:14px">Order HO-2026-10482 · placed 6 Nov 2026</span><h1 style="font-size:30px;margin-top:4px">{{headline}}</h1><p class="muted" style="margin-top:4px">{{subline}}</p></div><span style="border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;{{chip}}">{{statusLabel}}</span></div>
+<sc-if value="{{canceled}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#ECECEA;border-radius:14px;padding:14px 16px;font-size:14px"><strong>This order was canceled on 7 Nov 2026, 11:05 AM</strong> at your request. Refund of ₹1,176 initiated to your original payment method. Banks usually take 5–7 business days to show it.</div></sc-if>
+<sc-if value="{{notCanceled}}" hint-placeholder-val="{{ true }}">
+<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column">
+<sc-for list="{{timeline}}" as="t" hint-placeholder-count="8"><li aria-current="{{t.cur}}" style="display:flex;gap:16px"><div style="display:flex;flex-direction:column;align-items:center"><span style="width:24px;height:24px;border-radius:50%;flex:0 0 auto;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:12px;{{t.dot}}">{{t.mark}}</span><span style="width:2px;flex:1;min-height:28px;{{t.line}}"></span></div><div style="padding-bottom:18px"><strong style="{{t.txt}}">{{t.name}}</strong><div class="muted" style="font-size:13px">{{t.time}}</div></div></li></sc-for>
+</ol>
+</sc-if>
+</div>
+<aside style="flex:1 1 300px;display:flex;flex-direction:column;gap:16px">
+<div class="card" style="padding:20px;display:flex;flex-direction:column;gap:8px;font-size:14px"><strong>Shipment details</strong>
+<sc-if value="{{hasShipment}}" hint-placeholder-val="{{ false }}"><span>Courier: [COURIER PARTNER]</span><span>Tracking ID: <strong>DEMO7788123IN</strong></span><span class="muted">Estimated delivery 12–17 Nov 2026. Courier estimate, not guaranteed.</span><a href="Track.dc.html" class="btn btn-o" style="min-height:44px">Open courier tracking</a></sc-if>
+<sc-if value="{{noShipment}}" hint-placeholder-val="{{ true }}"><span class="muted">Courier and tracking ID appear here once the parcel is handed over.</span></sc-if></div>
+<div class="card" style="padding:20px;display:flex;flex-direction:column;gap:6px;font-size:14px"><strong>Items</strong><span>Spiral Decor Vase · Terracotta · Small × 1</span><span>Minimal Phone Stand · Charcoal × 2</span><span class="muted">Total paid ₹1,176</span></div>
+<div class="card" style="padding:20px;display:flex;flex-direction:column;gap:6px;font-size:14px"><strong>Deliver to</strong><span class="muted">Riya S. · HSR Layout, Bengaluru 560102</span></div>
+</aside>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const STEPS = [
+ ['Order placed','6 Nov 2026, 4:46 PM'],['Payment confirmed','6 Nov 2026, 4:48 PM'],['Printing','7 Nov 2026, 9:30 AM'],['Post processing','7 Nov 2026, 2:10 PM'],
+ ['Quality check','7 Nov 2026, 5:40 PM'],['Packed','8 Nov 2026, 10:05 AM'],['Shipped','8 Nov 2026, 4:30 PM'],['Delivered','13 Nov 2026, 1:15 PM']];
+const ST = [['Printing',2],['Post Processing',3],['Quality Check',4],['Packed',5],['Shipped',6],['Delivered',7],['Canceled',-1]];
+const HEAD = {2:['Your items are being printed','Printing started this morning. Next: post processing.'],3:['Finishing your items','Supports removed, sanding and cleaning in progress.'],4:['Quality check in progress','Each piece is checked for finish and fit before packing.'],5:['Packed and ready to ship','Handing over to the courier today.'],6:['On its way','Estimated delivery 12–17 Nov 2026 (courier estimate).'],7:['Delivered','Delivered on 13 Nov 2026, 1:15 PM. Enjoy!'],'-1':['Order canceled','']};
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view:'form', orderNo:'HO-2026-10482', contact:'riya.sharma@example.com', orderErr:'', otp:'', otpErr:'', resent:false, idx:2 }; }
+  renderVals() {
+    const s = this.state, i = s.idx, h = HEAD[String(i)];
+    return {
+      isForm:s.view==='form', isVerify:s.view==='verify', isNotFound:s.view==='notfound', isFound:s.view==='found',
+      orderNo:s.orderNo, onOrder:e=>this.setState({orderNo:e.target.value.toUpperCase(),orderErr:''}), orderErr:s.orderErr, orderB:s.orderErr?'border:2px solid #DC3545':'',
+      contact:s.contact, onContact:e=>this.setState({contact:e.target.value}),
+      find:e=>{ if(e&&e.preventDefault) e.preventDefault(); const n=s.orderNo.trim(); if(!n){ this.setState({orderErr:'Enter your order number.'}); return; } this.setState({view: n==='HO-2026-10482'?'verify':'notfound'}); },
+      back:()=>this.setState({view:'form',otp:'',otpErr:''}),
+      otp:s.otp, onOtp:e=>this.setState({otp:e.target.value.replace(/\D/g,''),otpErr:''}), otpErr:s.otpErr, otpB:s.otpErr?'border:2px solid #DC3545':'',
+      verify:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(s.otp.length!==6) this.setState({otpErr:'Enter the 6-digit code.'}); else this.setState({view:'found'}); },
+      resendLabel: s.resent?'Code resent · wait 30 s':'Resend code', resend:()=>this.setState({resent:true}),
+      statusBtns: ST.map(([l,v])=>({label:l,on:i===v,style:i===v?'background:#111318;color:#fff;border-color:#111318':'',pick:()=>this.setState({idx:v})})),
+      canceled:i===-1, notCanceled:i!==-1,
+      headline:h[0], subline:h[1], statusLabel: ST.find(x=>x[1]===i)[0],
+      chip: i===-1?'background:#ECECEA;color:#45474C': i===7?'background:#E3F3EC;color:#0F5E41':'background:#FDEBD8;color:#8A4A0A',
+      hasShipment: i>=6, noShipment: i<6,
+      timeline: STEPS.map(([n,t],k)=>{ const done=k<i||(i===7&&k===7), cur=k===i&&i!==7;
+        return {name:n,time: k<=i ? t : (k===7?'Estimated 12–17 Nov 2026':'Pending'), cur:cur?'step':undefined, mark:done?'✓':'',
+          dot: done?'background:#16845B;color:#fff': cur?'background:#F97316;border:4px solid #FDEBD8':'background:#fff;border:2px solid #CFCDC6',
+          line: k<i?'background:#16845B':'background:#E8E8E5', txt: k<=i?'color:#111318':'color:#686B72'}; })
+    };
+  }
+}
+</script>
+</body>
+</html>

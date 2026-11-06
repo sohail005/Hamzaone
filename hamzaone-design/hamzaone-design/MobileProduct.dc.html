@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spiral Decor Vase Mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111318;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:390px;min-height:2100px;background:#F6F5F1;color:#111318;font-family:Inter,sans-serif;font-size:15px;line-height:1.5;position:relative;display:flex;flex-direction:column">
+<header style="position:sticky;top:0;z-index:20;background:#F6F5F1;border-bottom:1px solid #E8E8E5;padding:6px 8px;display:flex;align-items:center;gap:4px">
+<a href="MobileShop.dc.html" aria-label="Back to shop" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:20px">←</a>
+<a href="MobileHome.dc.html" style="flex:1;font:800 21px Manrope,sans-serif">Hamza<span style="color:#F97316">One</span></a>
+<button onClick="{{toggleWish}}" aria-label="{{wishLabel}}" aria-pressed="{{wished}}" style="width:44px;height:44px;border:0;background:none;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="{{wishFill}}" stroke="{{wishStroke}}" stroke-width="1.8" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+<a href="Cart.dc.html" aria-label="Cart, {{cartCount}} items" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:13px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>{{cartCount}}</a>
+</header>
+<main style="flex:1;display:flex;flex-direction:column;gap:20px;padding-bottom:24px">
+<section aria-roledescription="carousel" aria-label="Product images" style="position:relative">
+<div style="height:390px;background:#ECEAE4;display:flex;align-items:flex-end;justify-content:center;padding-bottom:70px;box-sizing:border-box;position:relative;overflow:hidden">
+<div style="{{slideShape}};position:relative;z-index:1;transition:all .25s"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:70px;background:#E2DFD7"></div>
+<span style="position:absolute;left:12px;top:12px;background:#fff;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600">{{slideName}} · {{slideNo}}/4</span>
+<span style="position:absolute;right:10px;bottom:8px;font-size:10px;color:#575A60">Concept render</span>
+<button onClick="{{prev}}" aria-label="Previous image" style="position:absolute;left:8px;top:50%;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.9);cursor:pointer;font-size:18px">‹</button>
+<button onClick="{{next}}" aria-label="Next image" style="position:absolute;right:8px;top:50%;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.9);cursor:pointer;font-size:18px">›</button>
+</div>
+<div style="display:flex;justify-content:center;gap:6px;padding-top:10px"><sc-for list="{{dots}}" as="d" hint-placeholder-count="4"><button onClick="{{d.go}}" aria-label="Image {{d.n}}" aria-current="{{d.cur}}" style="width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center"><span style="height:8px;border-radius:4px;{{d.style}}"></span></button></sc-for></div>
+</section>
+<section style="padding:0 16px;display:flex;flex-direction:column;gap:6px">
+<span style="align-self:flex-start;background:#E3F3EC;color:#0F5E41;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600">In stock</span>
+<h1 style="margin:0;font:700 28px/1.15 Manrope,sans-serif">Spiral Decor Vase</h1>
+<div style="display:flex;gap:8px;align-items:baseline"><strong style="font:700 24px Manrope,sans-serif">₹{{price}}</strong><span style="color:#686B72;font-size:13px">Inclusive of GST</span></div>
+</section>
+<fieldset style="border:0;margin:0;padding:0 16px"><legend style="font-weight:600;font-size:14px;margin-bottom:8px">Colour: <span style="font-weight:400">{{colorName}}</span></legend>
+<div style="display:flex;gap:10px"><sc-for list="{{colors}}" as="c" hint-placeholder-count="4"><button onClick="{{c.pick}}" aria-label="{{c.name}}" aria-pressed="{{c.on}}" style="width:44px;height:44px;border-radius:50%;cursor:pointer;background:{{c.hex}};{{c.ring}}"></button></sc-for></div></fieldset>
+<fieldset style="border:0;margin:0;padding:0 16px"><legend style="font-weight:600;font-size:14px;margin-bottom:8px">Size</legend>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"><sc-for list="{{sizes}}" as="z" hint-placeholder-count="2"><button onClick="{{z.pick}}" aria-pressed="{{z.on}}" style="min-height:56px;border-radius:14px;background:#fff;cursor:pointer;text-align:left;padding:8px 12px;font:14px Inter,sans-serif;color:#111318;{{z.style}}"><strong>{{z.n}} · ₹{{z.p}}</strong><br><span style="font-size:12px;color:#686B72">{{z.d}}</span></button></sc-for></div></fieldset>
+<section style="padding:0 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:14px;padding:12px"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#686B72">Production</span><br><strong style="font-size:14px">Ships in 1–2 days</strong></div>
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:14px;padding:12px"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#686B72">Delivery</span><br><strong style="font-size:14px">3–6 days after dispatch</strong><br><span style="font-size:11px;color:#686B72">Estimate</span></div>
+</section>
+<section style="padding:0 16px">
+<sc-for list="{{specs}}" as="s" hint-placeholder-count="3"><div style="border-bottom:1px solid #E8E8E5"><button onClick="{{s.toggle}}" aria-expanded="{{s.open}}" style="width:100%;min-height:52px;display:flex;justify-content:space-between;align-items:center;border:0;background:none;font:600 15px Manrope,sans-serif;color:#111318;padding:0;cursor:pointer">{{s.t}}<span aria-hidden="true">{{s.sign}}</span></button><sc-if value="{{s.open}}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 14px;color:#686B72;font-size:14px">{{s.b}}</p></sc-if></div></sc-for>
+</section>
+<sc-if value="{{added}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin:0 16px;background:#111318;color:#fff;border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;gap:8px;font-size:14px">✓ Added to cart <a href="Cart.dc.html" style="color:#FDBA74;font-weight:600">View cart</a></div></sc-if>
+</main>
+<div style="position:sticky;bottom:0;z-index:30;background:#fff;border-top:1px solid #E8E8E5;padding:10px 16px 14px;display:flex;gap:10px;align-items:center">
+<div role="group" aria-label="Quantity" style="display:flex;align-items:center;border:1px solid #8E9097;border-radius:999px;height:52px"><button onClick="{{dec}}" aria-label="Decrease quantity" style="width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer">−</button><output style="min-width:20px;text-align:center;font-weight:600">{{qty}}</output><button onClick="{{inc}}" aria-label="Increase quantity" style="width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer">+</button></div>
+<button onClick="{{add}}" style="flex:1;min-height:52px;border-radius:999px;border:0;background:#F97316;color:#111318;font:600 16px Inter,sans-serif;cursor:pointer">Add · ₹{{line}}</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2100}}'>
+const COLORS = [['Terracotta','#C96F4A'],['Charcoal','#2B2E33'],['Sand','#D9C6A5'],['Sage','#5E7A6A']];
+const SIZES = [['Small',699,'18 cm tall'],['Large',999,'26 cm tall']];
+const VIEWS = ['Front','Side','Top','Scale'];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { slide:0, color:0, size:0, qty:1, added:false, cart:2, wish:false, spec:-1 }; }
+  renderVals() {
+    const s = this.state, c = COLORS[s.color][1], big = s.size===1;
+    const w = big?104:84, h = big?220:176;
+    const shapes = [`width:${w}px;height:${h}px;border-radius:${w/2}px ${w/2}px ${w/4}px ${w/4}px;background:${c}`,`width:${w*0.8}px;height:${h}px;border-radius:${w/2}px ${w/2}px ${w/4}px ${w/4}px;background:${c}`,`width:${w*1.4}px;height:${w*1.4}px;border-radius:50%;background:${c};margin-bottom:20px`,`width:${w*0.6}px;height:${h*0.6}px;border-radius:${w/3}px ${w/3}px ${w/6}px ${w/6}px;background:${c}`];
+    const unit = SIZES[s.size][1];
+    return {
+      slideShape: shapes[s.slide], slideName: VIEWS[s.slide], slideNo: s.slide+1,
+      prev:()=>this.setState({slide:(s.slide+3)%4}), next:()=>this.setState({slide:(s.slide+1)%4}),
+      dots: VIEWS.map((v,i)=>({n:i+1,cur:i===s.slide?'true':undefined,style:i===s.slide?'width:20px;background:#111318':'width:8px;background:#B9BBC1',go:()=>this.setState({slide:i})})),
+      price: unit.toLocaleString('en-IN'), colorName: COLORS[s.color][0],
+      colors: COLORS.map(([n,hex],i)=>({name:n,hex,on:s.color===i,ring:s.color===i?'border:3px solid #fff;outline:2px solid #111318':'border:1px solid #CFCDC6',pick:()=>this.setState({color:i})})),
+      sizes: SIZES.map(([n,p,d],i)=>({n,p:p.toLocaleString('en-IN'),d,on:s.size===i,style:s.size===i?'border:2px solid #111318':'border:1px solid #CFCDC6',pick:()=>this.setState({size:i})})),
+      qty:s.qty, dec:()=>this.setState({qty:Math.max(1,s.qty-1)}), inc:()=>this.setState({qty:Math.min(10,s.qty+1)}),
+      line:(unit*s.qty).toLocaleString('en-IN'), add:()=>this.setState({added:true,cart:s.cart+s.qty}), added:s.added, cartCount:s.cart,
+      wished:s.wish, wishFill:s.wish?'#F97316':'none', wishStroke:s.wish?'#F97316':'#111318', wishLabel:s.wish?'Remove from wishlist':'Add to wishlist', toggleWish:()=>this.setState({wish:!s.wish}),
+      specs:[['Specifications','Matte PLA with PETG inner sleeve. Watertight. Layer height 0.16 mm.'],['Production and delivery','Ready-made: dispatch in 1–2 business days. Delivery 3–6 business days after dispatch (estimate).'],['Returns','Returnable within 7 days if unused.']].map(([t,b],i)=>({t,b,open:s.spec===i,sign:s.spec===i?'−':'+',toggle:()=>this.setState({spec:s.spec===i?-1:i})}))
+    };
+  }
+}
+</script>
+</body>
+</html>

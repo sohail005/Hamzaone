@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Project Overview</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;line-height:1.5}
+a{color:#111318}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:24px;box-sizing:border-box}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.chip{display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600}
+td,th{padding:10px 12px;border-bottom:1px solid #E8E8E5;text-align:left;font-size:14px;vertical-align:top}
+th{font-size:12px;color:#686B72;text-transform:uppercase;letter-spacing:.06em}
+</style>
+</helmet>
+<main style="max-width:1280px;margin:0 auto;padding:64px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:40px">
+<section style="display:flex;flex-direction:column;gap:12px">
+<div class="eyebrow">00 — Project Overview · Design status: v1 ready for review</div>
+<h1 style="font-size:64px;line-height:1.05">Hamza<span style="color:#F97316">One</span></h1>
+<p style="margin:0;font-family:Manrope,sans-serif;font-size:28px;font-weight:600">Your Ideas. Made Real.</p>
+<p class="muted" style="margin:0;max-width:760px;font-size:18px">Premium e-commerce for 3D printed goods in India: ready-made products, made-to-order products and custom prints from uploaded STL/3MF files, paid through Razorpay and tracked from print bed to doorstep.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+<a href="Home.dc.html" style="display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:999px;background:#F97316;color:#111318;font-weight:600;text-decoration:none">Start storefront prototype</a>
+<a href="CustomPrint.dc.html" style="display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:999px;border:1px solid #111318;color:#111318;font-weight:600;text-decoration:none">Start custom print flow</a>
+<a href="AdminOverview.dc.html" style="display:inline-flex;align-items:center;min-height:48px;padding:0 24px;border-radius:999px;background:#17191D;color:#fff;font-weight:600;text-decoration:none">Start admin prototype</a>
+</div>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+<div class="card"><div class="eyebrow">Goals</div><ul style="margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px"><li>Fast product discovery and low-friction guest checkout</li><li>Clear split between production time and shipping time</li><li>An understandable request, quote, pay, track sequence for custom prints</li><li>An admin tool tuned for daily print operations</li></ul></div>
+<div class="card"><div class="eyebrow">Brand personality</div><p style="margin:12px 0 0">Innovative, premium, modern, trustworthy, minimal, creative, technically sophisticated and approachable. Warm paper ground, ink text, one deliberate orange.</p></div>
+<div class="card"><div class="eyebrow">Design principles</div><ol style="margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px"><li>The object is the hero</li><li>Say how long it takes, honestly</li><li>Orange only where a decision happens</li><li>Every state has a way forward</li></ol></div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px">
+<div class="eyebrow">Colour tokens</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+<sc-for list="{{swatches}}" as="s" hint-placeholder-count="11">
+<div style="display:flex;flex-direction:column;gap:6px"><div style="height:64px;border-radius:12px;border:1px solid #E8E8E5;background:{{s.hex}}"></div><strong style="font-size:13px">{{s.name}}</strong><span class="muted" style="font-size:12px">{{s.hex}}</span></div>
+</sc-for>
+</div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap"><div><div class="eyebrow">Screen inventory</div><h2 style="font-size:28px;margin-top:6px">What this canvas contains</h2></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip" style="background:#E3F3EC;color:#0F5E41">Built</span><span class="chip" style="background:#FDEBD8;color:#8A4A0A">States inside a board</span><span class="chip" style="background:#ECECEA;color:#45474C">Next batch</span></div></div>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:720px">
+<thead><tr><th>Page</th><th>Artboard</th><th>Screens and states covered</th><th>Status</th></tr></thead>
+<tbody>
+<sc-for list="{{inventory}}" as="r" hint-placeholder-count="12">
+<tr><td style="white-space:nowrap;font-weight:600">{{r.page}}</td><td><a href="{{r.file}}">{{r.board}}</a></td><td class="muted">{{r.covers}}</td><td><span class="chip" style="{{r.chip}}">{{r.status}}</span></td></tr>
+</sc-for>
+</tbody></table></div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:8px;background:#17191D;color:#F6F5F1;border-color:#17191D">
+<div class="eyebrow" style="color:#B9BBC1">Tool limitations, stated plainly</div>
+<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+<li>This is a Design canvas, not a native .fig file. Figma pages are mapped to canvas pages; components are coded, reusable patterns documented in 03 and 13 rather than Figma component sets with variant properties.</li>
+<li>Prototype links are real: press Play on any board marked interactive. Payment gateway and uploads use clearly labelled deterministic branches.</li>
+<li>Product imagery is labelled concept art (shape renders). Replace with studio photography before launch.</li>
+<li>Responsive QA at 320/390/768/1440 has not been run in a browser in this session. See 13 Developer Handoff for the checklist.</li>
+</ul>
+</section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const B = 'background:#E3F3EC;color:#0F5E41', S = 'background:#FDEBD8;color:#8A4A0A', N = 'background:#ECECEA;color:#45474C';
+    return {
+      swatches: [
+        {name:'Background',hex:'#F6F5F1'},{name:'Surface',hex:'#FFFFFF'},{name:'Text primary',hex:'#111318'},{name:'Text secondary',hex:'#686B72'},
+        {name:'Accent',hex:'#F97316'},{name:'Accent text',hex:'#C2410C'},{name:'Dark section',hex:'#17191D'},{name:'Border',hex:'#E8E8E5'},
+        {name:'Success',hex:'#16845B'},{name:'Error',hex:'#DC3545'},{name:'Warning',hex:'#C77814'}
+      ],
+      inventory: [
+        {page:'01',board:'Sitemap & Journeys',file:'Sitemap.dc.html',covers:'Full sitemap, admin IA, journeys A–K with links to each step',status:'Built',chip:B},
+        {page:'02',board:'Wireframes',file:'Wireframes.dc.html',covers:'Desktop + mobile grayscale for C01–C08 and A01–A03',status:'Built',chip:B},
+        {page:'03',board:'Design System',file:'DesignSystem.dc.html',covers:'Tokens, type scale, buttons × 6 states, inputs × 6 states, selectors, product cards, status chips, stepper',status:'Built',chip:B},
+        {page:'04',board:'Home, Shop, Product, Cart',file:'Home.dc.html',covers:'Home; catalog with filters, sort, no results; PDP variants, personalization, stock modes, cart drawer; cart with coupon, OOS, price change, empty',status:'Built',chip:B},
+        {page:'05–06',board:'Tablet + Mobile',file:'MobileHome.dc.html',covers:'Tablet home; mobile home with drawer, mobile catalog with bottom-sheet filters, mobile PDP with swipe gallery and sticky ATC',status:'Built',chip:B},
+        {page:'07',board:'Custom Print Flow',file:'CustomPrint.dc.html',covers:'Landing, upload (progress, unsupported, oversized, network), 3D preview, options, contact, review, submitted, quote (5 variants), payment, tracking',status:'States inside a board',chip:S},
+        {page:'08',board:'Checkout',file:'Checkout.dc.html',covers:'Guest / signed-in, address validation, shipping, review, Razorpay handoff, processing, success, failure + retry, pending, canceled',status:'States inside a board',chip:S},
+        {page:'09',board:'Auth, Account, Track',file:'Account.dc.html',covers:'Login, invalid, register, forgot, reset, session expired; overview, orders, order details, addresses add/edit, wishlist + empty, logout; tracking with OTP and 7 statuses',status:'States inside a board',chip:S},
+        {page:'10',board:'Admin (7 boards)',file:'AdminOverview.dc.html',covers:'Overview, products + add/edit/publish, orders + status/ship/refund, production kanban, quote editor, inventory adjust, coupons, payments, analytics, settings',status:'Built',chip:B},
+        {page:'12',board:'UI States & Info Pages',file:'States.dc.html',covers:'Toasts, alerts, dialogs, skeletons, empty states, 404, error, maintenance, About, Contact, FAQ, policy template',status:'Built',chip:B},
+        {page:'13',board:'Developer Handoff',file:'Handoff.dc.html',covers:'Route map, tokens, spacing, radii, motion, validation rules, QA checklist',status:'Built',chip:B},
+        {page:'Next',board:'Per-screen tablet frames, admin mobile views, Figma export',file:'Handoff.dc.html',covers:'Tablet frames beyond Home rely on the fluid pages; admin mobile cards specified in 13',status:'Next batch',chip:N}
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

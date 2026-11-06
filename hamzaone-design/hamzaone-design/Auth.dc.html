@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign in · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box;width:100%}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C;color:#111318}
+.btn-d{background:#111318;color:#fff}
+.btn-o{background:#fff;border-color:#8E9097;color:#111318}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.f{display:flex;flex-direction:column;gap:6px}
+.f label{font-size:14px;font-weight:600}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.err{font-size:13px;color:#B02A37}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+.proto{border:1px dashed #8E9097;border-radius:14px;padding:10px 12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px}
+.proto button{min-height:34px;padding:0 10px;border-radius:999px;border:1px solid #8E9097;background:#fff;cursor:pointer;font:500 13px Inter,sans-serif}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside style="flex:1 1 420px;background:#17191D;color:#F6F5F1;padding:48px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;gap:40px;min-height:320px">
+<a href="Home.dc.html" style="font:800 26px Manrope,sans-serif;color:#fff">Hamza<span style="color:#F97316">One</span></a>
+<div style="display:flex;flex-direction:column;gap:16px;max-width:440px"><h2 style="font-size:44px;line-height:1.05;color:#fff">Your Ideas.<br>Made Real.</h2><p style="color:#C9CBD0">Track every order from print bed to doorstep, save addresses, and manage your custom print quotes in one place.</p></div>
+<p style="color:#9EA1A8;font-size:13px">Guest checkout is always available. An account is optional.</p>
+</aside>
+<main style="flex:1 1 480px;display:flex;align-items:center;justify-content:center;padding:48px 24px;box-sizing:border-box">
+<div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:20px">
+<div class="proto"><strong>Prototype:</strong><sc-for list="{{views}}" as="v" hint-placeholder-count="5"><button onClick="{{v.go}}" style="{{v.style}}">{{v.label}}</button></sc-for></div>
+
+<sc-if value="{{isExpired}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FFF4E0;border:1px solid #F3D9A6;color:#6B3F06;border-radius:14px;padding:12px 16px;font-size:14px"><strong>Your session expired.</strong> For your security, please sign in again. Your cart is saved.</div></sc-if>
+
+<sc-if value="{{isLogin}}" hint-placeholder-val="{{ true }}">
+<form onSubmit="{{login}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<h1 style="font-size:32px">Sign in</h1>
+<sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FDE7E9;border:1px solid #F5B5BC;color:#8E1F2B;border-radius:14px;padding:12px 16px;font-size:14px"><strong>Email or password is incorrect.</strong> Check both and try again, or reset your password.</div></sc-if>
+<div class="f"><label for="le">Email</label><input id="le" class="in" type="email" autocomplete="email" value="{{email}}" onChange="{{onEmail}}"></div>
+<div class="f"><div style="display:flex;justify-content:space-between"><label for="lp">Password</label><button type="button" class="link" onClick="{{toForgot}}">Forgot password?</button></div>
+<div style="position:relative"><input id="lp" class="in" type="{{pwType}}" autocomplete="current-password" value="{{pw}}" onChange="{{onPw}}" style="padding-right:72px;{{pwBorder}}"><button type="button" class="link" style="position:absolute;right:12px;top:8px" onClick="{{togglePw}}" aria-label="{{pwToggleLabel}}">{{pwToggle}}</button></div></div>
+<button type="submit" class="btn btn-p" aria-busy="{{loading}}">{{loginLabel}}</button>
+<p class="muted" style="font-size:14px;text-align:center">New to HamzaOne? <button type="button" class="link" onClick="{{toRegister}}">Create an account</button></p>
+<p class="muted" style="font-size:12px">Prototype: the first attempt shows invalid credentials, the second signs in.</p>
+</form>
+</sc-if>
+
+<sc-if value="{{isRegister}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{register}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<h1 style="font-size:32px">Create account</h1>
+<div class="f"><label for="rn">Full name</label><input id="rn" class="in" value="{{r.name}}" onChange="{{ron.name}}" style="{{re.nameB}}"><sc-if value="{{re.name}}" hint-placeholder-val="{{ false }}"><span class="err">{{re.name}}</span></sc-if></div>
+<div class="f"><label for="re">Email</label><input id="re" class="in" type="email" value="{{r.email}}" onChange="{{ron.email}}" style="{{re.emailB}}"><sc-if value="{{re.email}}" hint-placeholder-val="{{ false }}"><span class="err">{{re.email}}</span></sc-if></div>
+<div class="f"><label for="rm">Mobile number</label><input id="rm" class="in" inputmode="numeric" value="{{r.mobile}}" onChange="{{ron.mobile}}" style="{{re.mobileB}}"><sc-if value="{{re.mobile}}" hint-placeholder-val="{{ false }}"><span class="err">{{re.mobile}}</span></sc-if></div>
+<div class="f"><label for="rp">Password</label><input id="rp" class="in" type="password" value="{{r.pw}}" onChange="{{ron.pw}}" aria-describedby="rp-h" style="{{re.pwB}}"><span id="rp-h" style="font-size:13px;{{pwHintStyle}}">{{pwHint}}</span></div>
+<button type="submit" class="btn btn-p">Create account</button>
+<p class="muted" style="font-size:14px;text-align:center">Already have an account? <button type="button" class="link" onClick="{{toLogin}}">Sign in</button></p>
+</form>
+</sc-if>
+
+<sc-if value="{{isForgot}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{sendReset}}" style="display:flex;flex-direction:column;gap:16px">
+<h1 style="font-size:32px">Reset your password</h1><p class="muted">Enter your account email and we will send a reset link valid for 30 minutes.</p>
+<div class="f"><label for="fe">Email</label><input id="fe" class="in" type="email" value="{{email}}" onChange="{{onEmail}}"></div>
+<button type="submit" class="btn btn-p">Send reset link</button>
+<button type="button" class="link" onClick="{{toLogin}}">← Back to sign in</button>
+</form>
+</sc-if>
+
+<sc-if value="{{isSent}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display:flex;flex-direction:column;gap:16px"><h1 style="font-size:32px">Check your email</h1><p class="muted">If an account exists for <strong style="color:#111318">{{email}}</strong>, a reset link is on its way. It may take a minute.</p><button class="btn btn-d" onClick="{{toReset}}">Prototype: open reset link</button><button class="link" onClick="{{toForgot}}">Resend link</button></div>
+</sc-if>
+
+<sc-if value="{{isReset}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{doReset}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<h1 style="font-size:32px">Choose a new password</h1>
+<div class="f"><label for="np">New password</label><input id="np" class="in" type="password" value="{{np}}" onChange="{{onNp}}" style="{{npB}}"></div>
+<div class="f"><label for="np2">Confirm new password</label><input id="np2" class="in" type="password" value="{{np2}}" onChange="{{onNp2}}" style="{{npB}}"></div>
+<sc-if value="{{npErr}}" hint-placeholder-val="{{ false }}"><span class="err" role="alert">{{npErr}}</span></sc-if>
+<button type="submit" class="btn btn-p">Update password</button>
+</form>
+</sc-if>
+
+<sc-if value="{{isResetDone}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display:flex;flex-direction:column;gap:16px"><h1 style="font-size:32px">Password updated</h1><p class="muted">You can now sign in with your new password.</p><button class="btn btn-p" onClick="{{toLogin}}">Sign in</button></div>
+</sc-if>
+
+<sc-if value="{{isSuccess}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display:flex;flex-direction:column;gap:16px;align-items:flex-start"><span style="width:56px;height:56px;border-radius:50%;background:#E3F3EC;color:#16845B;display:flex;align-items:center;justify-content:center;font-size:28px" aria-hidden="true">✓</span><h1 style="font-size:32px">{{successTitle}}</h1><p class="muted">{{successBody}}</p><a href="Account.dc.html" class="btn btn-p">Go to my account</a><a href="Shop.dc.html" class="btn btn-o">Continue shopping</a></div>
+</sc-if>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view:'login', email:'riya.sharma@example.com', pw:'', show:false, attempts:0, invalid:false, loading:false, triedR:false, r:{name:'',email:'',mobile:'',pw:''}, np:'', np2:'', npErr:'', newAcct:false }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  rerrs(){ const r=this.state.r, e={};
+    if(r.name.trim().length<2) e.name='Enter your full name.';
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email)) e.email='Enter a valid email address.';
+    if(!/^[6-9][0-9]{9}$/.test(r.mobile)) e.mobile='Enter a 10-digit mobile number starting with 6–9.';
+    if(r.pw.length<8 || !/[0-9]/.test(r.pw)) e.pw='Use at least 8 characters including a number.';
+    return e; }
+  renderVals() {
+    const s = this.state, go = v => this.setState({view:v, invalid:false});
+    const all = this.rerrs(), re = {}; if(s.triedR) Object.keys(all).forEach(k=>{ re[k]=all[k]; re[k+'B']='border:2px solid #DC3545'; });
+    const ron = {}; Object.keys(s.r).forEach(k=>{ ron[k]=e=>this.setState({r:{...s.r,[k]:k==='mobile'?e.target.value.replace(/\D/g,''):e.target.value}}); });
+    const V = [['login','Login'],['expired','Session expired'],['register','Register'],['forgot','Forgot'],['reset','Reset']];
+    return {
+      views: V.map(([k,l])=>({label:l,style:s.view===k?'background:#111318;color:#fff;border-color:#111318':'',go:()=>go(k)})),
+      isLogin: s.view==='login'||s.view==='expired', isExpired: s.view==='expired', isRegister:s.view==='register', isForgot:s.view==='forgot', isSent:s.view==='sent',
+      isReset:s.view==='reset', isResetDone:s.view==='resetDone', isSuccess:s.view==='success',
+      email:s.email, onEmail:e=>this.setState({email:e.target.value}), pw:s.pw, onPw:e=>this.setState({pw:e.target.value,invalid:false}),
+      pwType:s.show?'text':'password', pwToggle:s.show?'Hide':'Show', pwToggleLabel:s.show?'Hide password':'Show password', togglePw:()=>this.setState({show:!s.show}),
+      invalid:s.invalid, pwBorder:s.invalid?'border:2px solid #DC3545':'', loading:s.loading, loginLabel:s.loading?'Signing in…':'Sign in',
+      login:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(s.attempts===0){ this.setState({attempts:1,invalid:true}); return; }
+        this.setState({loading:true,invalid:false}); clearTimeout(this.t); this.t=setTimeout(()=>this.setState({loading:false,view:'success',newAcct:false}),900); },
+      toForgot:()=>go('forgot'), toRegister:()=>go('register'), toLogin:()=>go('login'), toReset:()=>go('reset'),
+      r:s.r, ron, re, pwHint: re.pw || 'At least 8 characters including a number.', pwHintStyle: re.pw?'color:#B02A37':'color:#686B72',
+      register:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(Object.keys(this.rerrs()).length) this.setState({triedR:true}); else this.setState({view:'success',newAcct:true}); },
+      sendReset:e=>{ if(e&&e.preventDefault) e.preventDefault(); go('sent'); },
+      np:s.np, np2:s.np2, onNp:e=>this.setState({np:e.target.value,npErr:''}), onNp2:e=>this.setState({np2:e.target.value,npErr:''}), npErr:s.npErr, npB:s.npErr?'border:2px solid #DC3545':'',
+      doReset:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(s.np.length<8||!/[0-9]/.test(s.np)) this.setState({npErr:'Use at least 8 characters including a number.'}); else if(s.np!==s.np2) this.setState({npErr:'Passwords do not match.'}); else go('resetDone'); },
+      successTitle: s.newAcct?'Account created':'Welcome back, Riya', successBody: s.newAcct?'We sent a verification link to your email. You can start shopping right away.':'You are signed in. Your saved addresses and orders are ready.'
+    };
+  }
+}
+</script>
+</body>
+</html>

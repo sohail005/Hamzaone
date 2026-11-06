@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Shop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3,h4{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 20px;border-radius:999px;font:600 15px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C}
+.btn-d{background:#111318;color:#fff}
+.btn-o{background:transparent;border-color:#111318;color:#111318}.btn-o:hover{background:#111318;color:#fff}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:#111318;cursor:pointer;position:relative}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.art{position:relative;background:#ECEAE4;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.tag{position:absolute;right:10px;bottom:8px;font-size:11px;color:#575A60}
+.opt{display:flex;align-items:center;gap:10px;min-height:40px;width:100%;background:none;border:0;padding:0 8px;border-radius:10px;font:15px Inter,sans-serif;color:#111318;cursor:pointer;text-align:left}
+.opt:hover{background:#ECEBE6}
+.box{width:18px;height:18px;border-radius:5px;border:1.5px solid #686B72;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;box-sizing:border-box}
+.sk{background:#E6E4DE;border-radius:12px}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="position:sticky;top:0;z-index:30;background:#F6F5F1;border-bottom:1px solid #E8E8E5">
+<div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex-wrap:wrap"><a href="Shop.dc.html" aria-current="page" style="padding:12px;font-weight:600;color:#C2410C">Shop</a><a href="Track.dc.html" style="padding:12px;font-weight:500">Track order</a></nav>
+<div role="search" style="flex:1 1 240px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #8E9097;border-radius:999px;padding:0 16px;height:44px;min-width:200px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<label for="q" style="position:absolute;left:-9999px">Search products</label>
+<input id="q" value="{{query}}" onChange="{{onQuery}}" placeholder="Search vases, stands, nameplates" style="border:0;outline:0;flex:1;font:15px Inter,sans-serif;background:transparent;min-width:0">
+<sc-if value="{{hasQuery}}" hint-placeholder-val="{{ false }}"><button class="ibtn" style="width:32px;height:32px" aria-label="Clear search" onClick="{{clearQuery}}">✕</button></sc-if>
+</div>
+<a href="CustomPrint.dc.html" class="btn btn-p">Custom 3D Print</a>
+<div style="display:flex;gap:2px">
+<a href="Account.dc.html" class="ibtn" aria-label="Account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a>
+<a href="Cart.dc.html" class="ibtn" aria-label="Cart, {{cartCount}} items"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:9px;background:#F97316;color:#111318;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{cartCount}}</span></a>
+</div>
+</div>
+</header>
+
+<main class="wrap" style="flex:1;padding-top:32px;padding-bottom:80px;display:flex;flex-direction:column;gap:24px">
+<nav aria-label="Breadcrumb" class="muted" style="font-size:14px"><a href="Home.dc.html" class="muted">Home</a> / <span>{{crumb}}</span></nav>
+<div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap">
+<div><h1 style="font-size:44px">{{heading}}</h1><p class="muted" role="status" style="margin-top:4px">{{countText}}</p></div>
+<div role="group" aria-label="Sort products" style="display:flex;gap:4px;background:#fff;border:1px solid #E8E8E5;border-radius:999px;padding:4px;flex-wrap:wrap">
+<sc-for list="{{sorts}}" as="o" hint-placeholder-count="4"><button onClick="{{o.pick}}" aria-pressed="{{o.on}}" style="min-height:36px;padding:0 14px;border-radius:999px;border:0;cursor:pointer;font:500 14px Inter,sans-serif;{{o.style}}">{{o.label}}</button></sc-for>
+</div>
+</div>
+
+<sc-if value="{{hasActive}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="muted" style="font-size:14px">Active filters:</span>
+<sc-for list="{{activeChips}}" as="a" hint-placeholder-count="2"><button onClick="{{a.remove}}" class="chip" style="background:#111318;color:#fff;border:0;cursor:pointer;min-height:32px;font-size:13px" aria-label="Remove filter {{a.label}}">{{a.label}} ✕</button></sc-for>
+<button onClick="{{reset}}" style="background:none;border:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px">Reset all</button></div>
+</sc-if>
+
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<aside aria-label="Filters" style="flex:1 1 240px;max-width:280px;display:flex;flex-direction:column;gap:28px">
+<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:2px"><legend class="eyebrow" style="margin-bottom:8px">Category</legend>
+<sc-for list="{{catOpts}}" as="o" hint-placeholder-count="5"><button class="opt" role="checkbox" aria-checked="{{o.on}}" onClick="{{o.toggle}}"><span class="box" style="{{o.boxStyle}}">{{o.tick}}</span><span style="flex:1">{{o.label}}</span><span class="muted" style="font-size:13px">{{o.n}}</span></button></sc-for>
+</fieldset>
+<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:2px"><legend class="eyebrow" style="margin-bottom:8px">Availability</legend>
+<sc-for list="{{availOpts}}" as="o" hint-placeholder-count="2"><button class="opt" role="checkbox" aria-checked="{{o.on}}" onClick="{{o.toggle}}"><span class="box" style="{{o.boxStyle}}">{{o.tick}}</span>{{o.label}}</button></sc-for>
+</fieldset>
+<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:2px"><legend class="eyebrow" style="margin-bottom:8px">Price</legend>
+<sc-for list="{{priceOpts}}" as="o" hint-placeholder-count="4"><button class="opt" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}"><span class="box" style="border-radius:50%;{{o.boxStyle}}"></span>{{o.label}}</button></sc-for>
+</fieldset>
+<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:2px"><legend class="eyebrow" style="margin-bottom:8px">Material</legend>
+<sc-for list="{{matOpts}}" as="o" hint-placeholder-count="4"><button class="opt" role="checkbox" aria-checked="{{o.on}}" onClick="{{o.toggle}}"><span class="box" style="{{o.boxStyle}}">{{o.tick}}</span>{{o.label}}</button></sc-for>
+</fieldset>
+</aside>
+
+<section aria-label="Products" style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:32px">
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div aria-busy="true" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px">
+<sc-for list="{{skeletons}}" as="k" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;gap:10px"><div class="sk" style="aspect-ratio:1/1;border-radius:16px"></div><div class="sk" style="height:16px;width:70%"></div><div class="sk" style="height:14px;width:40%"></div></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:56px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5M8 11h6"></path></svg>
+<h2 style="font-size:24px">No products match {{emptyWhat}}</h2>
+<p class="muted" style="max-width:440px">Try fewer filters, check the spelling, or get exactly what you need made as a custom print.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px"><button class="btn btn-d" onClick="{{reset}}">Reset filters and search</button><a href="CustomPrint.dc.html" class="btn btn-o">Request a custom print</a></div>
+<p class="muted" style="font-size:14px;margin-top:8px">Popular: <button onClick="{{trySearch}}" style="background:none;border:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer">vase</button></p>
+</div>
+</sc-if>
+<sc-if value="{{showGrid}}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px">
+<sc-for list="{{items}}" as="p" hint-placeholder-count="12">
+<article style="display:flex;flex-direction:column;gap:10px;position:relative">
+<a href="Product.dc.html" class="art" style="aspect-ratio:1/1" aria-label="{{p.name}}"><div style="{{p.shape}}"></div><span class="chip" style="position:absolute;left:12px;top:12px;{{p.badgeStyle}}">{{p.badge}}</span><span class="tag">Concept render</span></a>
+<button class="ibtn" style="position:absolute;right:8px;top:8px;background:#fff" aria-label="{{p.wishLabel}}" aria-pressed="{{p.wished}}" onClick="{{p.toggleWish}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="{{p.wishFill}}" stroke="{{p.wishStroke}}" stroke-width="1.8" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></button>
+<div style="display:flex;justify-content:space-between;gap:8px"><a href="Product.dc.html"><h3 style="font-size:16px">{{p.name}}</h3></a><strong style="white-space:nowrap">₹{{p.priceText}}</strong></div>
+<div style="display:flex;align-items:center;gap:6px"><sc-for list="{{p.dots}}" as="d" hint-placeholder-count="3"><span aria-hidden="true" style="width:14px;height:14px;border-radius:50%;border:1px solid #CFCDC6;background:{{d}}"></span></sc-for><span class="muted" style="font-size:13px">{{p.mat}} · {{p.lead}}</span></div>
+<sc-if value="{{p.canAdd}}" hint-placeholder-val="{{ true }}"><button class="btn btn-o" onClick="{{p.add}}">{{p.addLabel}}</button></sc-if>
+<sc-if value="{{p.oos}}" hint-placeholder-val="{{ false }}"><button class="btn" style="border-color:#CFCDC6;color:#686B72;background:#fff" onClick="{{p.notify}}">{{p.notifyLabel}}</button></sc-if>
+</article>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+<p class="muted" style="font-size:14px">Showing {{shown}} of {{total}}</p>
+<sc-if value="{{hasMore}}" hint-placeholder-val="{{ true }}"><button class="btn btn-o" onClick="{{loadMore}}">Load more products</button></sc-if>
+</div>
+</sc-if>
+</section>
+</div>
+</main>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="position:fixed;right:24px;bottom:24px;z-index:50;background:#111318;color:#fff;border-radius:14px;padding:14px 18px;display:flex;gap:16px;align-items:center;box-shadow:0 12px 32px rgba(17,19,24,.2)">✓ {{toast}} <a href="Cart.dc.html" style="color:#FDBA74;font-weight:600">View cart</a></div>
+</sc-if>
+<footer style="background:#17191D;color:#9EA1A8;font-size:13px"><div class="wrap" style="padding-top:24px;padding-bottom:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><span>© 2026 HamzaOne · Prices in INR, inclusive of GST</span><span><a href="States.dc.html" style="color:#C9CBD0">Shipping</a> · <a href="States.dc.html" style="color:#C9CBD0">Returns</a> · <a href="States.dc.html" style="color:#C9CBD0">Privacy</a></span></div></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2400}}'>
+const SH = {
+  vase:c=>`width:58px;height:116px;border-radius:29px 29px 18px 18px;background:${c}`,
+  stand:c=>`width:90px;height:98px;background:${c};clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)`,
+  planter:c=>`width:110px;height:86px;background:${c};clip-path:polygon(0 0,100% 0,84% 100%,16% 100%)`,
+  plate:c=>`width:146px;height:52px;border-radius:10px;background:${c}`,
+  key:c=>`width:66px;height:66px;border-radius:50%;border:15px solid ${c};box-sizing:border-box`,
+  fig:c=>`width:104px;height:94px;background:${c};border-radius:60% 40% 55% 45%`,
+  org:c=>`width:128px;height:76px;background:${c};border-radius:14px`,
+  part:c=>`width:86px;height:86px;background:${c};clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)`
+};
+const P = [
+ ['Spiral Decor Vase','decor',699,'vase','PLA','stock',['#C96F4A','#2B2E33','#D9C6A5']],
+ ['Ribbed Bud Vase','decor',549,'vase','PLA','stock',['#E8E2D6','#5E7A6A']],
+ ['Geometric Planter','decor',449,'planter','PLA','stock',['#5E7A6A','#E8E2D6','#C96F4A']],
+ ['Hex Wall Planter','decor',599,'planter','PETG','mto',['#2B2E33','#E8E2D6']],
+ ['Lattice Lamp Shade','decor',1299,'vase','PLA','mto',['#F4EFE6']],
+ ['Wave Coaster Set','decor',349,'plate','PLA','low',['#3C5A80','#D9C6A5']],
+ ['Minimal Phone Stand','desk',249,'stand','PETG','stock',['#2B2E33','#E8E2D6','#F97316','#3C5A80']],
+ ['Headphone Stand','desk',799,'stand','PETG','low',['#8C8F96','#2B2E33']],
+ ['Cable Organizer','desk',149,'org','TPU','stock',['#3C5A80','#2B2E33']],
+ ['Desk Organizer Tray','desk',599,'org','PLA','stock',['#E8E2D6','#2B2E33']],
+ ['Hex Pen Cup','desk',299,'part','PLA','oos',['#5E7A6A']],
+ ['Laptop Riser','desk',1199,'stand','PETG','mto',['#2B2E33']],
+ ['Custom Name Plate','personal',399,'plate','PLA','mto',['#D9C6A5','#2B2E33']],
+ ['Personalized Keychain','personal',149,'key','PLA','mto',['#F97316','#3C5A80','#2B2E33']],
+ ['Initial Bookmark','personal',199,'plate','PLA','mto',['#C96F4A','#5E7A6A']],
+ ['Pet Name Tag','personal',249,'key','TPU','mto',['#3C5A80','#F97316']],
+ ['Articulated Dragon','figurine',499,'fig','Silk PLA','mto',['#5E7A6A','#C96F4A']],
+ ['Low-poly Elephant','figurine',449,'fig','PLA','stock',['#8C8F96','#E8E2D6']],
+ ['Mini Ganesha','figurine',599,'fig','Silk PLA','stock',['#C9A24A','#E8E2D6']],
+ ['Flexi Octopus','figurine',299,'fig','PLA','oos',['#F97316']],
+ ['Wall Hook Pack','functional',199,'part','PETG','stock',['#2B2E33','#E8E2D6']],
+ ['Spice Jar Lids (Set of 4)','functional',349,'part','PETG','stock',['#E8E2D6']],
+ ['Gear Fidget','functional',249,'part','PLA','low',['#3C5A80','#F97316']],
+ ['Drawer Pull Set','functional',399,'part','PETG','mto',['#2B2E33','#C9A24A']]
+];
+const CATS = [['decor','Home Decor'],['desk','Desk & Workspace'],['personal','Personalised'],['figurine','Figurines'],['functional','Functional Parts']];
+const BADGE = {stock:['In stock','background:#E3F3EC;color:#0F5E41','Ships in 1–2 days'],mto:['Made to order','background:#FDEBD8;color:#8A4A0A','Printed in 3–5 days'],low:['Only 3 left','background:#FFF4E0;color:#8A5209','Ships in 1–2 days'],oos:['Out of stock','background:#ECECEA;color:#45474C','Restock pending']};
+const PRICES = [['all','Any price'],['u300','Under ₹300'],['300to700','₹300 – ₹700'],['o700','Above ₹700']];
+const fmt = n => n.toLocaleString('en-IN');
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { cats:[], avail:[], price:'all', mats:[], sort:'featured', query:'', limit:12, loading:false, wish:{}, notified:{}, toast:'', cart:2 }; }
+  upd(patch){ this.setState({...patch, loading:true, limit:12}); clearTimeout(this.t); this.t = setTimeout(()=>this.setState({loading:false}), 450); }
+  tog(key,v){ const a=this.state[key]; this.upd({[key]: a.includes(v)? a.filter(x=>x!==v) : [...a,v]}); }
+  componentWillUnmount(){ clearTimeout(this.t); clearTimeout(this.tt); }
+  renderVals() {
+    const s = this.state;
+    let list = P.map((r,i)=>({id:i,name:r[0],cat:r[1],price:r[2],k:r[3],mat:r[4],st:r[5],cols:r[6]}));
+    const q = s.query.trim().toLowerCase();
+    if (q) list = list.filter(p=>p.name.toLowerCase().includes(q));
+    if (s.cats.length) list = list.filter(p=>s.cats.includes(p.cat));
+    if (s.avail.includes('stock')) list = list.filter(p=>p.st==='stock'||p.st==='low');
+    if (s.avail.includes('mto')) list = list.filter(p=>p.st==='mto');
+    if (s.price==='u300') list = list.filter(p=>p.price<300);
+    if (s.price==='300to700') list = list.filter(p=>p.price>=300&&p.price<=700);
+    if (s.price==='o700') list = list.filter(p=>p.price>700);
+    if (s.mats.length) list = list.filter(p=>s.mats.includes(p.mat));
+    if (s.sort==='low') list = [...list].sort((a,b)=>a.price-b.price);
+    if (s.sort==='high') list = [...list].sort((a,b)=>b.price-a.price);
+    if (s.sort==='new') list = [...list].reverse();
+    const total = list.length, shown = Math.min(total, s.limit);
+    const box = on => on ? 'background:#111318;border-color:#111318;color:#fff' : 'background:#fff';
+    const items = list.slice(0, s.limit).map(p=>{
+      const b = BADGE[p.st], w = !!s.wish[p.id], oos = p.st==='oos', simple = p.cols.length===1;
+      return { ...p, priceText:fmt(p.price), shape:SH[p.k](p.cols[0]), badge:b[0], badgeStyle:b[1], lead:b[2], dots:p.cols,
+        wished:w, wishFill:w?'#F97316':'none', wishStroke:w?'#F97316':'#111318', wishLabel:w?`Remove ${p.name} from wishlist`:`Add ${p.name} to wishlist`,
+        toggleWish:()=>this.setState({wish:{...s.wish,[p.id]:!w}}),
+        canAdd:!oos, oos, addLabel: simple ? 'Add to cart' : 'Quick add · default colour',
+        add:()=>{ this.setState({cart:s.cart+1, toast:`${p.name} added to cart`}); clearTimeout(this.tt); this.tt=setTimeout(()=>this.setState({toast:''}),2500); },
+        notifyLabel: s.notified[p.id] ? '✓ We will email you' : 'Notify me when back', notify:()=>this.setState({notified:{...s.notified,[p.id]:true}}) };
+    });
+    const catName = c => CATS.find(x=>x[0]===c)[1];
+    const activeChips = [
+      ...s.cats.map(c=>({label:catName(c),remove:()=>this.tog('cats',c)})),
+      ...s.avail.map(a=>({label:a==='stock'?'In stock':'Made to order',remove:()=>this.tog('avail',a)})),
+      ...(s.price!=='all'?[{label:PRICES.find(x=>x[0]===s.price)[1],remove:()=>this.upd({price:'all'})}]:[]),
+      ...s.mats.map(m=>({label:m,remove:()=>this.tog('mats',m)})),
+      ...(q?[{label:`“${s.query}”`,remove:()=>this.upd({query:''})}]:[])
+    ];
+    const heading = q ? `Results for “${s.query}”` : (s.cats.length===1 ? catName(s.cats[0]) : 'All products');
+    return {
+      cartCount:s.cart, query:s.query, hasQuery:!!q,
+      onQuery:e=>this.upd({query:e.target.value}), clearQuery:()=>this.upd({query:''}),
+      trySearch:()=>this.upd({query:'vase',cats:[],avail:[],price:'all',mats:[]}),
+      crumb: q ? 'Search' : (s.cats.length===1 ? `Shop / ${catName(s.cats[0])}` : 'Shop'),
+      heading, countText: s.loading ? 'Updating results…' : `${total} ${total===1?'product':'products'}`,
+      sorts:[['featured','Featured'],['new','Newest'],['low','Price: low to high'],['high','Price: high to low']].map(([v,l])=>({label:l,on:s.sort===v,style:s.sort===v?'background:#111318;color:#fff':'background:transparent;color:#111318',pick:()=>this.upd({sort:v})})),
+      catOpts: CATS.map(([v,l])=>({label:l,n:P.filter(r=>r[1]===v).length,on:s.cats.includes(v),tick:s.cats.includes(v)?'✓':'',boxStyle:box(s.cats.includes(v)),toggle:()=>this.tog('cats',v)})),
+      availOpts: [['stock','In stock, ships in 1–2 days'],['mto','Made to order']].map(([v,l])=>({label:l,on:s.avail.includes(v),tick:s.avail.includes(v)?'✓':'',boxStyle:box(s.avail.includes(v)),toggle:()=>this.tog('avail',v)})),
+      priceOpts: PRICES.map(([v,l])=>({label:l,on:s.price===v,boxStyle:s.price===v?'border:6px solid #111318':'background:#fff',pick:()=>this.upd({price:v})})),
+      matOpts: ['PLA','Silk PLA','PETG','TPU'].map(m=>({label:m,on:s.mats.includes(m),tick:s.mats.includes(m)?'✓':'',boxStyle:box(s.mats.includes(m)),toggle:()=>this.tog('mats',m)})),
+      hasActive: activeChips.length>0, activeChips,
+      reset:()=>this.upd({cats:[],avail:[],price:'all',mats:[],query:''}),
+      loading:s.loading, skeletons:[1,2,3,4,5,6],
+      showEmpty:!s.loading && total===0, showGrid:!s.loading && total>0,
+      emptyWhat: q ? `“${s.query}”` : 'these filters',
+      items, shown, total, hasMore: shown<total, loadMore:()=>this.setState({limit:s.limit+12}),
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spiral Decor Vase · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3,h4{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box;transition:background .15s,transform .15s}
+.btn:active{transform:scale(.98)}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C;color:#111318}
+.btn-d{background:#111318;color:#fff}.btn-d:hover{background:#2A2D33;color:#fff}
+.btn-o{background:transparent;border-color:#111318;color:#111318}.btn-o:hover{background:#111318;color:#fff}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:#111318;cursor:pointer;position:relative}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.art{position:relative;background:#ECEAE4;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.tag{position:absolute;right:12px;bottom:10px;font-size:11px;color:#575A60}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.lbl{font-size:14px;font-weight:600}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="position:sticky;top:0;z-index:30;background:#F6F5F1;border-bottom:1px solid #E8E8E5">
+<div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Shop</a><a href="Track.dc.html" style="padding:12px;font-weight:500">Track order</a></nav>
+<a href="Shop.dc.html" class="ibtn" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></a>
+<a href="CustomPrint.dc.html" class="btn btn-p" style="min-height:44px;padding:0 18px;font-size:15px">Custom 3D Print</a>
+<a href="Account.dc.html" class="ibtn" aria-label="Account"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"></path></svg></a>
+<button class="ibtn" aria-label="Open cart, {{cartCount}} items" onClick="{{openDrawer}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:9px;background:#F97316;color:#111318;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{cartCount}}</span></button>
+</div>
+</header>
+
+<main class="wrap" style="flex:1;padding-top:24px;padding-bottom:80px;display:flex;flex-direction:column;gap:48px">
+<nav aria-label="Breadcrumb" class="muted" style="font-size:14px"><a href="Home.dc.html" class="muted">Home</a> / <a href="Shop.dc.html" class="muted">Home Decor</a> / <span>Spiral Decor Vase</span></nav>
+<div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+<section aria-label="Product images" style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:16px;position:sticky;top:96px">
+<div class="art" style="aspect-ratio:1/1;cursor:zoom-in" onClick="{{toggleZoom}}">
+<div style="{{heroShape}}"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:18%;background:#E2DFD7"></div>
+<span class="chip" style="position:absolute;left:16px;top:16px;background:#fff;color:#111318">{{viewName}}</span>
+<button class="ibtn" style="position:absolute;right:12px;top:12px;background:#fff" aria-label="{{zoomLabel}}" onClick="{{toggleZoom}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5M11 8v6M8 11h6"></path></svg></button>
+<span class="tag">Concept render · replace with studio photo</span>
+</div>
+<div role="tablist" aria-label="Image views" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+<sc-for list="{{thumbs}}" as="t" hint-placeholder-count="4"><button role="tab" aria-selected="{{t.on}}" aria-label="{{t.name}}" onClick="{{t.pick}}" class="art" style="aspect-ratio:1/1;border-radius:14px;cursor:pointer;{{t.ring}}"><div style="{{t.shape}}"></div></button></sc-for>
+</div>
+</section>
+
+<section style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip" style="{{stockChipStyle}}">{{stockChip}}</span><span class="chip" style="background:#ECECEA;color:#45474C">Home Decor</span></div>
+<h1 style="font-size:40px;line-height:1.1">Spiral Decor Vase</h1>
+<div style="display:flex;align-items:baseline;gap:12px"><strong style="font:700 28px Manrope,sans-serif">₹{{unitText}}</strong><span class="muted" style="font-size:14px">Inclusive of GST</span></div>
+<p class="muted">A twisting spiral form printed in matte PLA with a watertight inner sleeve, ready for dried or fresh stems.</p>
+</div>
+
+<fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+<legend class="lbl" style="margin-bottom:10px">Colour: <span style="font-weight:400">{{colorName}}</span></legend>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<sc-for list="{{colors}}" as="c" hint-placeholder-count="4"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" aria-label="{{c.aria}}" style="width:44px;height:44px;border-radius:50%;cursor:pointer;background:{{c.hex}};{{c.ring}}"></button></sc-for>
+</div>
+<sc-if value="{{variantUnavailable}}" hint-placeholder-val="{{ false }}"><p role="alert" style="font-size:14px;color:#B02A37">Sage is not available in Large. Choose Small or another colour.</p></sc-if>
+</fieldset>
+
+<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:10px">Size</legend>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<sc-for list="{{sizes}}" as="z" hint-placeholder-count="2"><button onClick="{{z.pick}}" aria-pressed="{{z.on}}" style="min-height:64px;border-radius:14px;cursor:pointer;text-align:left;padding:10px 16px;font:15px Inter,sans-serif;display:flex;flex-direction:column;{{z.style}}"><strong>{{z.name}} · ₹{{z.priceText}}</strong><span style="font-size:13px">{{z.dims}}</span></button></sc-for>
+</div></fieldset>
+
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px">
+<button role="switch" aria-checked="{{personal}}" onClick="{{togglePersonal}}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:0;cursor:pointer;font:600 15px Inter,sans-serif;color:#111318;min-height:44px;text-align:left"><span>Add engraved name on base <span class="muted" style="font-weight:400">+₹99</span></span><span style="width:44px;height:26px;border-radius:13px;position:relative;{{switchStyle}}"><span style="position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;{{knobStyle}}"></span></span></button>
+<sc-if value="{{personal}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+<label for="eng" class="lbl">Text to engrave</label>
+<input id="eng" class="in" value="{{engrave}}" onChange="{{onEngrave}}" aria-invalid="{{engraveInvalid}}" aria-describedby="eng-help" style="{{engraveBorder}}">
+<p id="eng-help" style="font-size:13px;{{engraveHelpStyle}}">{{engraveHelp}}</p>
+<p class="muted" style="font-size:13px">Personalised items are printed to order and add 1 day to production.</p>
+</div>
+</sc-if>
+</div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+<div role="group" aria-label="Quantity" style="display:flex;align-items:center;border:1px solid #8E9097;border-radius:999px;height:52px;background:#fff">
+<button class="ibtn" aria-label="Decrease quantity" onClick="{{dec}}">−</button><output aria-live="polite" style="min-width:32px;text-align:center;font-weight:600">{{qty}}</output><button class="ibtn" aria-label="Increase quantity" onClick="{{inc}}">+</button>
+</div>
+<sc-if value="{{canBuy}}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-p" style="flex:1 1 200px" onClick="{{addToCart}}">Add to cart · ₹{{lineText}}</button>
+</sc-if>
+<sc-if value="{{cannotBuy}}" hint-placeholder-val="{{ false }}">
+<button class="btn" style="flex:1 1 200px;background:#ECECEA;color:#45474C" onClick="{{explainBlocked}}">{{blockedLabel}}</button>
+</sc-if>
+</div>
+<sc-if value="{{canBuy}}" hint-placeholder-val="{{ true }}"><a href="Checkout.dc.html" class="btn btn-d">Buy now</a></sc-if>
+<sc-if value="{{oos}}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px"><strong>Out of stock in this colour</strong><p class="muted" style="font-size:14px">We restock ready-made items weekly. Get one email when it is back.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><label for="ne" style="position:absolute;left:-9999px">Email</label><input id="ne" class="in" placeholder="you@example.com" style="flex:1 1 200px;width:auto"><button class="btn btn-o" style="min-height:48px" onClick="{{notify}}">{{notifyLabel}}</button></div></div>
+</sc-if>
+<sc-if value="{{blockMsg}}" hint-placeholder-val="{{ false }}"><p role="alert" style="font-size:14px;color:#B02A37">{{blockMsg}}</p></sc-if>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Production</span><strong>{{prodTime}}</strong><span class="muted" style="font-size:13px">{{prodNote}}</span></div>
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:4px"><span class="eyebrow">Shipping after dispatch</span><strong>3–6 business days</strong><span class="muted" style="font-size:13px">Courier estimate, not a guarantee</span></div>
+</div>
+<form onSubmit="{{checkPin}}" style="display:flex;gap:8px;align-items:end;flex-wrap:wrap">
+<div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px"><label for="pin" class="lbl">Check delivery to your PIN code</label><input id="pin" class="in" inputmode="numeric" maxlength="6" value="{{pin}}" onChange="{{onPin}}"></div>
+<button type="submit" class="btn btn-o" style="min-height:48px">Check</button>
+</form>
+<sc-if value="{{pinMsg}}" hint-placeholder-val="{{ false }}"><p role="status" style="font-size:14px;margin-top:-12px;{{pinStyle}}">{{pinMsg}}</p></sc-if>
+
+<div style="border-top:1px solid #E8E8E5">
+<sc-for list="{{specs}}" as="sp" hint-placeholder-count="3">
+<div style="border-bottom:1px solid #E8E8E5"><button onClick="{{sp.toggle}}" aria-expanded="{{sp.open}}" style="width:100%;min-height:56px;display:flex;justify-content:space-between;align-items:center;background:none;border:0;font:600 16px Manrope,sans-serif;color:#111318;cursor:pointer;padding:0">{{sp.t}}<span aria-hidden="true">{{sp.sign}}</span></button>
+<sc-if value="{{sp.open}}" hint-placeholder-val="{{ false }}"><dl style="margin:0 0 16px;display:grid;grid-template-columns:160px 1fr;gap:8px 16px;font-size:14px"><sc-for list="{{sp.rows}}" as="r" hint-placeholder-count="4"><dt class="muted">{{r.k}}</dt><dd style="margin:0">{{r.v}}</dd></sc-for></dl></sc-if></div>
+</sc-for>
+</div>
+</section>
+</div>
+</main>
+
+<sc-if value="{{drawer}}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;display:flex;justify-content:flex-end">
+<button aria-label="Close cart" onClick="{{closeDrawer}}" style="position:absolute;inset:0;background:rgba(17,19,24,.4);border:0;cursor:pointer"></button>
+<aside role="dialog" aria-modal="true" aria-label="Cart" style="position:relative;width:min(440px,100%);height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-12px 0 32px rgba(17,19,24,.12)">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #E8E8E5"><h2 style="font-size:20px">Your cart ({{cartCount}})</h2><button class="ibtn" aria-label="Close cart" onClick="{{closeDrawer}}">✕</button></div>
+<sc-if value="{{justAdded}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin:16px 24px 0;background:#E3F3EC;color:#0F5E41;border-radius:12px;padding:10px 14px;font-size:14px;font-weight:600">✓ Added Spiral Decor Vase, {{colorName}}, {{sizeName}}</div></sc-if>
+<div style="flex:1;overflow:auto;padding:8px 24px;display:flex;flex-direction:column">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="2">
+<div style="display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #E8E8E5"><div class="art" style="width:80px;height:80px;border-radius:12px;flex:0 0 auto"><div style="{{l.shape}}"></div></div><div style="flex:1;display:flex;flex-direction:column;gap:2px"><strong style="font-size:15px">{{l.name}}</strong><span class="muted" style="font-size:13px">{{l.meta}}</span><span class="muted" style="font-size:13px">Qty {{l.qty}} · {{l.lead}}</span></div><strong>₹{{l.totalText}}</strong></div>
+</sc-for>
+</div>
+<div style="padding:20px 24px;border-top:1px solid #E8E8E5;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between"><span>Subtotal</span><strong>₹{{subtotalText}}</strong></div>
+<p class="muted" style="font-size:13px">{{shipHint}} Shipping and discounts are calculated at checkout.</p>
+<a href="Checkout.dc.html" class="btn btn-p">Checkout</a>
+<a href="Cart.dc.html" class="btn btn-o">View full cart</a>
+</div>
+</aside>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stockMode":{"editor":"enum","options":["In stock","Made to order","Out of stock"],"default":"In stock","section":"Prototype state"},"$preview":{"width":1440,"height":2000}}'>
+const COLORS = [['terracotta','Terracotta','#C96F4A'],['charcoal','Charcoal','#2B2E33'],['sand','Sand','#D9C6A5'],['sage','Sage','#5E7A6A']];
+const SIZES = [['s','Small',699,'18 cm tall · 9 cm wide'],['l','Large',999,'26 cm tall · 13 cm wide']];
+const VIEWS = ['Front','Side','Top','Scale with hand'];
+const fmt = n => n.toLocaleString('en-IN');
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { color:'terracotta', size:'s', qty:1, personal:false, engrave:'Aisha', view:0, zoom:false, drawer:false, added:false, cartQty:2, pin:'560038', pinChecked:false, spec:0, blockMsg:'', notified:false }; }
+  renderVals() {
+    const s = this.state, mode = this.props.stockMode ?? 'In stock';
+    const col = COLORS.find(c=>c[0]===s.color), size = SIZES.find(z=>z[0]===s.size);
+    const unavailable = s.color==='sage' && s.size==='l';
+    const eng = s.engrave.trim();
+    const engraveInvalid = s.personal && (eng.length===0 || eng.length>12 || !/^[A-Za-z0-9 &.\-]*$/.test(eng));
+    const engraveHelp = !s.personal ? '' : eng.length===0 ? 'Enter the text to engrave.' : eng.length>12 ? `Use 12 characters or fewer (${eng.length}/12).` : !/^[A-Za-z0-9 &.\-]*$/.test(eng) ? 'Use letters, numbers, spaces, & . or - only.' : `${eng.length}/12 characters. Preview shows on the base.`;
+    const oos = mode==='Out of stock';
+    const mto = mode==='Made to order' || s.personal;
+    const unit = size[2] + (s.personal?99:0);
+    const canBuy = !oos && !unavailable && !engraveInvalid;
+    const blockedLabel = oos ? 'Out of stock' : unavailable ? 'Unavailable in this size' : 'Fix engraving text to continue';
+    const zoom = s.zoom ? 1.6 : 1;
+    const shapeFor = (v,sc) => {
+      const c = col[2], h = (s.size==='l'?240:190)*sc, w = (s.size==='l'?118:96)*sc;
+      if (v===2) return `width:${w*1.3}px;height:${w*1.3}px;border-radius:50%;background:${c};box-shadow:inset 0 0 0 ${w*0.35}px rgba(0,0,0,.18)`;
+      if (v===1) return `width:${w*0.85}px;height:${h}px;border-radius:${w/2}px ${w/2}px ${w/4}px ${w/4}px;background:${c};position:relative;z-index:1`;
+      if (v===3) return `width:${w*0.6}px;height:${h*0.6}px;border-radius:${w/3}px ${w/3}px ${w/6}px ${w/6}px;background:${c};position:relative;z-index:1;box-shadow:60px 20px 0 30px #D7B49E`;
+      return `width:${w}px;height:${h}px;border-radius:${w/2}px ${w/2}px ${w/4}px ${w/4}px;background:${c};position:relative;z-index:1`;
+    };
+    const lines = [
+      {name:'Minimal Phone Stand',meta:'Charcoal · PETG',qty:2,unit:249,shape:'width:40px;height:44px;background:#2B2E33;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)',lead:'Ships in 1–2 days'},
+      ...(s.added?[{name:'Spiral Decor Vase',meta:`${col[1]} · ${size[1]}${s.personal?` · Engraved “${eng}”`:''}`,qty:s.qty,unit,shape:`width:26px;height:52px;border-radius:13px 13px 8px 8px;background:${col[2]}`,lead:mto?'Printed in 3–5 days':'Ships in 1–2 days'}]:[])
+    ].map(l=>({...l,totalText:fmt(l.unit*l.qty)}));
+    const subtotal = lines.reduce((a,l)=>a+l.unit*l.qty,0);
+    const pinOk = /^[1-9][0-9]{5}$/.test(s.pin);
+    const specData = [
+      {t:'Specifications',rows:[{k:'Material',v:'Matte PLA with PETG inner sleeve'},{k:'Dimensions',v:size[3]},{k:'Weight',v:s.size==='l'?'310 g':'190 g'},{k:'Layer height',v:'0.16 mm'},{k:'Care',v:'Wipe with a damp cloth. Keep away from direct heat above 50 °C.'}]},
+      {t:'Production and delivery',rows:[{k:'Ready-made',v:'Packed and dispatched in 1–2 business days'},{k:'Made to order',v:'Printed, finished and checked in 3–5 business days, then dispatched'},{k:'Shipping',v:'3–6 business days after dispatch (estimate)'}]},
+      {t:'Returns',rows:[{k:'Ready-made',v:'Returnable within 7 days if unused'},{k:'Personalised',v:'Returnable only if damaged or defective'}]}
+    ];
+    return {
+      cartCount: s.cartQty + (s.added?s.qty:0),
+      heroShape: shapeFor(s.view, zoom), viewName: VIEWS[s.view], zoomLabel: s.zoom?'Zoom out':'Zoom in', toggleZoom:()=>this.setState({zoom:!s.zoom}),
+      thumbs: VIEWS.map((n,i)=>({name:n,on:s.view===i,ring:s.view===i?'outline:2px solid #111318;outline-offset:2px':'',shape:shapeFor(i,0.32),pick:()=>this.setState({view:i})})),
+      stockChip: oos?'Out of stock':mto?'Made to order':'In stock',
+      stockChipStyle: oos?'background:#ECECEA;color:#45474C':mto?'background:#FDEBD8;color:#8A4A0A':'background:#E3F3EC;color:#0F5E41',
+      unitText: fmt(unit), colorName: col[1], sizeName: size[1],
+      colors: COLORS.map(c=>({hex:c[2],on:s.color===c[0],aria:c[1]+(s.color===c[0]?', selected':''),ring:s.color===c[0]?'border:3px solid #fff;outline:2px solid #111318':'border:1px solid #CFCDC6',pick:()=>this.setState({color:c[0],blockMsg:''})})),
+      variantUnavailable: unavailable,
+      sizes: SIZES.map(z=>({name:z[1],priceText:fmt(z[2]),dims:z[3],on:s.size===z[0],style:s.size===z[0]?'border:2px solid #111318;background:#fff;color:#111318':'border:1px solid #CFCDC6;background:#fff;color:#111318',pick:()=>this.setState({size:z[0],blockMsg:''})})),
+      personal:s.personal, togglePersonal:()=>this.setState({personal:!s.personal}),
+      switchStyle: s.personal?'background:#111318':'background:#B9BBC1', knobStyle: s.personal?'left:21px':'left:3px',
+      engrave:s.engrave, onEngrave:e=>this.setState({engrave:e.target.value}), engraveInvalid, engraveHelp,
+      engraveBorder: engraveInvalid?'border:2px solid #DC3545':'', engraveHelpStyle: engraveInvalid?'color:#B02A37':'color:#686B72',
+      qty:s.qty, dec:()=>this.setState({qty:Math.max(1,s.qty-1)}), inc:()=>this.setState({qty:Math.min(10,s.qty+1)}),
+      lineText: fmt(unit*s.qty), canBuy, cannotBuy:!canBuy, blockedLabel, oos,
+      explainBlocked:()=>this.setState({blockMsg: oos?'This colour is out of stock. Choose another colour or get notified.':unavailable?'Sage is printed in Small only. Pick Small or another colour.':'The engraving text needs fixing before you can add this to your cart.'}),
+      blockMsg:s.blockMsg, notifyLabel:s.notified?'✓ Subscribed':'Notify me', notify:()=>this.setState({notified:true}),
+      addToCart:()=>this.setState({added:true,drawer:true}),
+      prodTime: mto?'Printed in 3–5 business days':'Ready to ship in 1–2 days', prodNote: mto?'Starts after payment is confirmed':'From ready stock in our studio',
+      pin:s.pin, onPin:e=>this.setState({pin:e.target.value.replace(/\D/g,''),pinChecked:false}),
+      checkPin:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.setState({pinChecked:true}); },
+      pinMsg: !s.pinChecked ? '' : pinOk ? `Delivers to ${s.pin}. Estimated 3–6 business days after dispatch.` : 'Enter a valid 6-digit PIN code.',
+      pinStyle: pinOk?'color:#0F5E41':'color:#B02A37',
+      specs: specData.map((sp,i)=>({...sp,open:s.spec===i,sign:s.spec===i?'−':'+',toggle:()=>this.setState({spec:s.spec===i?-1:i})})),
+      drawer:s.drawer, justAdded:s.added, openDrawer:()=>this.setState({drawer:true}), closeDrawer:()=>this.setState({drawer:false}),
+      lines, subtotalText: fmt(subtotal), shipHint: subtotal>=1499 ? 'You qualify for free standard shipping.' : `Add ₹${fmt(1499-subtotal)} more for free standard shipping.`
+    };
+  }
+}
+</script>
+</body>
+</html>

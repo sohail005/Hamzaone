@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Design System</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:24px;box-sizing:border-box}
+.code{font:12px ui-monospace,Menlo,monospace;color:#45474C;background:#F3F2EE;border-radius:6px;padding:1px 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+td,th{padding:8px 10px;border-bottom:1px solid #E8E8E5;text-align:left;vertical-align:middle}
+th{font-size:12px;color:#686B72;font-weight:600}
+button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+</style>
+</helmet>
+<main style="max-width:1280px;margin:0 auto;padding:56px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px">
+<div><span class="eyebrow">03 — Design System · v1.0</span><h1 style="font-size:48px;margin-top:6px">HamzaOne foundations and components</h1><p class="muted" style="margin-top:8px;max-width:760px">Every name below is the component name used in code and in handoff (13). States are props, not copies: <span class="code">Button variant="primary" state="loading"</span> = <span class="code">Button/Primary/Loading</span>.</p></div>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Colour tokens</h2>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:760px"><thead><tr><th>Swatch</th><th>Token</th><th>Hex</th><th>Use</th><th>Contrast</th></tr></thead><tbody>
+<sc-for list="{{colors}}" as="c" hint-placeholder-count="13"><tr><td><span style="display:block;width:48px;height:32px;border-radius:8px;border:1px solid #E8E8E5;background:{{c.hex}}"></span></td><td><span class="code">{{c.t}}</span></td><td>{{c.hex}}</td><td class="muted">{{c.u}}</td><td style="font-size:13px">{{c.ct}}</td></tr></sc-for>
+</tbody></table></div>
+<p class="muted" style="font-size:13px">White on orange fails AA (2.8:1), so primary buttons use ink text on orange (7.2:1). Orange text uses accent-text #C2410C. Warning text uses #8A5209 on #FFF4E0, never #C77814 on white.</p>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Typography</h2>
+<sc-for list="{{type}}" as="t" hint-placeholder-count="11"><div style="display:flex;gap:24px;align-items:baseline;border-bottom:1px solid #E8E8E5;padding-bottom:12px;flex-wrap:wrap"><span class="code" style="flex:0 0 120px">{{t.n}}</span><span style="flex:1 1 360px;{{t.css}}">{{t.sample}}</span><span class="muted" style="font-size:12px;flex:0 0 240px">{{t.spec}}</span></div></sc-for>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2 style="font-size:18px">Spacing · 8-pt</h2><sc-for list="{{space}}" as="s" hint-placeholder-count="9"><div style="display:flex;align-items:center;gap:12px"><span class="code" style="width:72px">{{s.t}}</span><span style="height:12px;background:#F97316;border-radius:3px;width:{{s.v}}px"></span><span class="muted" style="font-size:12px">{{s.v}}px</span></div></sc-for></div>
+<div class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:18px">Radius</h2><div style="display:flex;gap:12px;flex-wrap:wrap"><sc-for list="{{radii}}" as="r" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><span style="width:64px;height:64px;background:#ECEAE4;border:1px solid #CFCDC6;border-radius:{{r.v}}px"></span><span class="code">{{r.t}}</span><span class="muted" style="font-size:11px">{{r.u}}</span></div></sc-for></div></div>
+<div class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:18px">Elevation</h2><sc-for list="{{shadows}}" as="s" hint-placeholder-count="3"><div style="background:#fff;border-radius:12px;padding:14px;box-shadow:{{s.v}}"><span class="code">{{s.t}}</span> <span class="muted" style="font-size:12px">{{s.u}}</span></div></sc-for><p class="muted" style="font-size:12px">Prefer borders. Shadows only for floating layers.</p></div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Button · 6 variants × 6 states</h2>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;min-width:960px"><thead><tr><th>Variant</th><sc-for list="{{states}}" as="s" hint-placeholder-count="6"><th>{{s}}</th></sc-for></tr></thead><tbody>
+<sc-for list="{{buttons}}" as="b" hint-placeholder-count="6"><tr><td><span class="code">Button/{{b.n}}</span></td><sc-for list="{{b.cells}}" as="c" hint-placeholder-count="6"><td><span style="display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:{{c.pad}};border-radius:999px;font:600 14px Inter,sans-serif;box-sizing:border-box;{{c.css}}">{{c.label}}</span></td></sc-for></tr></sc-for>
+</tbody></table></div>
+<p class="muted" style="font-size:13px">Heights: L 52 · M 48 · S 40 (admin). Hover darkens 6%, pressed scales to 0.98 over 150 ms, focus adds a 2 px #F97316 ring offset 2 px, loading keeps width and announces “Loading” via aria-busy.</p>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Input · states</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+<sc-for list="{{inputs}}" as="i" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;gap:6px"><span class="code">Input/Text/{{i.s}}</span><label style="font-size:14px;font-weight:600;{{i.lbl}}">PIN code</label><span style="height:48px;border-radius:12px;padding:0 14px;display:flex;align-items:center;font-size:16px;box-sizing:border-box;{{i.css}}">{{i.v}}</span><span style="font-size:13px;{{i.hs}}">{{i.h}}</span></div></sc-for>
+</div>
+<p class="muted" style="font-size:13px">Types sharing these states: Text, Email, Phone (+91 prefix), Password (show/hide), Number, Search (pill), Textarea, File Upload (dashed drop zone). Labels always visible; errors in text plus a 2 px red border, never colour alone.</p>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Commerce components</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px">
+<sc-for list="{{cards}}" as="p" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:8px"><span class="code">ProductCard/{{p.v}}</span><div style="aspect-ratio:1/1;background:#ECEAE4;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;{{p.dim}}"><span style="{{p.shape}}"></span><span class="chip" style="position:absolute;left:10px;top:10px;{{p.bs}}">{{p.b}}</span></div><div style="display:flex;justify-content:space-between"><strong>{{p.n}}</strong><strong>₹{{p.price}}</strong></div><span class="muted" style="font-size:13px">{{p.lead}}</span><span style="min-height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;{{p.cta}}">{{p.ctaLabel}}</span></div></sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start;border-top:1px solid #E8E8E5;padding-top:20px">
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">QuantitySelector</span><div role="group" aria-label="Quantity demo" style="display:flex;align-items:center;border:1px solid #8E9097;border-radius:999px;height:48px;background:#fff"><button onClick="{{dec}}" aria-label="Decrease" style="width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer">−</button><output style="min-width:28px;text-align:center;font-weight:600">{{qty}}</output><button onClick="{{inc}}" aria-label="Increase" style="width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer">+</button></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">ColorSelector</span><div style="display:flex;gap:8px"><sc-for list="{{swatches}}" as="w" hint-placeholder-count="4"><button onClick="{{w.pick}}" aria-label="{{w.n}}" aria-pressed="{{w.on}}" style="width:44px;height:44px;border-radius:50%;cursor:pointer;background:{{w.hex}};{{w.ring}}"></button></sc-for></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">MaterialSelector</span><div style="display:flex;gap:8px"><sc-for list="{{mats}}" as="m" hint-placeholder-count="3"><button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="min-height:44px;padding:0 16px;border-radius:12px;cursor:pointer;font:600 14px Inter,sans-serif;{{m.style}}">{{m.n}}</button></sc-for></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">PriceDisplay</span><div><strong style="font:700 24px Manrope,sans-serif">₹1,299</strong> <s class="muted">₹1,499</s> <span class="chip" style="background:#E3F3EC;color:#0F5E41">Save ₹200</span><br><span class="muted" style="font-size:12px">Inclusive of GST · en-IN grouping (₹1,84,320)</span></div></div>
+</div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:16px"><h2 style="font-size:22px">Status chips</h2>
+<sc-for list="{{statusGroups}}" as="g" hint-placeholder-count="3"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="code" style="width:150px">{{g.n}}/*</span><sc-for list="{{g.items}}" as="i" hint-placeholder-count="6"><span class="chip" style="{{i.s}}">{{i.l}}</span></sc-for></div></sc-for>
+<p class="muted" style="font-size:13px">Shared production vocabulary across storefront, account, tracking and admin: Queued → Printing → Post Processing → Quality Check → Packed → Shipped → Delivered (plus Canceled).</p>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:20px"><h2 style="font-size:22px">Feedback</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">Toast</span><div role="status" style="background:#111318;color:#fff;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;gap:12px">✓ Added to cart <span style="color:#FDBA74;font-weight:600">View cart</span></div><span class="muted" style="font-size:12px">Bottom right desktop, bottom centre mobile. 4 s, pauses on hover, role=status.</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">Alert/*</span><sc-for list="{{alerts}}" as="a" hint-placeholder-count="4"><div style="border-radius:12px;padding:10px 14px;font-size:14px;{{a.s}}"><strong>{{a.t}}</strong> {{a.d}}</div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">ConfirmationDialog</span><div style="border:1px solid #E8E8E5;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 32px rgba(17,19,24,.12)"><strong style="font:700 18px Manrope,sans-serif">Archive “Hex Pen Cup”?</strong><span class="muted" style="font-size:14px">Hidden from the store. Orders unaffected.</span><div style="display:flex;gap:8px;justify-content:flex-end"><span style="min-height:40px;padding:0 14px;border:1px solid #CFCDC6;border-radius:10px;display:flex;align-items:center;font-weight:600">Cancel</span><span style="min-height:40px;padding:0 14px;background:#DC3545;color:#fff;border-radius:10px;display:flex;align-items:center;font-weight:600">Archive</span></div></div><span class="muted" style="font-size:12px">Focus trapped, Esc and scrim close, focus returns to trigger.</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">LoadingSkeleton</span><div aria-busy="true" style="display:flex;gap:12px"><span style="width:96px;height:96px;border-radius:14px;background:#E6E4DE"></span><span style="flex:1;display:flex;flex-direction:column;gap:8px"><span style="height:14px;width:80%;border-radius:6px;background:#E6E4DE"></span><span style="height:14px;width:50%;border-radius:6px;background:#E6E4DE"></span><span style="height:14px;width:30%;border-radius:6px;background:#E6E4DE"></span></span></div><span class="muted" style="font-size:12px">Shimmer 1.2 s; static under prefers-reduced-motion.</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">EmptyState</span><div style="border:1px dashed #CFCDC6;border-radius:16px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center"><strong>Your wishlist is empty</strong><span class="muted" style="font-size:14px">Tap the heart on any product to save it.</span><span style="min-height:44px;padding:0 18px;border-radius:999px;background:#F97316;display:flex;align-items:center;font-weight:600">Browse products</span></div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><span class="code">ProgressIndicator · Stepper · Tooltip</span><div style="height:8px;border-radius:4px;background:#E8E8E5;overflow:hidden"><div style="height:100%;width:64%;background:#F97316"></div></div>
+<ol style="list-style:none;margin:0;padding:0;display:flex;gap:6px"><sc-for list="{{stepper}}" as="s" hint-placeholder-count="5"><li style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="height:4px;border-radius:2px;{{s.bar}}"></span><span style="font-size:12px;font-weight:600;{{s.txt}}">{{s.n}}</span></li></sc-for></ol>
+<span style="align-self:flex-start;background:#111318;color:#fff;font-size:12px;border-radius:8px;padding:6px 10px">Production time starts after payment</span></div>
+</div>
+</section>
+
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:22px">Navigation components</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+<sc-for list="{{navComps}}" as="n" hint-placeholder-count="8"><div style="border:1px solid #E8E8E5;border-radius:12px;padding:14px"><span class="code">{{n.n}}</span><p class="muted" style="font-size:13px;margin-top:6px">{{n.d}}</p><a href="{{n.h}}" style="font-size:13px;font-weight:600;color:#C2410C">See in context →</a></div></sc-for>
+</div></section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2600}}'>
+const OK='background:#E3F3EC;color:#0F5E41', PEND='background:#FFF4E0;color:#8A5209', FAIL='background:#FDE7E9;color:#8E1F2B', NEU='background:#ECECEA;color:#45474C', ACT='background:#FDEBD8;color:#8A4A0A', DARK='background:#111318;color:#fff';
+const BV = {
+ 'Primary':{d:'background:#F97316;color:#111318',h:'background:#EA6A0C;color:#111318'},
+ 'Secondary':{d:'background:#111318;color:#fff',h:'background:#2A2D33;color:#fff'},
+ 'Outline':{d:'background:transparent;border:1px solid #111318;color:#111318',h:'background:#111318;color:#fff;border:1px solid #111318'},
+ 'Ghost':{d:'background:transparent;color:#111318',h:'background:#ECEBE6;color:#111318'},
+ 'Destructive':{d:'background:#DC3545;color:#fff',h:'background:#B02A37;color:#fff'},
+ 'IconOnly':{d:'background:#fff;border:1px solid #CFCDC6;color:#111318',h:'background:#ECEBE6;border:1px solid #CFCDC6;color:#111318'}
+};
+const STATES = ['Default','Hover','Pressed','Focused','Disabled','Loading'];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { qty:2, sw:0, mat:1 }; }
+  renderVals() {
+    const s = this.state;
+    return {
+      colors:[['color.bg','#F6F5F1','Page background','—'],['color.surface','#FFFFFF','Cards, inputs, sheets','—'],['color.text','#111318','Primary text','17.8:1 on bg'],['color.text-muted','#686B72','Secondary text','4.9:1 on bg'],['color.accent','#F97316','CTAs, selection, focus ring','7.2:1 with ink text'],['color.accent-hover','#EA6A0C','Primary hover','—'],['color.accent-text','#C2410C','Orange links on light','5.2:1 on bg'],['color.dark','#17191D','Dark sections, admin sidebar','—'],['color.border','#E8E8E5','Dividers, card borders','decorative'],['color.border-input','#8E9097','Input borders','3.2:1 on white'],['color.success','#16845B','Success fills, text','4.7:1 on white'],['color.error','#DC3545','Error fills, borders; text uses #B02A37','4.8:1 / 6.3:1'],['color.warning','#C77814','Warning fills only; text #8A5209','#8A5209: 5.6:1']].map(([t,hex,u,ct])=>({t,hex,u,ct})),
+      type:[['display','Your Ideas. Made Real.','font:800 64px/1.02 Manrope,sans-serif;letter-spacing:-0.03em','Manrope 800 · 64/66 · −3% · mobile 44'],['h1','Spiral Decor Vase','font:700 40px/1.1 Manrope,sans-serif','Manrope 700 · 40/44 · mobile 28'],['h2','Customer favourites','font:700 32px/1.15 Manrope,sans-serif','Manrope 700 · 32/37 · mobile 24'],['h3','Order summary','font:700 22px/1.25 Manrope,sans-serif','Manrope 700 · 22/28'],['h4','Production and delivery','font:600 17px/1.3 Manrope,sans-serif','Manrope 600 · 17/22'],['body-lg','Precise objects for your home and desk.','font:400 18px/1.55 Inter,sans-serif','Inter 400 · 18/28'],['body','Ships in 1–2 business days.','font:400 16px/1.5 Inter,sans-serif','Inter 400 · 16/24 (inputs min 16)'],['body-sm','Inclusive of GST.','font:400 14px/1.5 Inter,sans-serif','Inter 400 · 14/21'],['caption','Concept render','font:500 12px/1.4 Inter,sans-serif;color:#575A60','Inter 500 · 12/17 · min size'],['button','Add to cart','font:600 15px/1 Inter,sans-serif','Inter 600 · 15–16'],['label','PIN code','font:600 14px/1.3 Inter,sans-serif','Inter 600 · 14']].map(([n,sample,css,spec])=>({n,sample,css,spec})),
+      space:[['space.1',4],['space.2',8],['space.3',12],['space.4',16],['space.5',24],['space.6',32],['space.7',48],['space.8',64],['space.9',80]].map(([t,v])=>({t,v})),
+      radii:[['radius.sm',8,'chips'],['radius.md',12,'inputs'],['radius.lg',16,'cards'],['radius.xl',20,'panels'],['radius.2xl',24,'sheets'],['radius.pill',999,'buttons']].map(([t,v,u])=>({t,v:Math.min(v,32),u})),
+      shadows:[['shadow.sm','0 1px 2px rgba(17,19,24,.06)','sticky header on scroll'],['shadow.md','0 12px 24px rgba(17,19,24,.06)','dropdowns'],['shadow.lg','0 12px 32px rgba(17,19,24,.16)','drawers, dialogs, toasts']].map(([t,v,u])=>({t,v,u})),
+      states:STATES,
+      buttons: Object.keys(BV).map(n=>({n, cells: STATES.map(st=>{ const v=BV[n]; const icon=n==='IconOnly';
+        const css = st==='Hover'?v.h: st==='Pressed'?v.h+';transform:scale(.98)': st==='Focused'?v.d+';outline:2px solid #F97316;outline-offset:2px': st==='Disabled'?'background:#ECECEA;color:#8E9097': v.d;
+        return { css, pad: icon?'0':'0 20px', label: icon?(st==='Loading'?'…':'♡'):(st==='Loading'?'Loading…':n==='Destructive'?'Delete':'Add to cart') }; })})),
+      inputs:[['Default','','border:1px solid #8E9097;background:#fff;color:#686B72','Placeholder: 560102','6-digit PIN','color:#686B72',''],['Focused','5601','border:2px solid #111318;background:#fff;outline:2px solid #F97316;outline-offset:1px','','6-digit PIN','color:#686B72',''],['Filled','560102','border:1px solid #8E9097;background:#fff','','6-digit PIN','color:#686B72',''],['Error','5600','border:2px solid #DC3545;background:#fff','','PIN code must be 6 digits.','color:#B02A37',''],['Success','560102','border:1px solid #16845B;background:#fff','','✓ Delivers to Bengaluru','color:#0F5E41',''],['Disabled','560102','border:1px solid #E8E8E5;background:#F3F2EE;color:#8E9097','','Locked after payment','color:#686B72','color:#8E9097']].map(([st,val,css,ph,h,hs,lbl])=>({s:st,v:val||ph.replace('Placeholder: ',''),css,h,hs,lbl})),
+      cards:[['Available','Spiral Decor Vase','699','width:50px;height:100px;border-radius:25px 25px 14px 14px;background:#C96F4A','In stock',OK,'Ships in 1–2 days','Add to cart','border:1px solid #111318',''],['MadeToOrder','Custom Name Plate','399','width:120px;height:44px;border-radius:8px;background:#D9C6A5','Made to order',ACT,'Printed in 3–5 days','Personalise','border:1px solid #111318',''],['LowStock','Headphone Stand','799','width:76px;height:84px;background:#8C8F96;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)','Only 3 left',PEND,'Ships in 1–2 days','Add to cart','border:1px solid #111318',''],['OutOfStock','Hex Pen Cup','299','width:72px;height:72px;background:#5E7A6A;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)','Out of stock',NEU,'Restock pending','Notify me when back','border:1px solid #CFCDC6;color:#686B72','opacity:.7']].map(([v,n,price,shape,b,bs,lead,ctaLabel,cta,dim])=>({v,n,price,shape,b,bs,lead,ctaLabel,cta,dim})),
+      qty:s.qty, dec:()=>this.setState({qty:Math.max(1,s.qty-1)}), inc:()=>this.setState({qty:Math.min(10,s.qty+1)}),
+      swatches:[['Terracotta','#C96F4A'],['Charcoal','#2B2E33'],['Sand','#D9C6A5'],['Sage','#5E7A6A']].map(([n,hex],i)=>({n,hex,on:s.sw===i,ring:s.sw===i?'border:3px solid #fff;outline:2px solid #111318':'border:1px solid #CFCDC6',pick:()=>this.setState({sw:i})})),
+      mats:['PLA','PETG','TPU'].map((n,i)=>({n,on:s.mat===i,style:s.mat===i?'border:2px solid #111318;background:#111318;color:#fff':'border:1px solid #8E9097;background:#fff;color:#111318',pick:()=>this.setState({mat:i})})),
+      statusGroups:[
+        {n:'OrderStatus',items:[['Placed',NEU],['Paid',OK],['Packing',ACT],['Shipped',DARK],['Delivered',OK],['Canceled',NEU]]},
+        {n:'PaymentStatus',items:[['Captured',OK],['Pending',PEND],['Failed',FAIL],['Refund pending',PEND],['Refunded',NEU]]},
+        {n:'ProductionStatus',items:[['Queued',NEU],['Printing',ACT],['Post Processing',ACT],['Quality Check','background:#E4ECF5;color:#2C4A70'],['Packed',ACT],['Completed',OK]]},
+        {n:'QuoteStatus',items:[['Awaiting review',NEU],['Quote received',ACT],['Accepted',OK],['Rejected',FAIL],['Expired',NEU]]}
+      ].map(g=>({n:g.n,items:g.items.map(([l,st])=>({l,s:st}))})),
+      alerts:[['Success','Payment confirmed.',OK],['Info','Personalised items add 1 day.','background:#E4ECF5;color:#2C4A70'],['Warning','Price updated since you added it.',PEND],['Error','Coupon is not valid.',FAIL]].map(([t,d,st])=>({t,d,s:st})),
+      stepper:['Upload','Preview','Options','Contact','Review'].map((n,i)=>({n,bar:i<3?'background:#111318':'background:#E8E8E5',txt:i<3?'':'color:#686B72'})),
+      navComps:[['Header/Desktop','Logo, Shop, Categories dropdown, Track, search, Custom 3D Print CTA, account, wishlist, cart count. Sticky.','Home.dc.html'],['Header/Mobile','Menu, logo, search, cart. 44 px targets.','MobileHome.dc.html'],['MobileMenu','Left drawer, focus trapped, category links.','MobileHome.dc.html'],['CategoryDropdown','Full-width panel under header.','Home.dc.html'],['AdminSidebar','240 px, collapses to 72 px icon rail.','AdminOverview.dc.html'],['Breadcrumbs','Home / Category / Product.','Product.dc.html'],['Pagination','Load more with “Showing 12 of 24”.','Shop.dc.html'],['Tabs','Underline 2 px accent for active.','AdminInventory.dc.html']].map(([n,d,h])=>({n,d,h}))
+    };
+  }
+}
+</script>
+</body>
+</html>

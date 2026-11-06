@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Sitemap and Journeys</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.node{background:#fff;border:1px solid #E8E8E5;border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.route{font:11px ui-monospace,Menlo,monospace;color:#686B72}
+a:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+</style>
+</helmet>
+<main style="max-width:1600px;margin:0 auto;padding:48px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px">
+<div><span class="eyebrow">01 — User flows and information architecture</span><h1 style="font-size:44px;margin-top:6px">Sitemap</h1><p class="muted" style="margin-top:6px">71 named screens and states mapped to 40 routes. Primary navigation: Shop, Custom 3D Print, Track order, Account, Cart. Every node links to the board that designs it.</p></div>
+<section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;align-items:start">
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="7">
+<div style="display:flex;flex-direction:column;gap:8px;background:{{g.bg}};border-radius:16px;padding:14px">
+<a href="{{g.href}}" style="background:#111318;color:#fff;border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;gap:8px"><strong style="font-family:Manrope,sans-serif">{{g.name}}</strong><span style="font:11px ui-monospace,Menlo,monospace;color:#C9CBD0">{{g.route}}</span></a>
+<sc-for list="{{g.kids}}" as="k" hint-placeholder-count="5"><a href="{{k.h}}" class="node" style="margin-left:{{k.indent}}px"><span>{{k.n}}</span><span class="route">{{k.r}}</span></a></sc-for>
+</div>
+</sc-for>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:16px">
+<h2 style="font-size:30px">Prototype journeys</h2>
+<p class="muted">Each step links to the board where that step is playable. Inside a board, steps are state changes with Back paths and labelled prototype branches for gateway and upload results.</p>
+<sc-for list="{{journeys}}" as="j" hint-placeholder-count="11">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span style="font:800 18px Manrope,sans-serif;color:#C2410C">{{j.id}}</span><strong style="font-family:Manrope,sans-serif;font-size:17px">{{j.name}}</strong><span class="muted" style="font-size:13px">{{j.note}}</span></div>
+<ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+<sc-for list="{{j.steps}}" as="s" hint-placeholder-count="8"><li style="display:flex;align-items:center;gap:6px"><a href="{{s.h}}" style="background:#F6F5F1;border:1px solid #E8E8E5;border-radius:999px;padding:4px 12px;font-weight:500">{{s.n}}</a><span aria-hidden="true" class="muted">{{s.arrow}}</span></li></sc-for>
+</ol>
+</div>
+</sc-for>
+</section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1680,"height":1500}}'>
+const G = [
+ ['Home','/','Home.dc.html','#ECEAE4',[['About Us','/about','States.dc.html'],['Contact Us','/contact','States.dc.html'],['FAQs','/faq','States.dc.html'],['Shipping Policy','/shipping-policy','States.dc.html'],['Return & Refund','/return-policy','States.dc.html'],['Privacy Policy','/privacy-policy','States.dc.html'],['Terms','/terms','States.dc.html'],['404 · Error · Maintenance','—','States.dc.html']]],
+ ['Shop','/shop','Shop.dc.html','#ECEAE4',[['Category Products','/shop/[category]','Shop.dc.html'],['Search Results · No Results','/shop?q=','Shop.dc.html'],['Mobile Filters','sheet','MobileShop.dc.html'],['Product Details','/products/[slug]','Product.dc.html',1],['Customisation · Cart Drawer','state','Product.dc.html',2]]],
+ ['Custom 3D Print','/custom-print','CustomPrint.dc.html','#FDEBD8',[['Upload · Preview · Options','steps','CustomPrint.dc.html'],['Contact · Review · Submitted','steps','CustomPrint.dc.html'],['Quotation details','/custom-print/quotes/[id]','CustomPrint.dc.html'],['Accepted / Rejected / Expired','state','CustomPrint.dc.html',1],['Quote payment · tracking','state','CustomPrint.dc.html',1]]],
+ ['Cart & Checkout','/cart','Cart.dc.html','#ECEAE4',[['Empty Cart','state','Cart.dc.html'],['Checkout','/checkout','Checkout.dc.html'],['Payment processing / pending','state','Checkout.dc.html',1],['Order Success','/order/success','Checkout.dc.html',1],['Payment Failed','/order/failed','Checkout.dc.html',1]]],
+ ['Account','/account','Account.dc.html','#ECEAE4',[['Login','/login','Auth.dc.html'],['Register','/register','Auth.dc.html'],['Forgot / Reset Password','state','Auth.dc.html',1],['My Orders','/account/orders','Account.dc.html'],['Order Details','/account/orders/[id]','Account.dc.html',1],['Saved Addresses · Add/Edit','/account/addresses','Account.dc.html'],['Wishlist · Empty','/wishlist','Account.dc.html'],['Edit Profile','state','Account.dc.html']]],
+ ['Track Order','/track-order','Track.dc.html','#ECEAE4',[['Guest verification (OTP)','state','Track.dc.html'],['Order not found','state','Track.dc.html'],['Tracking timeline','state','Track.dc.html']]],
+ ['Admin','/admin','AdminOverview.dc.html','#E4ECF5',[['Products · Add · Edit · Preview','/admin/products','AdminProducts.dc.html'],['Categories','/admin/categories','AdminProducts.dc.html'],['Orders · Details · Status · Refund','/admin/orders','AdminOrders.dc.html'],['Production Queue','/admin/production','AdminProduction.dc.html'],['Custom Requests · Quote Editor','/admin/custom-requests','AdminQuotes.dc.html'],['Inventory · Adjustment','/admin/inventory','AdminInventory.dc.html'],['Customers','/admin/customers','AdminMore.dc.html'],['Coupons · Create/Edit','/admin/coupons','AdminMore.dc.html'],['Payments & Refunds','/admin/payments','AdminMore.dc.html'],['Analytics','/admin/analytics','AdminMore.dc.html'],['Settings','/admin/settings','AdminMore.dc.html']]]
+];
+const J = [
+ ['A','Browse and purchase','',[['Home','Home.dc.html'],['Shop','Shop.dc.html'],['Product Details','Product.dc.html'],['Select colour','Product.dc.html'],['Add to cart','Product.dc.html'],['Cart drawer','Product.dc.html'],['Cart','Cart.dc.html'],['Checkout','Checkout.dc.html'],['Address','Checkout.dc.html'],['Payment','Checkout.dc.html'],['Success','Checkout.dc.html'],['Order details','Account.dc.html']]],
+ ['B','Buy now','',[['Home','Home.dc.html'],['Product Details','Product.dc.html'],['Buy now','Product.dc.html'],['Checkout','Checkout.dc.html'],['Payment','Checkout.dc.html'],['Order confirmation','Checkout.dc.html']]],
+ ['C','Search and filter','includes reset and empty recovery',[['Home search','Home.dc.html'],['Search results','Shop.dc.html'],['Apply filter','Shop.dc.html'],['Filtered products','Shop.dc.html'],['No results → reset','Shop.dc.html'],['Product Details','Product.dc.html']]],
+ ['D','Custom printing','includes upload failure and validation branches',[['Home','Home.dc.html'],['Custom Print','CustomPrint.dc.html'],['Upload','CustomPrint.dc.html'],['Preview','CustomPrint.dc.html'],['Options','CustomPrint.dc.html'],['Contact','CustomPrint.dc.html'],['Review','CustomPrint.dc.html'],['Submit','CustomPrint.dc.html'],['Quote pending','CustomPrint.dc.html'],['Quote received','CustomPrint.dc.html'],['Accept','CustomPrint.dc.html'],['Payment','CustomPrint.dc.html'],['Tracking','CustomPrint.dc.html']]],
+ ['E','Authentication','',[['Login','Auth.dc.html'],['Invalid credentials','Auth.dc.html'],['Correction','Auth.dc.html'],['Success','Auth.dc.html'],['Account','Account.dc.html'],['Register → Account','Auth.dc.html'],['Forgot → Reset → Login','Auth.dc.html']]],
+ ['F','Order tracking','includes guest verification',[['Account','Account.dc.html'],['My orders','Account.dc.html'],['Order details','Account.dc.html'],['Tracking timeline','Track.dc.html'],['Shipment details','Track.dc.html']]],
+ ['G','Payment failure','also pending and canceled',[['Checkout','Checkout.dc.html'],['Payment attempt','Checkout.dc.html'],['Failed','Checkout.dc.html'],['Retry','Checkout.dc.html'],['Success','Checkout.dc.html'],['Confirmation','Checkout.dc.html']]],
+ ['H','Admin · add product','',[['Admin','AdminOverview.dc.html'],['Products','AdminProducts.dc.html'],['Add product','AdminProducts.dc.html'],['Details','AdminProducts.dc.html'],['Images','AdminProducts.dc.html'],['Variants','AdminProducts.dc.html'],['Save draft','AdminProducts.dc.html'],['Preview','AdminProducts.dc.html'],['Publish','AdminProducts.dc.html'],['Product list','AdminProducts.dc.html']]],
+ ['I','Admin · manage order','',[['Admin','AdminOverview.dc.html'],['Orders','AdminOrders.dc.html'],['Order details','AdminOrders.dc.html'],['Confirm payment','AdminOrders.dc.html'],['Update production','AdminOrders.dc.html'],['Pack','AdminOrders.dc.html'],['Add tracking','AdminOrders.dc.html'],['Mark shipped','AdminOrders.dc.html']]],
+ ['J','Admin · custom quotation','',[['Admin','AdminOverview.dc.html'],['Custom requests','AdminQuotes.dc.html'],['Request details','AdminQuotes.dc.html'],['Review file','AdminQuotes.dc.html'],['Create quotation','AdminQuotes.dc.html'],['Preview','AdminQuotes.dc.html'],['Send','AdminQuotes.dc.html'],['Customer accepts','AdminQuotes.dc.html'],['Payment','AdminQuotes.dc.html'],['Production queue','AdminProduction.dc.html']]],
+ ['K','Admin · inventory','',[['Admin','AdminOverview.dc.html'],['Inventory','AdminInventory.dc.html'],['Select variant','AdminInventory.dc.html'],['Adjust stock','AdminInventory.dc.html'],['Confirm','AdminInventory.dc.html'],['Updated inventory','AdminInventory.dc.html']]]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      groups: G.map(([name,route,href,bg,kids])=>({name,route,href,bg,kids:kids.map(([n,r,h,d])=>({n,r,h,indent:(d||0)*16}))})),
+      journeys: J.map(([id,name,note,steps])=>({id,name,note,steps:steps.map(([n,h],i)=>({n,h,arrow:i<steps.length-1?'→':''}))}))
+    };
+  }
+}
+</script>
+</body>
+</html>

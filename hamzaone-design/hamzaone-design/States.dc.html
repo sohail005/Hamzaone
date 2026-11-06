@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Info Pages and System States · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.6}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em;line-height:1.2}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;font:600 15px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:transparent;border-color:#111318;color:#111318}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:28px;box-sizing:border-box}
+.tab{display:flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;background:none;border:0;width:100%;text-align:left;font:500 15px Inter,sans-serif;color:#111318;cursor:pointer}
+.f{display:flex;flex-direction:column;gap:6px}.f label{font-size:14px;font-weight:600}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;box-sizing:border-box;width:100%}
+.prose{display:flex;flex-direction:column;gap:14px;max-width:720px}
+.prose h2{font-size:22px;margin-top:12px}
+.ph{background:#FFF4E0;color:#6B3F06;border-radius:6px;padding:0 4px}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="border-bottom:1px solid #E8E8E5"><div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Shop</a><a href="CustomPrint.dc.html" style="padding:12px;font-weight:500">Custom 3D Print</a><a href="Track.dc.html" style="padding:12px;font-weight:500">Track order</a></nav>
+<a href="Cart.dc.html" style="padding:12px;font-weight:500">Cart</a></div></header>
+<main class="wrap" style="flex:1;padding-top:32px;padding-bottom:80px;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<aside aria-label="Pages" style="flex:1 1 220px;max-width:260px;display:flex;flex-direction:column;gap:2px">
+<span class="eyebrow" style="padding:0 14px 6px">Company</span>
+<sc-for list="{{infoTabs}}" as="t" hint-placeholder-count="7"><button class="tab" onClick="{{t.go}}" aria-current="{{t.cur}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+<span class="eyebrow" style="padding:16px 14px 6px">System pages</span>
+<sc-for list="{{sysTabs}}" as="t" hint-placeholder-count="3"><button class="tab" onClick="{{t.go}}" aria-current="{{t.cur}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+</aside>
+<section style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isAbout}}" hint-placeholder-val="{{ true }}">
+<span class="eyebrow">About HamzaOne</span>
+<h1 style="font-size:48px;max-width:760px">We turn ideas into objects you can hold.</h1>
+<div style="aspect-ratio:21/9;background:#17191D;border-radius:20px;display:flex;align-items:flex-end;padding:20px;box-sizing:border-box;color:#9EA1A8;font-size:12px">Studio photo placeholder · print farm and finishing bench</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+<div class="card" style="padding:22px"><h3 style="font-size:18px">Made in India</h3><p class="muted" style="font-size:15px;margin-top:6px">Every order is printed, finished and packed in our own studio in <span class="ph">[CITY]</span>.</p></div>
+<div class="card" style="padding:22px"><h3 style="font-size:18px">People check every piece</h3><p class="muted" style="font-size:15px;margin-top:6px">Machines print. People sand, inspect and approve before anything ships.</p></div>
+<div class="card" style="padding:22px"><h3 style="font-size:18px">Honest timelines</h3><p class="muted" style="font-size:15px;margin-top:6px">We always show production time and shipping time separately.</p></div>
+</div>
+<div class="prose"><p><span class="ph">[FOUNDER STORY: 2–3 sentences on why HamzaOne started, who runs it and when.]</span></p></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><a href="Shop.dc.html" class="btn btn-p">Shop the collection</a><button class="btn btn-o" onClick="{{toContact}}">Talk to us</button></div>
+</sc-if>
+
+<sc-if value="{{isContact}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:40px">Contact us</h1>
+<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+<form class="card" onSubmit="{{send}}" style="flex:2 1 380px;display:flex;flex-direction:column;gap:14px" novalidate="">
+<sc-if value="{{sent}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#E3F3EC;color:#0F5E41;border-radius:14px;padding:12px 16px;font-weight:600;font-size:14px">✓ Message sent. Ticket HS-20431 · we reply within 1 business day.</div></sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+<div class="f"><label for="cn">Name</label><input id="cn" class="in" value="Riya Sharma"></div>
+<div class="f"><label for="ce">Email</label><input id="ce" class="in" type="email" value="riya.sharma@example.com"></div>
+</div>
+<div class="f"><label for="co">Order or request number <span class="muted" style="font-weight:400">(optional)</span></label><input id="co" class="in" placeholder="HO-2026-10482"></div>
+<div class="f"><label for="cmsg">Message</label><textarea id="cmsg" rows="5" style="border:1px solid #8E9097;border-radius:12px;padding:12px 14px;font:16px Inter,sans-serif;resize:vertical"></textarea></div>
+<button type="submit" class="btn btn-p" style="align-self:flex-start">Send message</button>
+</form>
+<div class="card" style="flex:1 1 260px;display:flex;flex-direction:column;gap:10px;font-size:15px"><strong>Other ways to reach us</strong><span>Email: <span class="ph">[SUPPORT EMAIL]</span></span><span>WhatsApp: <span class="ph">[+91 NUMBER]</span></span><span>Hours: <span class="ph">[MON–SAT, 10 AM – 6 PM IST]</span></span><span class="muted" style="font-size:14px"><span class="ph">[REGISTERED ADDRESS]</span></span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isFaq}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:40px">Frequently asked questions</h1>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{faqCats}}" as="c" hint-placeholder-count="4"><button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height:40px;padding:0 16px;border-radius:999px;cursor:pointer;font:600 14px Inter,sans-serif;{{c.style}}">{{c.label}}</button></sc-for></div>
+<div class="card" style="padding:8px 28px">
+<sc-for list="{{faqs}}" as="f" hint-placeholder-count="4"><div style="border-bottom:1px solid #E8E8E5"><button onClick="{{f.toggle}}" aria-expanded="{{f.open}}" style="width:100%;min-height:60px;display:flex;justify-content:space-between;align-items:center;gap:16px;background:none;border:0;font:600 16px Manrope,sans-serif;color:#111318;text-align:left;cursor:pointer;padding:0">{{f.q}}<span aria-hidden="true">{{f.sign}}</span></button><sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}"><p class="muted" style="padding-bottom:18px">{{f.a}}</p></sc-if></div></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isPolicy}}" hint-placeholder-val="{{ false }}">
+<div class="prose">
+<span class="eyebrow">Policies · last updated <span class="ph">[DATE]</span></span>
+<h1 style="font-size:40px">{{policy.title}}</h1>
+<p style="background:#FFF4E0;color:#6B3F06;border-radius:12px;padding:12px 14px;font-size:14px">Template text for layout only. Have a qualified lawyer review before publishing.</p>
+<sc-for list="{{policy.sections}}" as="sec" hint-placeholder-count="4"><h2>{{sec.h}}</h2><p class="muted">{{sec.p}}</p></sc-for>
+<p class="muted">Questions? <button onClick="{{toContact}}" style="background:none;border:0;padding:0;color:#C2410C;font:600 16px Inter,sans-serif;cursor:pointer">Contact us</button>.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{is404}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding:64px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px">
+<span style="font:800 96px Manrope,sans-serif;color:#E8E8E5;line-height:1">404</span><h1 style="font-size:30px">This page did not print</h1><p class="muted" style="max-width:440px">The link may be broken or the page has moved. Try searching, or head back to the shop.</p>
+<form role="search" style="display:flex;gap:8px;width:100%;max-width:440px"><label for="s404" style="position:absolute;left:-9999px">Search</label><input id="s404" class="in" placeholder="Search products"><a href="Shop.dc.html" class="btn btn-d">Search</a></form>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><a href="Home.dc.html" class="btn btn-p">Go to home</a><a href="Shop.dc.html" class="btn btn-o">Browse shop</a></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding:64px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px">
+<span style="width:64px;height:64px;border-radius:50%;background:#FDE7E9;color:#B02A37;display:flex;align-items:center;justify-content:center;font-size:30px" aria-hidden="true">!</span>
+<h1 style="font-size:30px">Something went wrong on our side</h1><p class="muted" style="max-width:460px">We could not load this page. Your cart and orders are safe. Please try again in a moment.</p>
+<p class="muted" style="font-size:13px">Error reference: ERR-5F21A</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="btn btn-p" onClick="{{toError}}">Try again</button><button class="btn btn-o" onClick="{{toContact}}">Contact support</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isMaint}}" hint-placeholder-val="{{ false }}">
+<div style="background:#17191D;color:#F6F5F1;border-radius:24px;padding:72px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px">
+<span style="font:800 28px Manrope,sans-serif">Hamza<span style="color:#F97316">One</span></span>
+<h1 style="font-size:36px;color:#fff">We are recalibrating</h1><p style="color:#C9CBD0;max-width:460px">Scheduled maintenance until <strong style="color:#fff">7 Nov 2026, 6:00 AM IST</strong>. Orders already placed are not affected and keep printing.</p>
+<p style="color:#9EA1A8;font-size:14px">Urgent? WhatsApp <span style="color:#FDBA74">[+91 NUMBER]</span></p>
+</div>
+</sc-if>
+</section>
+</main>
+<footer style="background:#17191D;color:#9EA1A8;font-size:13px"><div class="wrap" style="padding-top:24px;padding-bottom:24px">© 2026 HamzaOne · <span>[GSTIN]</span></div></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+const INFO = [['about','About Us'],['contact','Contact Us'],['faq','FAQs'],['shipping','Shipping Policy'],['returns','Return & Refund Policy'],['privacy','Privacy Policy'],['terms','Terms & Conditions']];
+const SYS = [['404','404 Not Found'],['error','Generic Error'],['maint','Maintenance']];
+const POL = {
+ shipping:{title:'Shipping Policy',sections:[{h:'Production time',p:'Ready-made items dispatch in 1–2 business days. Made-to-order and personalised items are printed in 3–5 business days. Custom prints follow the production estimate in your accepted quote.'},{h:'Delivery time',p:'After dispatch, standard delivery takes 3–6 business days and express 1–3 business days to serviceable PIN codes. These are courier estimates, not guarantees.'},{h:'Charges',p:'Standard ₹79, free on orders of ₹1,499 or more after discounts. Express ₹149.'},{h:'Undeliverable addresses',p:'[POLICY ON RTO, RE-SHIPPING CHARGES AND ADDRESS CHANGES]'}]},
+ returns:{title:'Return & Refund Policy',sections:[{h:'Ready-made items',p:'Returnable within 7 days of delivery if unused and in original packaging. [WHO PAYS RETURN SHIPPING]'},{h:'Personalised and custom items',p:'Made specifically for you, so returnable only if they arrive damaged or defective. Report within 48 hours with photos.'},{h:'Refunds',p:'Approved refunds go to the original payment method through Razorpay. Bank processing time varies, typically 5–7 business days.'},{h:'Cancellations',p:'Orders can be canceled free of charge before printing starts. [POLICY AFTER PRINTING STARTS]'}]},
+ privacy:{title:'Privacy Policy',sections:[{h:'What we collect',p:'Name, contact details, delivery address, order history and uploaded 3D files needed to fulfil your order.'},{h:'Payments',p:'Payments are processed by Razorpay. HamzaOne does not receive or store full card numbers, CVV or UPI PINs.'},{h:'Your 3D files',p:'Uploaded models are used only to quote and print your request and are deleted after [RETENTION PERIOD] unless you ask us to keep them.'},{h:'Your rights',p:'[ACCESS, CORRECTION AND DELETION RIGHTS UNDER APPLICABLE INDIAN LAW; GRIEVANCE OFFICER CONTACT]'}]},
+ terms:{title:'Terms & Conditions',sections:[{h:'Using HamzaOne',p:'[ELIGIBILITY, ACCOUNT RESPONSIBILITIES]'},{h:'Custom prints',p:'You confirm you own or have rights to any model you upload. We may decline files that infringe rights or are unsafe to print.'},{h:'Pricing',p:'Prices are in INR and inclusive of GST. Quotes are valid until the expiry date shown.'},{h:'Governing law',p:'[JURISDICTION AND DISPUTE RESOLUTION]'}]}
+};
+const FAQ = {
+ Orders:[['Can I change my order after paying?','Yes, until printing starts. Contact us with your order number.'],['Do you offer cash on delivery?','[COD POLICY]. Online payments go through Razorpay.']],
+ Shipping:[['What is the difference between production and shipping time?','Production is how long we take to print and finish. Shipping starts after dispatch. Both are shown on every product.'],['Do you ship across India?','We ship to serviceable PIN codes across India. Check your PIN on any product page.']],
+ 'Custom prints':[['Which files do you accept?','STL and 3MF up to 100 MB.'],['When do I pay?','Only after you accept the quote. Quotes are valid for 7 days.']],
+ Returns:[['Can I return a personalised item?','Only if it arrives damaged or defective.'],['How long do refunds take?','Banks usually show refunds within 5–7 business days.']]
+};
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { page:'about', sent:false, faqCat:'Orders', open:0 }; }
+  renderVals() {
+    const s = this.state, go = p => this.setState({page:p});
+    const mk = ([k,l])=>({label:l,cur:s.page===k?'page':undefined,style:s.page===k?'background:#111318;color:#fff':'',go:()=>go(k)});
+    return {
+      infoTabs: INFO.map(mk), sysTabs: SYS.map(mk),
+      isAbout:s.page==='about', isContact:s.page==='contact', isFaq:s.page==='faq', isPolicy:!!POL[s.page], is404:s.page==='404', isError:s.page==='error', isMaint:s.page==='maint',
+      policy: POL[s.page] || {title:'',sections:[]},
+      toContact:()=>go('contact'), toError:()=>go('error'),
+      sent:s.sent, send:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.setState({sent:true}); },
+      faqCats: Object.keys(FAQ).map(c=>({label:c,on:s.faqCat===c,style:s.faqCat===c?'background:#111318;color:#fff;border:1px solid #111318':'background:#fff;color:#111318;border:1px solid #8E9097',pick:()=>this.setState({faqCat:c,open:0})})),
+      faqs: FAQ[s.faqCat].map(([q,a],i)=>({q,a,open:s.open===i,sign:s.open===i?'−':'+',toggle:()=>this.setState({open:s.open===i?-1:i})}))
+    };
+  }
+}
+</script>
+</body>
+</html>

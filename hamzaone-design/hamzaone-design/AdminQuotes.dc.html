@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Custom Print Requests · HamzaOne Admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:20px;box-sizing:border-box}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}.btn-x{background:#DC3545;color:#fff}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label{font-size:13px;font-weight:600}
+.in{height:40px;border:1px solid #8E9097;border-radius:10px;padding:0 12px;font:14px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer;min-height:28px}
+td,th{padding:12px;border-bottom:1px solid #E8E8E5;text-align:left;white-space:nowrap}
+th{font-size:12px;color:#686B72;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.proto{border:1px dashed #8E9097;border-radius:12px;padding:10px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;background:#F6F5F1}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="12"><a href="{{n.href}}" class="side" aria-current="{{n.cur}}" style="{{n.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px"><nav aria-label="Breadcrumb" class="muted">Admin / <button class="link" style="color:#686B72" onClick="{{toList}}">Custom Requests</button>{{crumbTail}}</nav></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+<h1 style="font-size:26px">Custom print requests</h1>
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:820px"><thead><tr><th>Request</th><th>Received</th><th>Customer</th><th>File</th><th>Spec</th><th>Status</th><th></th></tr></thead><tbody>
+<sc-for list="{{reqs}}" as="r" hint-placeholder-count="6"><tr><td><strong>{{r.id}}</strong></td><td class="muted">{{r.when}}</td><td>{{r.c}}</td><td class="muted">{{r.file}}</td><td>{{r.spec}}</td><td><span class="chip" style="{{r.sStyle}}">{{r.status}}</span></td><td><button class="link" onClick="{{r.open}}">Review</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h1 style="font-size:26px">CPR-2611-0738</h1><p class="muted">Arjun Mehta · arjun.mehta@example.com · +91 98450 12345 · PIN 411014</p></div><span class="chip" style="font-size:13px;padding:4px 12px;{{stChip}}">{{stLabel}}</span></div>
+<div class="proto"><strong>Prototype:</strong> after sending, simulate the customer side
+<button class="btn btn-o" style="min-height:32px" onClick="{{simAccept}}">Customer accepts</button><button class="btn btn-o" style="min-height:32px" onClick="{{simPaid}}">Customer pays</button></div>
+<sc-if value="{{isPaid}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#E3F3EC;border:1px solid #BFE3D3;color:#0F5E41;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><strong>Paid ₹1,919 via Razorpay.</strong> Order HO-2026-10517 created and added to the production queue.</span><a href="AdminProduction.dc.html" style="color:#0F5E41;font-weight:700">Open production queue →</a></div></sc-if>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div style="flex:1 1 380px;display:flex;flex-direction:column;gap:16px">
+<section class="card" style="padding:0;overflow:hidden"><div style="background:#17191D;height:260px;display:flex;align-items:center;justify-content:center;position:relative"><svg width="55%" viewBox="0 0 200 160" role="img" aria-label="Preview of bracket_v3.stl"><path d="M40 110 L100 80 L160 110 L100 140 Z" fill="#3A3E45"/><path d="M40 110 L40 70 L100 40 L100 80 Z" fill="#8C8F96"/><path d="M100 80 L100 40 L120 50 L120 90 Z" fill="#5A5D63"/><path d="M120 90 L160 110 L160 95 L120 75 Z" fill="#6E7178"/><circle cx="70" cy="75" r="6" fill="#17191D"/></svg><span style="position:absolute;left:12px;bottom:10px;color:#9EA1A8;font-size:12px">Rotate · zoom · measure</span></div>
+<div style="padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><strong>bracket_v3.stl</strong> · 12.4 MB</span><button class="link">Download file</button></div></section>
+<section class="card"><h2 style="font-size:16px;margin-bottom:10px">Customer specifications</h2>
+<dl style="margin:0;display:grid;grid-template-columns:150px 1fr;gap:8px 12px"><dt class="muted">Material · colour</dt><dd style="margin:0">PETG · Black</dd><dt class="muted">Quantity · scale</dt><dd style="margin:0">3 · 100%</dd><dt class="muted">Finish</dt><dd style="margin:0">Sanded</dd><dt class="muted">Intended use</dt><dd style="margin:0">Functional</dd><dt class="muted">Bounding box</dt><dd style="margin:0">82 × 46 × 30 mm · 38.6 cm³</dd><dt class="muted">Instructions</dt><dd style="margin:0">Holes must fit M4 bolts. Prefer 40% infill.</dd></dl></section>
+<section class="card"><h2 style="font-size:16px;margin-bottom:10px">File review checklist</h2>
+<sc-for list="{{checks}}" as="c" hint-placeholder-count="4"><label style="display:flex;gap:8px;align-items:center;min-height:32px;cursor:pointer"><input type="checkbox" checked="{{c.on}}" onChange="{{c.toggle}}" style="width:18px;height:18px;margin:0;accent-color:#111318">{{c.t}}</label></sc-for></section>
+</div>
+<section class="card" style="flex:1 1 380px;display:flex;flex-direction:column;gap:14px">
+<h2 style="font-size:16px">Quote editor</h2>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+<div class="f"><label for="q1">Printing (₹, incl. GST)</label><input id="q1" class="in" inputmode="numeric" value="{{q.print}}" onChange="{{qon.print}}" disabled="{{locked}}"></div>
+<div class="f"><label for="q2">Post-processing (₹)</label><input id="q2" class="in" inputmode="numeric" value="{{q.post}}" onChange="{{qon.post}}" disabled="{{locked}}"></div>
+<div class="f"><label for="q3">Shipping (₹)</label><input id="q3" class="in" inputmode="numeric" value="{{q.ship}}" onChange="{{qon.ship}}" disabled="{{locked}}"></div>
+<div class="f"><label for="q4">Discount (₹)</label><input id="q4" class="in" inputmode="numeric" value="{{q.disc}}" onChange="{{qon.disc}}" disabled="{{locked}}"></div>
+<div class="f"><label for="q5">Production estimate</label><input id="q5" class="in" value="4–5 business days" disabled="{{locked}}"></div>
+<div class="f"><label for="q6">Valid for (days)</label><input id="q6" class="in" inputmode="numeric" value="{{q.days}}" onChange="{{qon.days}}" disabled="{{locked}}"></div>
+</div>
+<div class="f"><label for="q7">Note to customer</label><textarea id="q7" rows="2" style="border:1px solid #8E9097;border-radius:10px;padding:10px 12px;font:14px Inter,sans-serif">Wall near the mounting hole was thickened to 2 mm for strength. No other changes.</textarea></div>
+<div style="background:#F6F5F1;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between"><span>Quote subtotal</span><span>₹{{sub}}</span></div>
+<div style="display:flex;justify-content:space-between"><span>Shipping</span><span>₹{{shipT}}</span></div>
+<sc-if value="{{hasDisc}}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;color:#0F5E41"><span>Discount</span><span>−₹{{discT}}</span></div></sc-if>
+<div style="display:flex;justify-content:space-between;font:700 18px Manrope,sans-serif;border-top:1px solid #E8E8E5;padding-top:6px"><span>Customer pays</span><span>₹{{total}}</span></div>
+<span class="muted" style="font-size:12px">GST included in line items · expires {{expiry}}</span></div>
+<sc-if value="{{qErr}}" hint-placeholder-val="{{ false }}"><span role="alert" style="color:#B02A37;font-size:13px">{{qErr}}</span></sc-if>
+<sc-if value="{{editable}}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-o" style="color:#B02A37" onClick="{{openReject}}">Reject request</button><button class="btn btn-o" onClick="{{openPreview}}">Preview quote</button><button class="btn btn-p" onClick="{{send}}">Send quotation</button></div></sc-if>
+<sc-if value="{{locked}}" hint-placeholder-val="{{ false }}"><p class="muted" style="font-size:13px">Sent 6 Nov 2026, 6:12 PM. Editing creates a revised quote and notifies the customer. <button class="link" onClick="{{revise}}">Revise quote</button></p></sc-if>
+</section>
+</div>
+</sc-if>
+</main>
+</div>
+
+<sc-if value="{{preview}}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px"><button aria-label="Close preview" onClick="{{closePreview}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="dialog" aria-modal="true" aria-label="Quotation preview" class="card" style="position:relative;width:min(520px,100%);display:flex;flex-direction:column;gap:12px">
+<span class="chip" style="align-self:flex-start;background:#ECECEA;color:#45474C">Customer view preview</span>
+<h2 style="font-size:22px">Your HamzaOne quote · CPR-2611-0738</h2>
+<div style="display:flex;justify-content:space-between"><span>Printing · PETG Black · 3 pcs</span><span>₹{{q.print}}</span></div>
+<div style="display:flex;justify-content:space-between"><span>Post-processing · sanded</span><span>₹{{q.post}}</span></div>
+<div style="display:flex;justify-content:space-between"><span>Standard shipping</span><span>₹{{shipT}}</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:18px;border-top:1px solid #E8E8E5;padding-top:8px"><span>Total</span><span>₹{{total}}</span></div>
+<p class="muted" style="font-size:13px">Production 4–5 business days after payment. Valid until {{expiry}}.</p>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closePreview}}">Back to editor</button><button class="btn btn-p" onClick="{{send}}">Send quotation</button></div>
+</div></div></sc-if>
+
+<sc-if value="{{rejecting}}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px"><button aria-label="Cancel" onClick="{{closeReject}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="rj" class="card" style="position:relative;width:min(460px,100%);display:flex;flex-direction:column;gap:12px">
+<h2 id="rj" style="font-size:20px">Reject this request?</h2>
+<div class="f"><label for="rr">Reason shared with the customer</label><select id="rr" class="in"><option>Model is not printable without major repair</option><option>Outside our build volume</option><option>Material not suitable for intended use</option><option>Possible rights infringement</option></select></div>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closeReject}}">Cancel</button><button class="btn btn-x" onClick="{{confirmReject}}">Reject and notify</button></div>
+</div></div></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;right:24px;bottom:24px;z-index:70;background:#111318;color:#fff;border-radius:12px;padding:12px 16px">✓ {{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Categories','AdminProducts.dc.html','▤'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Customers','AdminMore.dc.html','◉'],['Inventory','AdminInventory.dc.html','▦'],['Coupons','AdminMore.dc.html','%'],['Payments','AdminMore.dc.html','₹'],['Analytics','AdminMore.dc.html','◔'],['Settings','AdminMore.dc.html','⚙']];
+const SC = {new:['New · needs review','background:#FDEBD8;color:#8A4A0A'],sent:['Quote sent · awaiting customer','background:#FFF4E0;color:#8A5209'],accepted:['Accepted · awaiting payment','background:#E3F3EC;color:#0F5E41'],paid:['Paid · in production','background:#111318;color:#fff'],rejected:['Rejected','background:#FDE7E9;color:#8E1F2B'],expired:['Expired','background:#ECECEA;color:#45474C']};
+const fmt = n => Number(n).toLocaleString('en-IN');
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view:'list', st:'new', q:{print:'1560',post:'280',ship:'79',disc:'0',days:'7'}, checks:[true,true,false,false], preview:false, rejecting:false, toast:'', qErr:'' }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  flash(m,patch){ this.setState({...patch,toast:m}); clearTimeout(this.t); this.t=setTimeout(()=>this.setState({toast:''}),2600); }
+  renderVals() {
+    const s = this.state, q = s.q, n = k => parseInt(q[k]||'0',10)||0;
+    const sub = n('print')+n('post'), total = Math.max(0, sub + n('ship') - n('disc'));
+    const days = Math.min(30,Math.max(1,n('days'))); const exp = new Date(2026,10,6+days);
+    const expiry = exp.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const qon = {}; Object.keys(q).forEach(k=>{ qon[k]=e=>this.setState({q:{...q,[k]:e.target.value.replace(/\D/g,'')},qErr:''}); });
+    const locked = ['sent','accepted','paid','rejected'].includes(s.st);
+    const reqs = [
+      {id:'CPR-2611-0738',when:'6 Nov, 4:20 PM',c:'Arjun Mehta',file:'bracket_v3.stl',spec:'PETG · ×3',st:s.st,mine:true},
+      {id:'CPR-2611-0736',when:'6 Nov, 11:02 AM',c:'Pooja Desai',file:'lamp_base.3mf',spec:'PLA · ×1',st:'new'},
+      {id:'CPR-2611-0731',when:'5 Nov, 7:45 PM',c:'Sameer Khan',file:'drone_arm.stl',spec:'PETG · ×4',st:'new'},
+      {id:'CPR-2611-0729',when:'5 Nov, 3:10 PM',c:'Ananya Roy',file:'chess_set.3mf',spec:'PLA · ×32',st:'sent'},
+      {id:'CPR-2611-0718',when:'2 Nov, 9:30 AM',c:'Dev Patel',file:'gasket.stl',spec:'TPU · ×10',st:'paid'},
+      {id:'CPR-2610-0702',when:'28 Oct, 1:15 PM',c:'Tara Menon',file:'statue.stl',spec:'PLA · ×1',st:'expired'}
+    ];
+    const send = ()=>{ if(total<=0){ this.setState({qErr:'Total must be more than ₹0.'}); return; } if(!s.checks[0]||!s.checks[1]){ this.setState({qErr:'Complete the printability checks before sending.'}); return; } this.flash('Quotation sent to arjun.mehta@example.com',{st:'sent',preview:false}); };
+    return {
+      nav: NAV.map(([l,h,ic],i)=>({label:l,href:h,ic,cur:i===5?'page':undefined,style:i===5?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':''})),
+      isList:s.view==='list', isDetail:s.view==='detail', crumbTail:s.view==='detail'?' / CPR-2611-0738':'', toList:()=>this.setState({view:'list'}),
+      reqs: reqs.map(r=>({...r,status:SC[r.st][0],sStyle:SC[r.st][1],open:()=>this.setState({view:'detail'})})),
+      stLabel:SC[s.st][0], stChip:SC[s.st][1], isPaid:s.st==='paid',
+      checks:['Mesh is watertight','Fits build volume (256 × 256 × 256 mm)','Wall thickness ≥ 1.2 mm everywhere','Supports and orientation planned'].map((t,i)=>({t,on:s.checks[i],toggle:()=>this.setState({checks:s.checks.map((v,j)=>j===i?!v:v)})})),
+      q, qon, locked, editable:!locked, sub:fmt(sub), shipT:fmt(n('ship')), discT:fmt(n('disc')), hasDisc:n('disc')>0, total:fmt(total), expiry, qErr:s.qErr,
+      send, openPreview:()=>this.setState({preview:true}), closePreview:()=>this.setState({preview:false}), preview:s.preview,
+      revise:()=>this.setState({st:'new'}),
+      openReject:()=>this.setState({rejecting:true}), closeReject:()=>this.setState({rejecting:false}), rejecting:s.rejecting,
+      confirmReject:()=>this.flash('Request rejected. Customer notified with reason.',{st:'rejected',rejecting:false}),
+      simAccept:()=>{ if(s.st!=='sent'){ this.flash('Send the quotation first'); return; } this.flash('Customer accepted the quote',{st:'accepted'}); },
+      simPaid:()=>{ if(s.st!=='accepted'){ this.flash('Customer must accept first'); return; } this.flash('Payment received · job added to production',{st:'paid'}); },
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

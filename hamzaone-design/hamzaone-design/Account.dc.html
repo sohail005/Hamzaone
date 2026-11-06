@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>My Account · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;font:600 15px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:transparent;border-color:#111318;color:#111318}
+.btn-x{background:#DC3545;color:#fff}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:24px;box-sizing:border-box}
+.chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.nav{display:flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;background:none;border:0;width:100%;text-align:left;font:500 15px Inter,sans-serif;color:#111318;cursor:pointer}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label{font-size:14px;font-weight:600}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+td,th{padding:14px 12px;border-bottom:1px solid #E8E8E5;text-align:left;font-size:14px}
+th{font-size:12px;color:#686B72;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="border-bottom:1px solid #E8E8E5">
+<div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Shop</a><a href="CustomPrint.dc.html" style="padding:12px;font-weight:500">Custom 3D Print</a><a href="Track.dc.html" style="padding:12px;font-weight:500">Track order</a></nav>
+<a href="Cart.dc.html" style="padding:12px;font-weight:500">Cart (2)</a>
+</div>
+</header>
+<main class="wrap" style="flex:1;padding-top:32px;padding-bottom:80px;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<aside aria-label="Account navigation" style="flex:1 1 220px;max-width:260px;display:flex;flex-direction:column;gap:4px">
+<div style="padding:0 14px 16px"><strong style="font-family:Manrope,sans-serif;font-size:18px">Riya Sharma</strong><div class="muted" style="font-size:13px">riya.sharma@example.com · demo</div></div>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="6"><button class="nav" onClick="{{t.go}}" aria-current="{{t.cur}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+<button class="nav" style="color:#B02A37" onClick="{{askLogout}}">Log out</button>
+</aside>
+<section style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isOverview}}" hint-placeholder-val="{{ true }}">
+<h1 style="font-size:34px">Hello, Riya</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+<button class="card" style="text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{toOrders}}"><span class="muted" style="font-size:13px">Active orders</span><div style="font:700 28px Manrope,sans-serif">2</div><span class="link">View orders →</span></button>
+<button class="card" style="text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{toWishlist}}"><span class="muted" style="font-size:13px">Wishlist</span><div style="font:700 28px Manrope,sans-serif">{{wishCount}}</div><span class="link">Open wishlist →</span></button>
+<button class="card" style="text-align:left;cursor:pointer;font:inherit;color:inherit" onClick="{{toAddresses}}"><span class="muted" style="font-size:13px">Saved addresses</span><div style="font:700 28px Manrope,sans-serif">{{addrCount}}</div><span class="link">Manage →</span></button>
+</div>
+<div class="card" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h2 style="font-size:20px">Latest order</h2><button class="link" onClick="{{openLatest}}">Details</button></div>
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><strong>HO-2026-10482</strong> · 6 Nov 2026 · ₹1,176</span><span class="chip" style="background:#FDEBD8;color:#8A4A0A">Packing · dispatch by 9 Nov</span></div></div>
+</sc-if>
+
+<sc-if value="{{isOrders}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:34px">My orders</h1>
+<div class="card" style="padding:8px 16px;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:620px"><thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th><span style="position:absolute;left:-9999px">Action</span></th></tr></thead><tbody>
+<sc-for list="{{orders}}" as="o" hint-placeholder-count="4"><tr><td><strong>{{o.id}}</strong></td><td>{{o.date}}</td><td class="muted">{{o.items}}</td><td>₹{{o.total}}</td><td><span class="chip" style="{{o.chip}}">{{o.status}}</span></td><td><button class="link" onClick="{{o.open}}">View</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+
+<sc-if value="{{isDetail}}" hint-placeholder-val="{{ false }}">
+<button class="link" style="align-self:flex-start" onClick="{{toOrders}}">← All orders</button>
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="font-size:30px">Order HO-2026-10482</h1><span class="chip" style="background:#FDEBD8;color:#8A4A0A">Packing</span></div>
+<p class="muted">Placed 6 Nov 2026, 4:48 PM · Paid via Razorpay (UPI)</p>
+<div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+<div class="card" style="flex:2 1 380px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{detailItems}}" as="i" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #E8E8E5;padding-bottom:12px"><span><strong>{{i.name}}</strong><br><span class="muted" style="font-size:14px">{{i.meta}}</span></span><strong>₹{{i.total}}</strong></div></sc-for>
+<dl style="margin:0;display:flex;flex-direction:column;gap:6px;font-size:14px"><div style="display:flex;justify-content:space-between"><dt>Subtotal</dt><dd style="margin:0">₹1,197</dd></div><div style="display:flex;justify-content:space-between;color:#0F5E41"><dt>Coupon FIRST100</dt><dd style="margin:0">−₹100</dd></div><div style="display:flex;justify-content:space-between"><dt>Standard delivery</dt><dd style="margin:0">₹79</dd></div><div style="display:flex;justify-content:space-between;font-weight:700;font-size:16px"><dt>Total paid</dt><dd style="margin:0">₹1,176</dd></div></dl>
+</div>
+<div class="card" style="flex:1 1 260px;display:flex;flex-direction:column;gap:10px;font-size:14px"><strong>Deliver to</strong><span class="muted">Riya Sharma<br>Flat 402, Lakeview Residency, 14th Cross, HSR Layout Sector 2, Bengaluru, Karnataka 560102<br>+91 98765 43210</span>
+<a href="Track.dc.html" class="btn btn-d">Track this order</a><a href="States.dc.html" class="btn btn-o">Need help?</a></div>
+</div>
+<div class="card"><h2 style="font-size:18px;margin-bottom:12px">Progress</h2><ol style="list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+<sc-for list="{{progress}}" as="p" hint-placeholder-count="5"><li style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;border-radius:2px;{{p.bar}}"></span><strong style="font-size:13px">{{p.n}}</strong><span class="muted" style="font-size:12px">{{p.t}}</span></li></sc-for></ol></div>
+</sc-if>
+
+<sc-if value="{{isAddresses}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="font-size:34px">Saved addresses</h1><button class="btn btn-d" onClick="{{addAddr}}">Add address</button></div>
+<sc-if value="{{editing}}" hint-placeholder-val="{{ false }}">
+<form class="card" onSubmit="{{saveAddr}}" style="display:flex;flex-direction:column;gap:16px" novalidate="">
+<h2 style="font-size:20px">{{formTitle}}</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<div class="f"><label for="an">Full name</label><input id="an" class="in" value="{{a.name}}" onChange="{{aon.name}}" style="{{ae.nameB}}"><sc-if value="{{ae.name}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B02A37">{{ae.name}}</span></sc-if></div>
+<div class="f"><label for="ap">PIN code</label><input id="ap" class="in" inputmode="numeric" maxlength="6" value="{{a.pin}}" onChange="{{aon.pin}}" style="{{ae.pinB}}"><sc-if value="{{ae.pin}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B02A37">{{ae.pin}}</span></sc-if></div>
+<div class="f" style="grid-column:1/-1"><label for="al">Flat, house no., building, street</label><input id="al" class="in" value="{{a.line}}" onChange="{{aon.line}}" style="{{ae.lineB}}"><sc-if value="{{ae.line}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#B02A37">{{ae.line}}</span></sc-if></div>
+<div class="f"><label for="ac">City</label><input id="ac" class="in" value="{{a.city}}" onChange="{{aon.city}}"></div>
+<div class="f"><label for="as">State</label><input id="as" class="in" value="{{a.state}}" onChange="{{aon.state}}"></div>
+</div>
+<div style="display:flex;gap:12px"><button type="button" class="btn btn-o" onClick="{{cancelAddr}}">Cancel</button><button type="submit" class="btn btn-p">Save address</button></div>
+</form>
+</sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+<sc-for list="{{addresses}}" as="ad" hint-placeholder-count="2"><div class="card" style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;gap:8px;align-items:center"><strong>{{ad.label}}</strong><sc-if value="{{ad.def}}" hint-placeholder-val="{{ false }}"><span class="chip" style="background:#ECECEA;color:#45474C">Default</span></sc-if></div><span class="muted" style="font-size:14px">{{ad.name}}<br>{{ad.line}}<br>{{ad.city}}, {{ad.state}} {{ad.pin}}</span><div style="display:flex;gap:16px"><button class="link" onClick="{{ad.edit}}">Edit</button><button class="link" style="color:#B02A37" onClick="{{ad.remove}}">Remove</button></div></div></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isWishlist}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:34px">Wishlist</h1>
+<sc-if value="{{wishEmpty}}" hint-placeholder-val="{{ false }}"><div class="card" style="padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.5" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg><h2 style="font-size:22px">Nothing saved yet</h2><p class="muted">Tap the heart on any product to save it here.</p><a href="Shop.dc.html" class="btn btn-p">Browse products</a><button class="link" onClick="{{restoreWish}}">Prototype: restore demo items</button></div></sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px">
+<sc-for list="{{wish}}" as="w" hint-placeholder-count="3"><article class="card" style="padding:12px;display:flex;flex-direction:column;gap:10px"><a href="Product.dc.html" style="aspect-ratio:1/1;background:#ECEAE4;border-radius:12px;display:flex;align-items:center;justify-content:center"><span style="{{w.shape}}"></span></a><strong style="font-size:15px">{{w.name}}</strong><span class="muted" style="font-size:13px">₹{{w.price}} · {{w.lead}}</span><a href="Product.dc.html" class="btn btn-o" style="min-height:44px">Choose options</a><button class="link" style="color:#B02A37" onClick="{{w.remove}}">Remove</button></article></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{isProfile}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:34px">Profile settings</h1>
+<form class="card" onSubmit="{{saveProfile}}" style="display:flex;flex-direction:column;gap:16px">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+<div class="f"><label for="pn">Full name</label><input id="pn" class="in" value="Riya Sharma"></div>
+<div class="f"><label for="pe">Email</label><input id="pe" class="in" type="email" value="riya.sharma@example.com"></div>
+<div class="f"><label for="pm">Mobile</label><input id="pm" class="in" value="9876543210"></div>
+</div>
+<label style="display:flex;gap:10px;font-size:14px"><input type="checkbox" checked="" style="width:20px;height:20px;margin:0;accent-color:#111318"> Send order updates on WhatsApp</label>
+<label style="display:flex;gap:10px;font-size:14px"><input type="checkbox" style="width:20px;height:20px;margin:0;accent-color:#111318"> Email me about new drops</label>
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button type="submit" class="btn btn-p">Save changes</button><a href="Auth.dc.html" class="link" style="display:inline-flex;align-items:center">Change password</a></div>
+<sc-if value="{{profileSaved}}" hint-placeholder-val="{{ false }}"><p role="status" style="color:#0F5E41;font-weight:600;font-size:14px">✓ Profile updated</p></sc-if>
+</form>
+</sc-if>
+</section>
+</main>
+
+<sc-if value="{{logout}}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px">
+<button aria-label="Close dialog" onClick="{{cancelLogout}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="lo-t" class="card" style="position:relative;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px">
+<h2 id="lo-t" style="font-size:22px">Log out of HamzaOne?</h2><p class="muted">Your cart stays saved on this device.</p>
+<div style="display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap"><button class="btn btn-o" onClick="{{cancelLogout}}">Cancel</button><a href="Home.dc.html" class="btn btn-d">Log out</a></div>
+</div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const TABS = [['overview','Overview'],['orders','My orders'],['addresses','Saved addresses'],['wishlist','Wishlist'],['profile','Profile settings']];
+const WISH = [
+  {id:1,name:'Articulated Dragon',price:'499',lead:'Made to order',shape:'width:60px;height:54px;background:#5E7A6A;border-radius:60% 40% 55% 45%'},
+  {id:2,name:'Headphone Stand',price:'799',lead:'Only 3 left',shape:'width:56px;height:60px;background:#8C8F96;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)'},
+  {id:3,name:'Ribbed Bud Vase',price:'549',lead:'Out of stock in Sage',shape:'width:34px;height:70px;border-radius:17px 17px 9px 9px;background:#5E7A6A'}
+];
+const ADDR = [
+  {id:1,label:'Home',def:true,name:'Riya Sharma',line:'Flat 402, Lakeview Residency, 14th Cross, HSR Layout Sector 2',city:'Bengaluru',state:'Karnataka',pin:'560102'},
+  {id:2,label:'Work',def:false,name:'Riya Sharma',line:'4th Floor, Example Tech Park, Outer Ring Road',city:'Bengaluru',state:'Karnataka',pin:'560103'}
+];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab:'overview', wish:WISH, addr:ADDR, editing:null, a:{}, triedA:false, logout:false, profileSaved:false }; }
+  renderVals() {
+    const s = this.state, go = t => this.setState({tab:t, editing:null});
+    const tabKey = s.tab==='detail' ? 'orders' : s.tab;
+    const ae = {}; if(s.triedA){ if((s.a.name||'').trim().length<2){ae.name='Enter a name.';ae.nameB='border:2px solid #DC3545';} if(!/^[1-9][0-9]{5}$/.test(s.a.pin||'')){ae.pin='PIN code must be 6 digits.';ae.pinB='border:2px solid #DC3545';} if((s.a.line||'').trim().length<5){ae.line='Enter the full street address.';ae.lineB='border:2px solid #DC3545';} }
+    const aon = {}; ['name','pin','line','city','state'].forEach(k=>{ aon[k]=e=>this.setState({a:{...s.a,[k]:k==='pin'?e.target.value.replace(/\D/g,''):e.target.value}}); });
+    const C = {pk:'background:#FDEBD8;color:#8A4A0A',pr:'background:#FFF4E0;color:#8A5209',ok:'background:#E3F3EC;color:#0F5E41',no:'background:#ECECEA;color:#45474C'};
+    return {
+      tabs: TABS.map(([k,l])=>({label:l,cur:tabKey===k?'page':undefined,style:tabKey===k?'background:#111318;color:#fff':'',go:()=>go(k)})),
+      isOverview:s.tab==='overview', isOrders:s.tab==='orders', isDetail:s.tab==='detail', isAddresses:s.tab==='addresses', isWishlist:s.tab==='wishlist', isProfile:s.tab==='profile',
+      toOrders:()=>go('orders'), toWishlist:()=>go('wishlist'), toAddresses:()=>go('addresses'), openLatest:()=>go('detail'),
+      wishCount:s.wish.length, addrCount:s.addr.length,
+      orders:[
+        {id:'HO-2026-10517',date:'6 Nov 2026',items:'Custom print · bracket_v3 × 3',total:'1,919',status:'Printing',chip:C.pr},
+        {id:'HO-2026-10482',date:'6 Nov 2026',items:'Spiral Decor Vase, Minimal Phone Stand × 2',total:'1,176',status:'Packing',chip:C.pk},
+        {id:'HO-2026-09921',date:'18 Oct 2026',items:'Custom Name Plate',total:'478',status:'Delivered',chip:C.ok},
+        {id:'HO-2026-09310',date:'2 Oct 2026',items:'Geometric Planter',total:'528',status:'Canceled · refunded',chip:C.no}
+      ].map(o=>({...o,open:()=>go('detail')})),
+      detailItems:[{name:'Spiral Decor Vase',meta:'Terracotta · Small · Qty 1',total:'699'},{name:'Minimal Phone Stand',meta:'Charcoal · Qty 2 × ₹249',total:'498'}],
+      progress:[['Paid','6 Nov, 4:48 PM',1],['Packing','7 Nov, 10:15 AM',1],['Shipped','',0],['Out for delivery','',0],['Delivered','Est. 12–17 Nov',0]].map(([n,t,d])=>({n,t,bar:d?'background:#16845B':'background:#E8E8E5'})),
+      editing:!!s.editing, formTitle: s.editing==='new'?'Add address':'Edit address', a:s.a, aon, ae,
+      addAddr:()=>this.setState({editing:'new',a:{name:'',pin:'',line:'',city:'',state:''},triedA:false}),
+      cancelAddr:()=>this.setState({editing:null}),
+      saveAddr:e=>{ if(e&&e.preventDefault) e.preventDefault(); const bad=(s.a.name||'').trim().length<2||!/^[1-9][0-9]{5}$/.test(s.a.pin||'')||(s.a.line||'').trim().length<5; if(bad){ this.setState({triedA:true}); return; }
+        if(s.editing==='new') this.setState({addr:[...s.addr,{...s.a,id:Date.now(),label:'Other',def:false}],editing:null}); else this.setState({addr:s.addr.map(x=>x.id===s.editing?{...x,...s.a}:x),editing:null}); },
+      addresses: s.addr.map(ad=>({...ad,edit:()=>this.setState({editing:ad.id,a:{name:ad.name,pin:ad.pin,line:ad.line,city:ad.city,state:ad.state},triedA:false}),remove:()=>this.setState({addr:s.addr.filter(x=>x.id!==ad.id)})})),
+      wish: s.wish.map(w=>({...w,remove:()=>this.setState({wish:s.wish.filter(x=>x.id!==w.id)})})), wishEmpty: s.wish.length===0, restoreWish:()=>this.setState({wish:WISH}),
+      profileSaved:s.profileSaved, saveProfile:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.setState({profileSaved:true}); },
+      logout:s.logout, askLogout:()=>this.setState({logout:true}), cancelLogout:()=>this.setState({logout:false})
+    };
+  }
+}
+</script>
+</body>
+</html>

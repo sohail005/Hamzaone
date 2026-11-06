@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Home Tablet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#111318;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+</style>
+</helmet>
+<div style="width:768px;min-height:3000px;background:#F6F5F1;color:#111318;font-family:Inter,sans-serif;font-size:16px;line-height:1.5;position:relative;overflow:hidden">
+<div style="background:#17191D;color:#F6F5F1;font-size:13px;text-align:center;padding:8px">Free standard shipping on orders above ₹1,499</div>
+<header style="position:sticky;top:0;z-index:20;background:#F6F5F1;border-bottom:1px solid #E8E8E5;padding:10px 24px;display:flex;align-items:center;gap:12px">
+<button onClick="{{toggleMenu}}" aria-label="Open menu" aria-expanded="{{menu}}" style="width:44px;height:44px;border:0;background:none;cursor:pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111318" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<a href="Home.dc.html" style="font:800 23px Manrope,sans-serif">Hamza<span style="color:#F97316">One</span></a>
+<div role="search" style="flex:1;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #8E9097;border-radius:999px;height:44px;padding:0 14px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><label for="tq" style="position:absolute;left:-9999px">Search</label><input id="tq" placeholder="Search products" style="border:0;outline:0;flex:1;font:15px Inter,sans-serif;min-width:0"></div>
+<a href="Account.dc.html" aria-label="Account" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+<a href="Cart.dc.html" aria-label="Cart, 2 items" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;gap:2px;font-weight:700;font-size:13px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>2</a>
+</header>
+<sc-if value="{{menu}}" hint-placeholder-val="{{ false }}"><nav aria-label="Menu" style="background:#fff;border-bottom:1px solid #E8E8E5;padding:12px 24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+<sc-for list="{{links}}" as="l" hint-placeholder-count="6"><a href="{{l.h}}" style="min-height:44px;display:flex;align-items:center;font-weight:600">{{l.t}}</a></sc-for></nav></sc-if>
+<section style="padding:48px 24px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:16px"><span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#686B72">3D printed in India</span><h1 style="margin:0;font:800 52px/1.02 Manrope,sans-serif;letter-spacing:-0.03em">Your Ideas.<br>Made Real.</h1><p style="margin:0;color:#686B72">Precise, beautifully finished objects. Or upload your own STL or 3MF.</p>
+<a href="Shop.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;background:#F97316;color:#111318;font-weight:600">Shop the collection</a><a href="CustomPrint.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;border:1px solid #111318;font-weight:600">Upload your 3D model</a></div>
+<div style="aspect-ratio:4/5;background:#ECEAE4;border-radius:20px;display:flex;align-items:flex-end;justify-content:center;gap:20px;padding-bottom:22%;box-sizing:border-box;position:relative;overflow:hidden"><div style="width:76px;height:170px;border-radius:38px 38px 22px 22px;background:#C96F4A;position:relative;z-index:1"></div><div style="width:56px;height:116px;border-radius:28px 28px 14px 14px;background:#2B2E33;position:relative;z-index:1"></div><div style="position:absolute;left:0;right:0;bottom:0;height:22%;background:#E2DFD7"></div><span style="position:absolute;right:10px;bottom:8px;font-size:10px;color:#575A60">Concept render</span></div>
+</section>
+<section style="padding:32px 24px 8px;display:flex;flex-direction:column;gap:16px"><h2 style="margin:0;font:700 28px Manrope,sans-serif">Shop by category</h2>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px"><sc-for list="{{cats}}" as="c" hint-placeholder-count="6"><a href="Shop.dc.html" style="display:flex;flex-direction:column;gap:8px"><div style="aspect-ratio:4/3;background:#ECEAE4;border-radius:16px;display:flex;align-items:center;justify-content:center"><div style="{{c.shape}}"></div></div><strong>{{c.n}}</strong></a></sc-for></div></section>
+<section style="padding:40px 24px 8px;display:flex;flex-direction:column;gap:16px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font:700 28px Manrope,sans-serif">Customer favourites</h2><a href="Shop.dc.html" style="color:#C2410C;font-weight:600">Shop all →</a></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px"><sc-for list="{{products}}" as="p" hint-placeholder-count="6"><a href="Product.dc.html" style="display:flex;flex-direction:column;gap:8px"><div style="aspect-ratio:1/1;background:#ECEAE4;border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative"><div style="{{p.shape}}"></div><span style="position:absolute;left:10px;top:10px;font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;{{p.bs}}">{{p.b}}</span></div><div style="display:flex;justify-content:space-between;gap:8px"><strong style="font-size:15px">{{p.n}}</strong><strong>₹{{p.price}}</strong></div></a></sc-for></div></section>
+<section style="margin:48px 24px 0;background:#17191D;color:#F6F5F1;border-radius:24px;padding:40px 32px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font:800 36px/1.05 Manrope,sans-serif;color:#fff">Your Design.<br>Our Precision.</h2><p style="margin:0;color:#C9CBD0">Upload a model, get a reviewed quote, pay only after you accept.</p><a href="CustomPrint.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;background:#F97316;color:#111318;font-weight:600">Upload Your 3D Model</a></div>
+<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px"><sc-for list="{{steps}}" as="s" hint-placeholder-count="4"><li style="border:1px solid #2F3237;border-radius:14px;padding:12px 14px"><span style="color:#F97316;font:700 13px Manrope,sans-serif">{{s.n}}</span> <strong style="color:#fff">{{s.t}}</strong><br><span style="color:#B9BBC1;font-size:14px">{{s.d}}</span></li></sc-for></ol>
+</section>
+<section style="padding:48px 24px 8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px"><sc-for list="{{values}}" as="v" hint-placeholder-count="4"><div style="border-top:2px solid #111318;padding-top:12px"><strong style="font:700 18px Manrope,sans-serif">{{v.t}}</strong><p style="margin:4px 0 0;color:#686B72;font-size:15px">{{v.d}}</p></div></sc-for></section>
+<section style="margin:48px 24px 0;background:#ECEAE4;border-radius:20px;padding:28px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap"><div style="flex:1 1 260px"><h2 style="margin:0;font:700 24px Manrope,sans-serif">New drops, first.</h2><label for="tnl" style="display:block;font-size:14px;font-weight:600;margin-top:8px">Email address</label></div><input id="tnl" type="email" placeholder="you@example.com" style="flex:1 1 220px;height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif"><button style="min-height:48px;padding:0 22px;border-radius:999px;border:0;background:#111318;color:#fff;font:600 15px Inter,sans-serif;cursor:pointer">Subscribe</button></section>
+<footer style="margin-top:56px;background:#17191D;color:#C9CBD0;padding:32px 24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;font-size:14px">
+<div style="display:flex;flex-direction:column;gap:8px"><span style="font:800 22px Manrope,sans-serif;color:#fff">Hamza<span style="color:#F97316">One</span></span><span>Your Ideas. Made Real.</span></div>
+<div style="display:flex;flex-direction:column;gap:8px"><a href="Shop.dc.html" style="color:#C9CBD0">Shop</a><a href="CustomPrint.dc.html" style="color:#C9CBD0">Custom 3D printing</a><a href="Track.dc.html" style="color:#C9CBD0">Track order</a></div>
+<div style="display:flex;flex-direction:column;gap:8px"><a href="States.dc.html" style="color:#C9CBD0">About &amp; Contact</a><a href="States.dc.html" style="color:#C9CBD0">FAQ</a><a href="States.dc.html" style="color:#C9CBD0">Policies</a></div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":768,"height":3000}}'>
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { menu:false }; }
+  renderVals() {
+    const ST='background:#E3F3EC;color:#0F5E41', MT='background:#FDEBD8;color:#8A4A0A';
+    return {
+      menu:this.state.menu, toggleMenu:()=>this.setState({menu:!this.state.menu}),
+      links:[['Shop','Shop.dc.html'],['Custom 3D Print','CustomPrint.dc.html'],['Track order','Track.dc.html'],['Account','Account.dc.html'],['FAQ','States.dc.html'],['Contact','States.dc.html']].map(([t,h])=>({t,h})),
+      cats:[['Home Decor','width:48px;height:96px;border-radius:24px 24px 14px 14px;background:#C96F4A'],['Desk & Workspace','width:70px;height:76px;background:#2B2E33;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)'],['Personalised','width:110px;height:40px;border-radius:8px;background:#D9C6A5'],['Figurines','width:80px;height:72px;background:#5E7A6A;border-radius:60% 40% 55% 45%'],['Functional Parts','width:68px;height:68px;background:#3C5A80;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)'],['Custom prints','width:72px;height:72px;border-radius:14px;background:#F97316']].map(([n,shape])=>({n,shape})),
+      products:[['Spiral Decor Vase','699','width:48px;height:96px;border-radius:24px 24px 14px 14px;background:#C96F4A','In stock',ST],['Minimal Phone Stand','249','width:70px;height:76px;background:#2B2E33;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)','In stock',ST],['Articulated Dragon','499','width:80px;height:72px;background:#5E7A6A;border-radius:60% 40% 55% 45%','Made to order',MT],['Custom Name Plate','399','width:110px;height:40px;border-radius:8px;background:#D9C6A5','Made to order',MT],['Geometric Planter','449','width:86px;height:68px;background:#5E7A6A;clip-path:polygon(0 0,100% 0,84% 100%,16% 100%)','In stock',ST],['Headphone Stand','799','width:70px;height:76px;background:#8C8F96;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)','Only 3 left','background:#FFF4E0;color:#8A5209']].map(([n,price,shape,b,bs])=>({n,price,shape,b,bs})),
+      steps:[{n:'01',t:'Upload',d:'STL or 3MF, preview in 3D'},{n:'02',t:'Configure',d:'Material, colour, finish'},{n:'03',t:'Get a quote',d:'Reviewed within ~1 business day'},{n:'04',t:'Pay and track',d:'Every production step'}],
+      values:[{t:'Precision you can feel',d:'Tuned printers and hand finishing.'},{t:'Honest timelines',d:'Production and delivery shown separately.'},{t:'Made for you',d:'Personalise text, colour and size.'},{t:'Real support',d:'Talk to the people who print your order.'}]
+    };
+  }
+}
+</script>
+</body>
+</html>

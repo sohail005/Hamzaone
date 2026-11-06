@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Checkout · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C;color:#111318}
+.btn-d{background:#111318;color:#fff}.btn-d:hover{background:#2A2D33;color:#fff}
+.btn-o{background:transparent;border-color:#111318;color:#111318}.btn-o:hover{background:#111318;color:#fff}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:28px;box-sizing:border-box}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f label{font-size:14px;font-weight:600}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.err{font-size:13px;color:#B02A37}
+.opt{display:flex;gap:14px;align-items:flex-start;width:100%;text-align:left;background:#fff;border-radius:16px;padding:16px 18px;cursor:pointer;font:15px Inter,sans-serif;color:#111318;box-sizing:border-box}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+.proto{border:1px dashed #8E9097;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;background:#F6F5F1}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="border-bottom:1px solid #E8E8E5;background:#F6F5F1">
+<div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<a href="Cart.dc.html" style="font-size:14px;font-weight:600">← Back to cart</a>
+</div>
+</header>
+<main class="wrap" style="flex:1;padding-top:32px;padding-bottom:80px;display:flex;flex-direction:column;gap:28px">
+
+<sc-if value="{{inSteps}}" hint-placeholder-val="{{ true }}">
+<ol aria-label="Checkout steps" style="list-style:none;margin:0;padding:0;display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{steps}}" as="st" hint-placeholder-count="4"><li style="display:flex;align-items:center;gap:8px;flex:1 1 140px"><button onClick="{{st.go}}" aria-current="{{st.current}}" style="display:flex;align-items:center;gap:10px;background:none;border:0;padding:0;cursor:pointer;font:600 14px Inter,sans-serif;min-height:44px;{{st.text}}"><span style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;{{st.dot}}">{{st.mark}}</span>{{st.label}}</button><span aria-hidden="true" style="flex:1;height:2px;{{st.bar}}"></span></li></sc-for>
+</ol>
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<section style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isContact}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="font-size:28px">Contact information</h1>
+<div role="group" aria-label="Checkout mode" style="display:flex;background:#F6F5F1;border-radius:999px;padding:4px"><button onClick="{{asGuest}}" aria-pressed="{{guest}}" style="min-height:40px;padding:0 16px;border-radius:999px;border:0;cursor:pointer;font:600 14px Inter,sans-serif;{{guestStyle}}">Guest</button><button onClick="{{asUser}}" aria-pressed="{{signedIn}}" style="min-height:40px;padding:0 16px;border-radius:999px;border:0;cursor:pointer;font:600 14px Inter,sans-serif;{{userStyle}}">Signed in</button></div></div>
+<sc-if value="{{signedIn}}" hint-placeholder-val="{{ false }}"><div style="background:#F6F5F1;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span>Signed in as <strong>Riya Sharma</strong> · riya.sharma@example.com <span class="muted">(demo)</span></span><a href="Auth.dc.html" class="link" style="display:inline-flex;align-items:center">Not you?</a></div></sc-if>
+<sc-if value="{{guest}}" hint-placeholder-val="{{ true }}"><p class="muted" style="font-size:14px">No account needed. Have one? <a href="Auth.dc.html" style="color:#C2410C;font-weight:600">Sign in</a> for saved addresses.</p></sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+<div class="f"><label for="em">Email</label><input id="em" class="in" type="email" autocomplete="email" value="{{f.email}}" onChange="{{on.email}}" aria-invalid="{{e.emailBad}}" style="{{e.emailB}}"><sc-if value="{{e.email}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.email}}</span></sc-if></div>
+<div class="f"><label for="mo">Mobile number</label><div style="display:flex;gap:8px"><span class="in" style="width:64px;display:flex;align-items:center;justify-content:center;background:#F6F5F1">+91</span><input id="mo" class="in" inputmode="numeric" autocomplete="tel-national" value="{{f.mobile}}" onChange="{{on.mobile}}" aria-invalid="{{e.mobileBad}}" style="{{e.mobileB}}"></div><sc-if value="{{e.mobile}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.mobile}}</span></sc-if></div>
+</div>
+<p class="muted" style="font-size:13px">We send order and tracking updates to this email and mobile (SMS or WhatsApp).</p>
+<button class="btn btn-d" style="align-self:flex-start" onClick="{{toAddress}}">Continue to delivery address</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isAddress}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<h1 style="font-size:28px">Delivery address</h1>
+<sc-if value="{{showSummaryErr}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FDE7E9;border:1px solid #F5B5BC;color:#8E1F2B;border-radius:14px;padding:12px 16px;font-size:14px"><strong>Please fix {{errCount}} field(s) below</strong> to continue.</div></sc-if>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
+<div class="f"><label for="nm">Full name</label><input id="nm" class="in" autocomplete="name" value="{{f.name}}" onChange="{{on.name}}" style="{{e.nameB}}"><sc-if value="{{e.name}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.name}}</span></sc-if></div>
+<div class="f"><label for="pin">PIN code</label><input id="pin" class="in" inputmode="numeric" maxlength="6" autocomplete="postal-code" value="{{f.pin}}" onChange="{{on.pin}}" aria-invalid="{{e.pinBad}}" aria-describedby="pin-m" style="{{e.pinB}}"><span id="pin-m" style="font-size:13px;{{pinMsgStyle}}">{{pinMsg}}</span></div>
+<div class="f" style="grid-column:1/-1"><label for="a1">Flat, house no., building</label><input id="a1" class="in" autocomplete="address-line1" value="{{f.line1}}" onChange="{{on.line1}}" style="{{e.line1B}}"><sc-if value="{{e.line1}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.line1}}</span></sc-if></div>
+<div class="f" style="grid-column:1/-1"><label for="a2">Area, street, sector <span class="muted" style="font-weight:400">(optional)</span></label><input id="a2" class="in" autocomplete="address-line2" value="{{f.line2}}" onChange="{{on.line2}}"></div>
+<div class="f"><label for="lm">Landmark <span class="muted" style="font-weight:400">(optional)</span></label><input id="lm" class="in" value="{{f.landmark}}" onChange="{{on.landmark}}"></div>
+<div class="f"><label for="ct">City / District</label><input id="ct" class="in" autocomplete="address-level2" value="{{f.city}}" onChange="{{on.city}}" style="{{e.cityB}}"><sc-if value="{{e.city}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.city}}</span></sc-if></div>
+<div class="f"><label for="sta">State</label><input id="sta" class="in" autocomplete="address-level1" value="{{f.state}}" onChange="{{on.state}}" style="{{e.stateB}}"><sc-if value="{{e.state}}" hint-placeholder-val="{{ false }}"><span class="err">{{e.state}}</span></sc-if></div>
+<div class="f"><span style="font-size:14px;font-weight:600">Address type</span><div style="display:flex;gap:8px"><sc-for list="{{types}}" as="t" hint-placeholder-count="2"><button onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="min-height:44px;padding:0 18px;border-radius:999px;cursor:pointer;font:600 14px Inter,sans-serif;{{t.style}}">{{t.label}}</button></sc-for></div></div>
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toContact}}">Back</button><button class="btn btn-d" onClick="{{toShipping}}">Continue to shipping</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isShipping}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="display:flex;flex-direction:column;gap:16px">
+<h1 style="font-size:28px">Shipping method</h1>
+<p class="muted" style="font-size:14px">Your items are ready-made and dispatch in 1–2 business days. Delivery times below start after dispatch and are courier estimates.</p>
+<div role="radiogroup" aria-label="Shipping method" style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ships}}" as="m" hint-placeholder-count="2"><button role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" class="opt" style="{{m.style}}"><span style="width:20px;height:20px;border-radius:50%;flex:0 0 auto;margin-top:2px;box-sizing:border-box;{{m.dot}}"></span><span style="flex:1;display:flex;flex-direction:column"><strong>{{m.name}}</strong><span class="muted" style="font-size:14px">{{m.eta}}</span></span><strong>{{m.priceText}}</strong></button></sc-for>
+</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toAddressBack}}">Back</button><button class="btn btn-d" onClick="{{toReview}}">Continue to review</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isReview}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{wasCanceled}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#FFF4E0;border:1px solid #F3D9A6;color:#6B3F06;border-radius:14px;padding:12px 16px;font-size:14px"><strong>Payment window closed.</strong> No payment was taken. Your order details are saved, so you can pay when ready.</div></sc-if>
+<div class="card" style="display:flex;flex-direction:column;gap:20px">
+<h1 style="font-size:28px">Review and pay</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+<div style="background:#F6F5F1;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><strong>Contact</strong><button class="link" onClick="{{toContact}}">Edit</button></div><span class="muted" style="font-size:14px">{{f.email}}<br>+91 {{f.mobile}}</span></div>
+<div style="background:#F6F5F1;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><strong>Deliver to</strong><button class="link" onClick="{{toAddressBack}}">Edit</button></div><span class="muted" style="font-size:14px">{{f.name}}<br>{{f.line1}}, {{f.line2}}<br>{{f.city}}, {{f.state}} {{f.pin}}</span></div>
+<div style="background:#F6F5F1;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><strong>Shipping</strong><button class="link" onClick="{{toShippingBack}}">Edit</button></div><span class="muted" style="font-size:14px">{{shipName}} · {{shipEta}}</span></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px"><strong>Payment</strong>
+<div style="border:2px solid #111318;border-radius:16px;padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><span style="font:700 15px Manrope,sans-serif;background:#F6F5F1;border-radius:8px;padding:6px 10px">Razorpay</span><span style="flex:1;font-size:14px">UPI, cards, net banking and wallets. You will complete payment in Razorpay's secure window.</span></div>
+<p class="muted" style="font-size:13px">HamzaOne never sees or stores your card or UPI PIN. Available methods are decided by Razorpay and your bank.</p></div>
+<label style="display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer"><input type="checkbox" checked="{{agree}}" onChange="{{toggleAgree}}" style="width:20px;height:20px;margin:0;accent-color:#111318"> I agree to the <a href="States.dc.html" style="color:#C2410C;font-weight:600">Terms</a> and <a href="States.dc.html" style="color:#C2410C;font-weight:600">Return and Refund Policy</a>.</label>
+<sc-if value="{{agreeErr}}" hint-placeholder-val="{{ false }}"><span class="err" role="alert">Please accept the terms to continue.</span></sc-if>
+<button class="btn btn-p" onClick="{{pay}}">🔒 Pay ₹{{totalText}} securely</button>
+</div>
+</sc-if>
+</section>
+
+<aside aria-label="Order summary" style="flex:1 1 320px;max-width:400px;position:sticky;top:24px" class="card">
+<h2 style="font-size:20px;margin-bottom:16px">Order summary</h2>
+<sc-for list="{{items}}" as="i" hint-placeholder-count="2"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #E8E8E5;align-items:center"><span style="width:56px;height:56px;border-radius:12px;background:#ECEAE4;display:flex;align-items:center;justify-content:center;position:relative"><span style="{{i.shape}}"></span><span style="position:absolute;top:-6px;right:-6px;background:#111318;color:#fff;font-size:11px;font-weight:700;border-radius:10px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center">{{i.qty}}</span></span><span style="flex:1;font-size:14px"><strong>{{i.name}}</strong><br><span class="muted">{{i.meta}}</span></span><strong style="font-size:14px">₹{{i.total}}</strong></div></sc-for>
+<dl style="margin:16px 0 0;display:flex;flex-direction:column;gap:8px;font-size:14px">
+<div style="display:flex;justify-content:space-between"><dt>Subtotal</dt><dd style="margin:0">₹1,197</dd></div>
+<div style="display:flex;justify-content:space-between;color:#0F5E41"><dt>Coupon FIRST100</dt><dd style="margin:0">−₹100</dd></div>
+<div style="display:flex;justify-content:space-between"><dt>{{shipName}}</dt><dd style="margin:0">₹{{shipPrice}}</dd></div>
+<div style="display:flex;justify-content:space-between;border-top:1px solid #E8E8E5;padding-top:10px;font:700 18px Manrope,sans-serif"><dt>Total</dt><dd style="margin:0">₹{{totalText}}</dd></div>
+</dl>
+<p class="muted" style="font-size:12px;margin-top:8px">Inclusive of GST</p>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isHandoff}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:24px 0">
+<p class="muted" style="font-size:14px">HamzaOne page dims · Razorpay Checkout opens on top</p>
+<div role="dialog" aria-label="Razorpay checkout, external" style="width:min(420px,100%);border:2px dashed #8E9097;border-radius:20px;background:#fff;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px">
+<span style="align-self:flex-start;background:#ECECEA;color:#45474C;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600">Conceptual · Razorpay-hosted UI, not designed or controlled by HamzaOne</span>
+<div style="display:flex;justify-content:space-between"><strong>HamzaOne</strong><strong>₹{{totalText}}</strong></div>
+<div style="height:120px;border-radius:12px;background:repeating-linear-gradient(45deg,#F6F5F1 0 10px,#EFEEE9 10px 20px);display:flex;align-items:center;justify-content:center;color:#686B72;font-size:14px;text-align:center;padding:12px">Payment method selection, OTP and bank pages appear here</div>
+<div class="proto"><strong style="font-size:13px">Prototype only · choose the gateway result</strong>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">
+<button class="btn btn-d" style="min-height:44px;font-size:14px" onClick="{{simSuccess}}">Success</button>
+<button class="btn btn-o" style="min-height:44px;font-size:14px" onClick="{{simFail}}">Failure</button>
+<button class="btn btn-o" style="min-height:44px;font-size:14px" onClick="{{simPending}}">Pending</button>
+<button class="btn btn-o" style="min-height:44px;font-size:14px" onClick="{{simCancel}}">User closes window</button>
+</div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isProcessing}}" hint-placeholder-val="{{ false }}">
+<div class="card" role="status" aria-live="polite" style="max-width:560px;margin:40px auto;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center">
+<div aria-hidden="true" style="width:56px;height:56px;border-radius:50%;border:5px solid #E8E8E5;border-top-color:#F97316"></div>
+<h1 style="font-size:26px">Confirming your payment</h1>
+<p class="muted">We are verifying the payment with Razorpay. Please keep this page open. This usually takes a few seconds.</p>
+<button class="link" onClick="{{finishProcessing}}">Prototype: continue</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isSuccess}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+<div class="card" style="flex:999 1 520px;display:flex;flex-direction:column;gap:16px">
+<span style="width:56px;height:56px;border-radius:50%;background:#E3F3EC;color:#16845B;display:flex;align-items:center;justify-content:center;font-size:28px" aria-hidden="true">✓</span>
+<h1 style="font-size:34px">Thank you, {{firstName}}. Your order is confirmed.</h1>
+<p class="muted">Order <strong style="color:#111318">HO-2026-10482</strong> · Paid ₹{{totalText}} via Razorpay{{retryNote}}. A confirmation is on its way to {{f.email}}.</p>
+<ol style="list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+<li style="background:#F6F5F1;border-radius:14px;padding:14px"><span class="muted" style="font-size:12px">Now</span><br><strong>Payment confirmed</strong></li>
+<li style="background:#F6F5F1;border-radius:14px;padding:14px"><span class="muted" style="font-size:12px">By 9 Nov</span><br><strong>Packed and dispatched</strong></li>
+<li style="background:#F6F5F1;border-radius:14px;padding:14px"><span class="muted" style="font-size:12px">Estimated 12–17 Nov</span><br><strong>Delivery</strong></li>
+</ol>
+<p class="muted" style="font-size:13px">Delivery dates are courier estimates, not guarantees.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><a href="Account.dc.html" class="btn btn-d">View order details</a><a href="Track.dc.html" class="btn btn-o">Track order</a><a href="Shop.dc.html" class="btn btn-o">Continue shopping</a></div>
+<sc-if value="{{guest}}" hint-placeholder-val="{{ true }}"><div style="border-top:1px solid #E8E8E5;padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><span style="font-size:14px">Save your details for next time and track orders in one place.</span><a href="Auth.dc.html" class="link" style="display:inline-flex;align-items:center">Create an account →</a></div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{isFailed}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width:640px;margin:24px auto;display:flex;flex-direction:column;gap:16px">
+<span style="width:56px;height:56px;border-radius:50%;background:#FDE7E9;color:#B02A37;display:flex;align-items:center;justify-content:center;font-size:26px" aria-hidden="true">!</span>
+<h1 style="font-size:30px">Payment did not go through</h1>
+<p class="muted">Razorpay reported the payment as failed (reference PAY-DEMO-7731). Your order is saved for 30 minutes. If money left your account, contact us with this reference and we will help you trace it with your bank.</p>
+<div style="background:#F6F5F1;border-radius:14px;padding:14px 16px;font-size:14px"><strong>Common fixes:</strong> check UPI app approval, card limits, or try another method.</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-p" onClick="{{retry}}">Retry payment · ₹{{totalText}}</button><button class="btn btn-o" onClick="{{toReviewBack}}">Change details</button><a href="States.dc.html" class="btn btn-o">Contact support</a></div>
+</div>
+</sc-if>
+
+<sc-if value="{{isPending}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="max-width:640px;margin:24px auto;display:flex;flex-direction:column;gap:16px">
+<span style="width:56px;height:56px;border-radius:50%;background:#FFF4E0;color:#8A5209;display:flex;align-items:center;justify-content:center;font-size:24px" aria-hidden="true">⏱</span>
+<h1 style="font-size:30px">Payment pending</h1>
+<p class="muted">Your bank has not confirmed this payment yet. Order <strong style="color:#111318">HO-2026-10482</strong> is reserved and we will email {{f.email}} as soon as Razorpay confirms the result. Please do not pay again.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn btn-d" onClick="{{checkAgain}}">Check status now</button><a href="Track.dc.html" class="btn btn-o">Go to order tracking</a></div>
+<p class="muted" style="font-size:13px">If it is not confirmed within [PENDING WINDOW], the order is cancelled and any debited amount is handled per Razorpay and bank timelines.</p>
+</div>
+</sc-if>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const STEPS = [['contact','Contact'],['address','Address'],['shipping','Shipping'],['review','Review & pay']];
+const fmt = n => n.toLocaleString('en-IN');
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = {
+    step:'contact', guest:true, ship:'standard', type:'Home', agree:true, agreeErr:false, tried:false, canceled:false, attempts:0,
+    f:{ email:'riya.sharma@example.com', mobile:'9876543210', name:'Riya Sharma', pin:'5600', line1:'Flat 402, Lakeview Residency', line2:'14th Cross, HSR Layout Sector 2', landmark:'Near Agara Lake', city:'Bengaluru', state:'Karnataka' } }; }
+  errs(){ const f=this.state.f, e={};
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) e.email='Enter a valid email address, like name@example.com.';
+    if(!/^[6-9][0-9]{9}$/.test(f.mobile)) e.mobile='Enter a 10-digit Indian mobile number starting with 6, 7, 8 or 9.';
+    if(f.name.trim().length<2) e.name='Enter the recipient\'s full name.';
+    if(!/^[1-9][0-9]{5}$/.test(f.pin)) e.pin='PIN code must be 6 digits.';
+    if(f.line1.trim().length<3) e.line1='Enter flat, house number or building.';
+    if(!f.city.trim()) e.city='Enter a city or district.';
+    if(!f.state.trim()) e.state='Enter a state.';
+    return e; }
+  renderVals() {
+    const s = this.state, all = this.errs();
+    const show = s.tried ? all : {};
+    const addrKeys = ['name','pin','line1','city','state'];
+    const e = {}; Object.keys(all).forEach(k=>{ if(show[k]){ e[k]=show[k]; e[k+'Bad']=true; e[k+'B']='border:2px solid #DC3545'; } });
+    const on = {}; Object.keys(s.f).forEach(k=>{ on[k]=ev=>this.setState({f:{...s.f,[k]:k==='pin'||k==='mobile'?ev.target.value.replace(/\D/g,''):ev.target.value}}); });
+    const shipPrice = s.ship==='express'?149:79, total = 1097 + shipPrice;
+    const idx = STEPS.findIndex(x=>x[0]===s.step);
+    const go = st => this.setState({step:st, tried:false});
+    const pinOk = /^[1-9][0-9]{5}$/.test(s.f.pin);
+    return {
+      f:s.f, on, e, guest:s.guest, signedIn:!s.guest,
+      asGuest:()=>this.setState({guest:true}), asUser:()=>this.setState({guest:false}),
+      guestStyle:s.guest?'background:#111318;color:#fff':'background:transparent;color:#111318', userStyle:!s.guest?'background:#111318;color:#fff':'background:transparent;color:#111318',
+      inSteps: idx>=0, isContact:s.step==='contact', isAddress:s.step==='address', isShipping:s.step==='shipping', isReview:s.step==='review',
+      isHandoff:s.step==='handoff', isProcessing:s.step==='processing', isSuccess:s.step==='success', isFailed:s.step==='failed', isPending:s.step==='pending',
+      steps: STEPS.map(([k,l],i)=>({label:l, current: i===idx?'step':undefined, mark: i<idx?'✓':String(i+1),
+        dot: i<idx?'background:#16845B;color:#fff': i===idx?'background:#111318;color:#fff':'background:#fff;color:#686B72;border:1px solid #8E9097',
+        text: i<=idx?'color:#111318;cursor:pointer':'color:#686B72;cursor:default', bar: i<idx?'background:#16845B':'background:#E8E8E5',
+        go: ()=>{ if(i<=idx) go(k); }})),
+      toAddress:()=>{ const c=this.errs(); if(c.email||c.mobile) this.setState({tried:true}); else go('address'); },
+      toContact:()=>go('contact'), toAddressBack:()=>go('address'), toShippingBack:()=>go('shipping'), toReviewBack:()=>this.setState({step:'review',canceled:false}),
+      toShipping:()=>{ const c=this.errs(); if(addrKeys.some(k=>c[k])) this.setState({tried:true}); else go('shipping'); },
+      toReview:()=>this.setState({step:'review',canceled:false}),
+      showSummaryErr: s.tried && addrKeys.some(k=>all[k]), errCount: addrKeys.filter(k=>all[k]).length,
+      pinMsg: e.pin ? e.pin : pinOk ? '✓ Delivers to Bengaluru, Karnataka' : 'Example: 560102', pinMsgStyle: e.pin?'color:#B02A37':pinOk?'color:#0F5E41':'color:#686B72',
+      types:['Home','Work'].map(t=>({label:t,on:s.type===t,pick:()=>this.setState({type:t}),style:s.type===t?'background:#111318;color:#fff;border:1px solid #111318':'background:#fff;color:#111318;border:1px solid #8E9097'})),
+      ships:[['standard','Standard delivery','3–6 business days after dispatch',79],['express','Express delivery','1–3 business days after dispatch · metro PIN codes',149]].map(([k,n,eta,p])=>({name:n,eta,priceText:`₹${p}`,on:s.ship===k,pick:()=>this.setState({ship:k}),
+        style:s.ship===k?'border:2px solid #111318':'border:1px solid #CFCDC6', dot:s.ship===k?'border:6px solid #111318':'border:1.5px solid #686B72'})),
+      shipName: s.ship==='express'?'Express delivery':'Standard delivery', shipEta: s.ship==='express'?'1–3 business days after dispatch':'3–6 business days after dispatch', shipPrice,
+      totalText: fmt(total),
+      agree:s.agree, agreeErr:s.agreeErr, toggleAgree:()=>this.setState({agree:!s.agree,agreeErr:false}),
+      wasCanceled: s.canceled,
+      pay:()=>{ if(!s.agree) this.setState({agreeErr:true}); else this.setState({step:'handoff'}); },
+      simSuccess:()=>{ this.setState({step:'processing',attempts:s.attempts+1}); clearTimeout(this.t); this.t=setTimeout(()=>{ if(this.state.step==='processing') this.setState({step:'success'}); },1800); },
+      simFail:()=>this.setState({step:'failed',attempts:s.attempts+1}),
+      simPending:()=>this.setState({step:'pending',attempts:s.attempts+1}),
+      simCancel:()=>this.setState({step:'review',canceled:true}),
+      finishProcessing:()=>this.setState({step:'success'}),
+      retry:()=>this.setState({step:'handoff'}), checkAgain:()=>this.setState({step:'processing'}),
+      retryNote: s.attempts>1 ? ` on attempt ${s.attempts}` : '',
+      firstName: s.f.name.split(' ')[0] || 'there',
+      items:[{name:'Spiral Decor Vase',meta:'Terracotta · Small',qty:1,total:'699',shape:'width:18px;height:36px;border-radius:9px 9px 5px 5px;background:#C96F4A'},{name:'Minimal Phone Stand',meta:'Charcoal',qty:2,total:'498',shape:'width:28px;height:30px;background:#2B2E33;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)'}]
+    };
+  }
+}
+</script>
+</body>
+</html>

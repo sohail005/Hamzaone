@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Customers, Coupons, Payments, Analytics, Settings · HamzaOne Admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:20px;box-sizing:border-box}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap;background:none;border:0;width:100%;text-align:left;font:500 14px Inter,sans-serif;cursor:pointer}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label,.lbl{font-size:13px;font-weight:600}
+.in{height:40px;border:1px solid #8E9097;border-radius:10px;padding:0 12px;font:14px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.in:disabled{background:#F3F2EE;color:#686B72}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer;min-height:28px}
+td,th{padding:12px;border-bottom:1px solid #E8E8E5;text-align:left;white-space:nowrap}
+th{font-size:12px;color:#686B72;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.sw{width:40px;height:24px;border-radius:12px;border:0;position:relative;cursor:pointer}
+.sw span{position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="7"><a href="{{n.href}}" class="side"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5"><button class="side" onClick="{{t.go}}" aria-current="{{t.cur}}" style="{{t.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{t.ic}}</span>{{t.label}}</button></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px"><nav aria-label="Breadcrumb" class="muted">Admin / <strong style="color:#111318">{{tabName}}</strong>{{crumbTail}}</nav></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isCustomers}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{custList}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h1 style="font-size:26px">Customers</h1><label for="cs" style="position:absolute;left:-9999px">Search customers</label><input id="cs" class="in" style="max-width:300px" placeholder="Search name, email or phone" value="{{cq}}" onChange="{{onCq}}"></div>
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:720px"><thead><tr><th>Customer</th><th>Contact</th><th>Orders</th><th>Lifetime spend</th><th>Last order</th><th></th></tr></thead><tbody>
+<sc-for list="{{customers}}" as="c" hint-placeholder-count="6"><tr><td><strong>{{c.n}}</strong> <sc-if value="{{c.guest}}" hint-placeholder-val="{{ false }}"><span class="chip" style="background:#ECECEA;color:#45474C">Guest</span></sc-if></td><td class="muted">{{c.e}}</td><td>{{c.o}}</td><td>₹{{c.s}}</td><td class="muted">{{c.l}}</td><td><button class="link" onClick="{{c.open}}">View</button></td></tr></sc-for>
+</tbody></table></div>
+<sc-if value="{{noCust}}" hint-placeholder-val="{{ false }}"><p class="muted">No customers match “{{cq}}”. <button class="link" onClick="{{clearCq}}">Clear search</button></p></sc-if>
+</sc-if>
+<sc-if value="{{custDetail}}" hint-placeholder-val="{{ false }}">
+<button class="link" style="align-self:flex-start" onClick="{{backCust}}">← All customers</button>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div class="card" style="flex:1 1 280px;display:flex;flex-direction:column;gap:6px"><h1 style="font-size:22px">Riya Sharma</h1><span class="muted">riya.sharma@example.com<br>+91 98765 43210<br>Customer since Mar 2026 · demo</span><span>Lifetime spend <strong>₹4,826</strong> · 5 orders</span><label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" checked="" style="width:18px;height:18px;margin:0;accent-color:#111318"> Marketing emails consented</label></div>
+<div class="card" style="flex:2 1 420px;padding:0;overflow-x:auto"><h2 style="font-size:16px;padding:16px 20px 0">Order history</h2><table style="border-collapse:collapse;width:100%"><thead><tr><th>Order</th><th>Date</th><th>Total</th><th>Status</th></tr></thead><tbody>
+<tr><td><a href="AdminOrders.dc.html" style="font-weight:600">HO-2026-10482</a></td><td>6 Nov 2026</td><td>₹1,176</td><td><span class="chip" style="background:#FDEBD8;color:#8A4A0A">Packing</span></td></tr>
+<tr><td><a href="AdminOrders.dc.html" style="font-weight:600">HO-2026-09921</a></td><td>18 Oct 2026</td><td>₹478</td><td><span class="chip" style="background:#E3F3EC;color:#0F5E41">Delivered</span></td></tr>
+<tr><td><a href="AdminOrders.dc.html" style="font-weight:600">HO-2026-09310</a></td><td>2 Oct 2026</td><td>₹528</td><td><span class="chip" style="background:#ECECEA;color:#45474C">Canceled · refunded</span></td></tr>
+</tbody></table></div></div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isCoupons}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h1 style="font-size:26px">Coupons & discounts</h1><button class="btn btn-p" onClick="{{newCoupon}}">+ New coupon</button></div>
+<sc-if value="{{cpForm}}" hint-placeholder-val="{{ false }}">
+<form class="card" onSubmit="{{saveCoupon}}" style="display:flex;flex-direction:column;gap:14px" novalidate="">
+<h2 style="font-size:18px">{{cpTitle}}</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+<div class="f"><label for="cc">Code</label><input id="cc" class="in" value="{{cp.code}}" onChange="{{cpon.code}}" style="text-transform:uppercase;{{cpErrB}}"><sc-if value="{{cpErr}}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#B02A37">{{cpErr}}</span></sc-if></div>
+<div class="f"><label for="ct">Type</label><select id="ct" class="in"><option>Flat amount (₹)</option><option>Percentage (%)</option><option>Free shipping</option></select></div>
+<div class="f"><label for="cv">Value</label><input id="cv" class="in" value="{{cp.value}}" onChange="{{cpon.value}}"></div>
+<div class="f"><label for="cm">Minimum subtotal (₹)</label><input id="cm" class="in" value="{{cp.min}}" onChange="{{cpon.min}}"></div>
+<div class="f"><label for="cs1">Valid from</label><input id="cs1" class="in" type="date" value="2026-11-01"></div>
+<div class="f"><label for="cs2">Valid until</label><input id="cs2" class="in" type="date" value="2026-12-31"></div>
+<div class="f"><label for="cu">Total usage limit</label><input id="cu" class="in" value="{{cp.limit}}" onChange="{{cpon.limit}}"></div>
+<div class="f"><label for="cpu">Per customer</label><input id="cpu" class="in" value="1"></div>
+</div>
+<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked="" style="width:18px;height:18px;margin:0;accent-color:#111318"> Exclude custom print quotes</label>
+<div style="display:flex;gap:8px"><button type="button" class="btn btn-o" onClick="{{cancelCoupon}}">Cancel</button><button type="submit" class="btn btn-d">Save coupon</button></div>
+</form>
+</sc-if>
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:760px"><thead><tr><th>Code</th><th>Discount</th><th>Min. subtotal</th><th>Validity</th><th>Used</th><th>Enabled</th><th></th></tr></thead><tbody>
+<sc-for list="{{coupons}}" as="c" hint-placeholder-count="4"><tr><td><strong>{{c.code}}</strong></td><td>{{c.disc}}</td><td>₹{{c.min}}</td><td class="muted">{{c.valid}}</td><td>{{c.used}}</td><td><button class="sw" role="switch" aria-checked="{{c.on}}" aria-label="Enable {{c.code}}" onClick="{{c.toggle}}" style="{{c.track}}"><span style="{{c.knob}}"></span></button></td><td><button class="link" onClick="{{c.edit}}">Edit</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+
+<sc-if value="{{isPayments}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:26px">Payments & refunds</h1>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{payFilters}}" as="f" hint-placeholder-count="5"><button onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="btn" style="{{f.style}}">{{f.label}}</button></sc-for></div>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div class="card" style="flex:2 1 520px;padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:640px"><thead><tr><th>Payment ID</th><th>Order</th><th>Method</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>
+<sc-for list="{{payments}}" as="p" hint-placeholder-count="6"><tr><td><button class="link" onClick="{{p.open}}">{{p.id}}</button></td><td>{{p.order}}</td><td class="muted">{{p.m}}</td><td>₹{{p.a}}</td><td><span class="chip" style="{{p.sStyle}}">{{p.s}}</span></td><td class="muted">{{p.d}}</td></tr></sc-for>
+</tbody></table></div>
+<aside class="card" style="flex:1 1 280px;display:flex;flex-direction:column;gap:8px"><h2 style="font-size:16px">Payment details</h2><strong>{{pd.id}}</strong><span class="chip" style="align-self:flex-start;{{pd.sStyle}}">{{pd.s}}</span>
+<dl style="margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px"><dt class="muted">Order</dt><dd style="margin:0">{{pd.order}}</dd><dt class="muted">Amount</dt><dd style="margin:0">₹{{pd.a}}</dd><dt class="muted">Method</dt><dd style="margin:0">{{pd.m}}</dd><dt class="muted">Gateway</dt><dd style="margin:0">Razorpay</dd><dt class="muted">Refund</dt><dd style="margin:0">{{pd.refund}}</dd></dl>
+<p class="muted" style="font-size:12px">Only masked identifiers are shown. Card numbers, UPI PINs and bank credentials are never stored by HamzaOne.</p></aside>
+</div>
+</sc-if>
+
+<sc-if value="{{isAnalytics}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><h1 style="font-size:26px">Analytics & reports</h1><span class="chip" style="background:#ECECEA;color:#45474C;align-self:center">Demo data · Jun–Nov 2026</span></div>
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<section class="card" style="flex:1 1 420px"><h2 style="font-size:16px;margin-bottom:12px">Revenue and orders by month</h2>
+<div role="img" aria-label="Revenue rose from ₹92k in June to ₹1.84L in November" style="display:flex;align-items:flex-end;gap:14px;height:180px;border-bottom:1px solid #E8E8E5">
+<sc-for list="{{months}}" as="m" hint-placeholder-count="6"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%"><span style="font-size:11px" class="muted">₹{{m.r}}k</span><div style="width:100%;background:#111318;border-radius:6px 6px 0 0;height:{{m.h}}%"></div></div></sc-for></div>
+<div style="display:flex;gap:14px;margin-top:6px"><sc-for list="{{months}}" as="m" hint-placeholder-count="6"><span style="flex:1;text-align:center;font-size:12px"><strong>{{m.n}}</strong><br><span class="muted">{{m.o}} orders</span></span></sc-for></div></section>
+<section class="card" style="flex:1 1 320px;display:flex;flex-direction:column;gap:10px"><h2 style="font-size:16px">Best-selling products</h2>
+<sc-for list="{{best}}" as="b" hint-placeholder-count="5"><div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><span>{{b.n}}</span><strong>{{b.u}} sold</strong></div><div style="height:6px;border-radius:3px;background:#E8E8E5"><div style="height:100%;border-radius:3px;background:#F97316;width:{{b.p}}%"></div></div></div></sc-for></section>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<section class="card" style="flex:1 1 320px;display:flex;flex-direction:column;gap:10px"><h2 style="font-size:16px">Category performance</h2>
+<sc-for list="{{catPerf}}" as="c" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;border-top:1px solid #E8E8E5;padding-top:8px"><span>{{c.n}}</span><span><strong>₹{{c.r}}</strong> <span class="muted">· {{c.s}}%</span></span></div></sc-for></section>
+<section class="card" style="flex:1 1 320px;display:flex;flex-direction:column;gap:10px"><h2 style="font-size:16px">Custom quote conversion</h2>
+<sc-for list="{{funnel}}" as="f" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between"><span>{{f.n}}</span><strong>{{f.v}}</strong></div><div style="height:10px;border-radius:5px;background:#3C5A80;width:{{f.p}}%"></div></div></sc-for>
+<span class="muted" style="font-size:12px">Request to paid: 38%</span></section>
+<section class="card" style="flex:1 1 280px;display:flex;flex-direction:column;gap:8px"><h2 style="font-size:16px">Production overview</h2><span>Avg. print-to-pack time <strong>2.4 days</strong></span><span>On-time dispatch <strong>94%</strong></span><span>QC failure rate <strong>3.1%</strong></span><span>Printer utilisation <strong>71%</strong></span></section>
+</div>
+</sc-if>
+
+<sc-if value="{{isSettings}}" hint-placeholder-val="{{ false }}">
+<h1 style="font-size:26px">Settings</h1>
+<div role="tablist" style="display:flex;gap:4px;border-bottom:1px solid #E8E8E5;flex-wrap:wrap"><sc-for list="{{setTabs}}" as="t" hint-placeholder-count="7"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="min-height:40px;padding:0 12px;border:0;background:none;cursor:pointer;font:600 14px Inter,sans-serif;{{t.style}}">{{t.label}}</button></sc-for></div>
+<div class="proto" style="border:1px dashed #8E9097;border-radius:12px;padding:10px 12px;display:flex;gap:8px;align-items:center;font-size:13px;background:#F6F5F1;flex-wrap:wrap"><strong>Prototype role:</strong><sc-for list="{{roles}}" as="r" hint-placeholder-count="2"><button onClick="{{r.pick}}" aria-pressed="{{r.on}}" class="btn" style="min-height:32px;{{r.style}}">{{r.label}}</button></sc-for></div>
+<sc-if value="{{restricted}}" hint-placeholder-val="{{ false }}"><div role="note" style="background:#FFF4E0;border:1px solid #F3D9A6;color:#6B3F06;border-radius:12px;padding:12px 16px">🔒 <strong>Owner access required.</strong> {{setName}} settings affect payments, tax or security. You can view them, but only the store owner can change them. Changes are logged.</div></sc-if>
+<form class="card" style="display:flex;flex-direction:column;gap:14px" onSubmit="{{saveSettings}}">
+<h2 style="font-size:18px">{{setName}}</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+<sc-for list="{{setFields}}" as="f" hint-placeholder-count="4"><div class="f"><label for="{{f.id}}">{{f.l}}</label><input id="{{f.id}}" class="in" value="{{f.v}}" disabled="{{restricted}}"></div></sc-for>
+</div>
+<sc-if value="{{canSave}}" hint-placeholder-val="{{ true }}"><button type="submit" class="btn btn-p" style="align-self:flex-start">Save changes</button></sc-if>
+<sc-if value="{{saved}}" hint-placeholder-val="{{ false }}"><p role="status" style="color:#0F5E41;font-weight:600">✓ Settings saved</p></sc-if>
+</form>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Inventory','AdminInventory.dc.html','▦']];
+const TABS = [['customers','Customers','◉'],['coupons','Coupons','%'],['payments','Payments','₹'],['analytics','Analytics','◔'],['settings','Settings','⚙']];
+const OK='background:#E3F3EC;color:#0F5E41', PEND='background:#FFF4E0;color:#8A5209', FAIL='background:#FDE7E9;color:#8E1F2B', NEU='background:#ECECEA;color:#45474C';
+const CUST = [['Riya Sharma','riya.sharma@example.com',5,'4,826','6 Nov 2026',false],['Arjun Mehta','arjun.mehta@example.com',2,'3,118','6 Nov 2026',false],['Kabir Rao','kabir.rao@example.com',1,'648','6 Nov 2026',true],['Sneha Iyer','sneha.iyer@example.com',4,'6,903','5 Nov 2026',false],['Meera Joshi','meera.j@example.com',3,'1,977','4 Nov 2026',false],['Farhan Ali','farhan.ali@example.com',1,'826','3 Nov 2026',true]];
+const PAY = [['pay_DEMO••8K2Q','HO-2026-10482','UPI','1,176','Captured',OK,'6 Nov','None'],['pay_DEMO••3M1A','HO-2026-10517','Card •• 4242','1,919','Captured',OK,'6 Nov','None'],['pay_DEMO••7731','HO-2026-10466','UPI','399','Failed',FAIL,'5 Nov','Not applicable'],['pay_DEMO••9QZP','HO-2026-10479','Net banking','648','Pending',PEND,'6 Nov','None'],['pay_DEMO••2LKD','HO-2026-10452','UPI','678','Refund pending',PEND,'4 Nov','₹678 initiated 6 Nov'],['pay_DEMO••5RTY','HO-2026-09310','Card •• 1881','528','Refunded',NEU,'2 Oct','₹528 processed 4 Oct']];
+const SET = {store:['Store information',[['Store name','HamzaOne'],['Support email','[SUPPORT EMAIL]'],['WhatsApp','[+91 NUMBER]'],['Registered address','[ADDRESS]']],false],
+ brand:['Branding',[['Logo','hamzaone-logo.svg'],['Accent colour','#F97316'],['Announcement bar','Free standard shipping on orders above ₹1,499']],false],
+ shipping:['Shipping',[['Standard rate (₹)','79'],['Free above (₹)','1499'],['Express rate (₹)','149'],['Serviceable PIN list','[COURIER PIN FILE]']],false],
+ payment:['Payment settings',[['Gateway','Razorpay'],['Key ID','rzp_live_••••••••Q7'],['Webhook secret','••••••••••••'],['Auto-capture','On']],true],
+ tax:['Tax configuration',[['GSTIN','[GSTIN]'],['Default GST rate','18%'],['Prices include GST','Yes'],['HSN code','[HSN]']],true],
+ notify:['Notification settings',[['Order confirmation','Email + WhatsApp'],['Status updates','Email + WhatsApp'],['Admin alerts','Email'],['Low stock threshold','Per variant']],false],
+ admin:['Admin account',[['Name','Hamza'],['Email','owner@example.com'],['Two-factor authentication','Enabled'],['Role','Owner']],true]};
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { tab:'customers', cDetail:false, cq:'', coupons:[{code:'FIRST100',disc:'₹100 off',min:'999',valid:'1 Nov – 31 Dec 2026',used:'41 / 500',on:true},{code:'FESTIVE15',disc:'15% off · max ₹300',min:'1,499',valid:'20 Oct – 15 Nov 2026',used:'188 / 1,000',on:true},{code:'FREESHIP',disc:'Free shipping',min:'499',valid:'Always',used:'602 / ∞',on:false},{code:'DIWALI24',disc:'₹200 off',min:'1,999',valid:'Expired 3 Nov 2024',used:'300 / 300',on:false}],
+    cpForm:false, cpEdit:-1, cp:{code:'',value:'',min:'',limit:''}, cpErr:'', pf:'All', pSel:0, set:'store', role:'Staff', saved:false }; }
+  renderVals() {
+    const s = this.state, sel = on => on?'background:#111318;color:#fff;border-color:#111318':'background:#fff;border-color:#CFCDC6';
+    const tabName = TABS.find(t=>t[0]===s.tab)[1];
+    const cust = CUST.filter(c=>!s.cq||(c[0]+c[1]).toLowerCase().includes(s.cq.toLowerCase()));
+    const PF = {All:()=>true,Captured:p=>p[4]==='Captured',Failed:p=>p[4]==='Failed',Pending:p=>p[4]==='Pending',Refunds:p=>p[4].startsWith('Refund')};
+    const pays = PAY.filter(PF[s.pf]); const pd = PAY[s.pSel];
+    const cpon = {}; Object.keys(s.cp).forEach(k=>{ cpon[k]=e=>this.setState({cp:{...s.cp,[k]:k==='code'?e.target.value.toUpperCase():e.target.value},cpErr:''}); });
+    const st = SET[s.set], restricted = st[2] && s.role!=='Owner';
+    const months=[['Jun',92,61],['Jul',108,72],['Aug',121,80],['Sep',139,95],['Oct',164,188],['Nov',184,212]];
+    return {
+      nav: NAV.map(([l,h,ic])=>({label:l,href:h,ic})),
+      tabs: TABS.map(([k,l,ic])=>({label:l,ic,cur:s.tab===k?'page':undefined,style:s.tab===k?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':'',go:()=>this.setState({tab:k,cDetail:false,saved:false})})),
+      tabName, crumbTail: s.tab==='customers'&&s.cDetail?' / Riya Sharma':'',
+      isCustomers:s.tab==='customers', isCoupons:s.tab==='coupons', isPayments:s.tab==='payments', isAnalytics:s.tab==='analytics', isSettings:s.tab==='settings',
+      custList:!s.cDetail, custDetail:s.cDetail, backCust:()=>this.setState({cDetail:false}),
+      cq:s.cq, onCq:e=>this.setState({cq:e.target.value}), clearCq:()=>this.setState({cq:''}), noCust:cust.length===0,
+      customers: cust.map(c=>({n:c[0],e:c[1],o:c[2],s:c[3],l:c[4],guest:c[5],open:()=>this.setState({cDetail:true})})),
+      coupons: s.coupons.map((c,i)=>({...c,track:c.on?'background:#16845B':'background:#8E9097',knob:c.on?'left:19px':'left:3px',
+        toggle:()=>this.setState({coupons:s.coupons.map((x,j)=>j===i?{...x,on:!x.on}:x)}),
+        edit:()=>this.setState({cpForm:true,cpEdit:i,cp:{code:c.code,value:c.disc,min:c.min,limit:c.used.split('/ ')[1]||''},cpErr:''})})),
+      cpForm:s.cpForm, cpTitle: s.cpEdit>=0?`Edit ${s.cp.code}`:'New coupon', cp:s.cp, cpon, cpErr:s.cpErr, cpErrB:s.cpErr?'border:2px solid #DC3545':'',
+      newCoupon:()=>this.setState({cpForm:true,cpEdit:-1,cp:{code:'WELCOME50',value:'50',min:'499',limit:'1000'},cpErr:''}), cancelCoupon:()=>this.setState({cpForm:false}),
+      saveCoupon:e=>{ if(e&&e.preventDefault) e.preventDefault(); const c=s.cp.code.trim();
+        if(!/^[A-Z0-9]{4,16}$/.test(c)){ this.setState({cpErr:'Use 4–16 letters or numbers, no spaces.'}); return; }
+        if(s.cpEdit<0 && s.coupons.some(x=>x.code===c)){ this.setState({cpErr:'This code already exists.'}); return; }
+        const row={code:c,disc:s.cpEdit>=0?s.cp.value:`₹${s.cp.value} off`,min:s.cp.min,valid:'1 Nov – 31 Dec 2026',used:`0 / ${s.cp.limit||'∞'}`,on:true};
+        this.setState({coupons: s.cpEdit>=0 ? s.coupons.map((x,j)=>j===s.cpEdit?{...x,...row,used:x.used}:x) : [row,...s.coupons], cpForm:false}); },
+      payFilters: Object.keys(PF).map(k=>({label:k,on:s.pf===k,style:sel(s.pf===k),pick:()=>this.setState({pf:k})})),
+      payments: pays.map(p=>({id:p[0],order:p[1],m:p[2],a:p[3],s:p[4],sStyle:p[5],d:p[6],open:()=>this.setState({pSel:PAY.indexOf(p)})})),
+      pd:{id:pd[0],order:pd[1],m:pd[2],a:pd[3],s:pd[4],sStyle:pd[5],refund:pd[7]},
+      months: months.map(([n,r,o])=>({n,r,o,h:Math.round(r/184*100)})),
+      best:[['Minimal Phone Stand',142],['Personalized Keychain',118],['Spiral Decor Vase',86],['Custom Name Plate',74],['Cable Organizer',69]].map(([n,u])=>({n,u,p:Math.round(u/142*100)})),
+      catPerf:[['Desk & Workspace','61,240',33],['Home Decor','48,910',27],['Personalised','31,560',17],['Custom prints','27,880',15],['Figurines','14,730',8]].map(([n,r,sh])=>({n,r,s:sh})),
+      funnel:[['Requests received',64,100],['Quotes sent',55,86],['Quotes accepted',29,45],['Paid',24,38]].map(([n,v,p])=>({n,v,p})),
+      setTabs: Object.keys(SET).map(k=>({label:SET[k][0]+(SET[k][2]?' 🔒':''),on:s.set===k,style:s.set===k?'color:#111318;box-shadow:inset 0 -2px 0 #F97316':'color:#686B72',pick:()=>this.setState({set:k,saved:false})})),
+      roles:['Staff','Owner'].map(r=>({label:r,on:s.role===r,style:sel(s.role===r),pick:()=>this.setState({role:r,saved:false})})),
+      setName:st[0], restricted, canSave:!restricted, setFields: st[1].map(([l,v],i)=>({l,v,id:`${s.set}-${i}`})),
+      saved:s.saved, saveSettings:e=>{ if(e&&e.preventDefault) e.preventDefault(); this.setState({saved:true}); }
+    };
+  }
+}
+</script>
+</body>
+</html>

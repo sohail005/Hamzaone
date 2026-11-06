@@ -1,0 +1,387 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Account.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "account",
+      "title": "Account/Overview · Orders · Addresses",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "AdminInventory.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Inventory",
+      "w": 1440,
+      "x": 3040,
+      "y": 1520
+    },
+    "AdminMore.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Coupons · Payments · Analytics · Settings",
+      "w": 1440,
+      "x": 4560,
+      "y": 1520
+    },
+    "AdminOrders.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Orders",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "AdminOverview.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Overview",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "AdminProduction.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Production Queue",
+      "w": 1440,
+      "x": 0,
+      "y": 1520
+    },
+    "AdminProducts.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Products",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "AdminQuotes.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "admin",
+      "title": "Admin/Custom Print Requests",
+      "w": 1440,
+      "x": 1520,
+      "y": 1520
+    },
+    "Artboard-nmho.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "page": "overview",
+      "title": "00 — Project Overview",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Auth.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "is_interactive": true,
+      "page": "account",
+      "title": "Auth/Login · Register · Reset",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Cart.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "Cart/Desktop",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Checkout.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "checkout",
+      "title": "Checkout/Flow + Payment outcomes",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "CustomPrint.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "page": "custom",
+      "title": "Custom Print/Flow (10 steps)",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "DesignSystem.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "is_interactive": true,
+      "page": "ds",
+      "title": "03 — Design System",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Handoff.dc.html": {
+      "expand": "fill",
+      "h": 2600,
+      "page": "handoff",
+      "title": "13 — Developer Handoff",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Home.dc.html": {
+      "expand": "fill",
+      "h": 3800,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "Home/Desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "MobileHome.dc.html": {
+      "h": 3400,
+      "is_interactive": true,
+      "page": "resp",
+      "title": "Home/Mobile 390",
+      "w": 390,
+      "x": 848,
+      "y": 0
+    },
+    "MobileProduct.dc.html": {
+      "h": 2100,
+      "is_interactive": true,
+      "page": "resp",
+      "title": "Product/Mobile 390 + Sticky ATC",
+      "w": 390,
+      "x": 1788,
+      "y": 0
+    },
+    "MobileShop.dc.html": {
+      "h": 1700,
+      "is_interactive": true,
+      "page": "resp",
+      "title": "Shop/Mobile 390 + Filter sheet",
+      "w": 390,
+      "x": 1318,
+      "y": 0
+    },
+    "Product.dc.html": {
+      "expand": "fill",
+      "h": 2000,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "Product Details/Desktop",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Shop.dc.html": {
+      "expand": "fill",
+      "h": 2400,
+      "is_interactive": true,
+      "page": "desk",
+      "title": "Shop/Desktop",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sitemap.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "page": "flows",
+      "title": "01 — Sitemap & Journeys",
+      "w": 1680,
+      "x": 0,
+      "y": 0
+    },
+    "States.dc.html": {
+      "expand": "fill",
+      "h": 2000,
+      "is_interactive": true,
+      "page": "states",
+      "title": "Info Pages (About · Contact · FAQ · Policies) + 404 · Error · Maintenance",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "TabletHome.dc.html": {
+      "h": 3000,
+      "is_interactive": true,
+      "page": "resp",
+      "title": "Home/Tablet 768",
+      "w": 768,
+      "x": 0,
+      "y": 0
+    },
+    "Track.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "is_interactive": true,
+      "page": "account",
+      "title": "Track Order/Flow",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Wireframes.dc.html": {
+      "expand": "fill",
+      "h": 1700,
+      "is_interactive": true,
+      "page": "wire",
+      "title": "02 — Wireframes WF-C01…WF-A03",
+      "w": 1680,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-11-06T10:42:04.013Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "overview",
+    "view": "canvas"
+  },
+  "notes": {
+    "t_acct": {
+      "kind": "title1",
+      "maxW": 4480,
+      "page": "account",
+      "text": "09 Customer Account & Tracking",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t_admin": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "admin",
+      "text": "10 Admin Dashboard",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t_desk": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "desk",
+      "text": "04 Desktop Storefront (fluid pages, reflow to tablet and phone)",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t_resp": {
+      "kind": "title1",
+      "maxW": 2180,
+      "page": "resp",
+      "text": "05–06 Tablet & Mobile",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Artboard-nmho.dc.html",
+    "Sitemap.dc.html",
+    "Wireframes.dc.html",
+    "DesignSystem.dc.html",
+    "Home.dc.html",
+    "Shop.dc.html",
+    "Product.dc.html",
+    "Cart.dc.html",
+    "TabletHome.dc.html",
+    "MobileHome.dc.html",
+    "MobileShop.dc.html",
+    "MobileProduct.dc.html",
+    "CustomPrint.dc.html",
+    "Checkout.dc.html",
+    "Auth.dc.html",
+    "Account.dc.html",
+    "Track.dc.html",
+    "AdminOverview.dc.html",
+    "AdminProducts.dc.html",
+    "AdminOrders.dc.html",
+    "AdminProduction.dc.html",
+    "AdminQuotes.dc.html",
+    "AdminInventory.dc.html",
+    "AdminMore.dc.html",
+    "States.dc.html",
+    "Handoff.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "overview",
+      "name": "00 Project Overview"
+    },
+    {
+      "id": "flows",
+      "name": "01 User Flows & IA"
+    },
+    {
+      "id": "wire",
+      "name": "02 Low-Fidelity Wireframes"
+    },
+    {
+      "id": "ds",
+      "name": "03 Design System"
+    },
+    {
+      "id": "desk",
+      "name": "04 Desktop Storefront"
+    },
+    {
+      "id": "resp",
+      "name": "05–06 Tablet & Mobile"
+    },
+    {
+      "id": "custom",
+      "name": "07 Custom 3D Printing"
+    },
+    {
+      "id": "checkout",
+      "name": "08 Checkout & Payments"
+    },
+    {
+      "id": "account",
+      "name": "09 Customer Account"
+    },
+    {
+      "id": "admin",
+      "name": "10 Admin Dashboard"
+    },
+    {
+      "id": "states",
+      "name": "12 Info Pages & System States"
+    },
+    {
+      "id": "handoff",
+      "name": "13 Developer Handoff"
+    }
+  ],
+  "title": "HamzaOne"
+}

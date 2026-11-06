@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Production Queue · HamzaOne Admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:0 12px;border-radius:9px;font:600 13px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="12"><a href="{{n.href}}" class="side" aria-current="{{n.cur}}" style="{{n.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px"><nav aria-label="Breadcrumb" class="muted">Admin / <strong style="color:#111318">Production Queue</strong></nav></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:16px;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h1 style="font-size:26px">Production queue</h1><p class="muted">{{summary}}</p></div>
+<div role="group" aria-label="Filter by priority" style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{pf}}" as="f" hint-placeholder-count="3"><button onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="btn" style="{{f.style}}">{{f.label}}</button></sc-for></div></div>
+<div style="overflow-x:auto;padding-bottom:8px"><div style="display:grid;grid-template-columns:repeat(6,minmax(230px,1fr));gap:12px;min-width:1420px">
+<sc-for list="{{cols}}" as="c" hint-placeholder-count="6">
+<section aria-label="{{c.name}}" style="background:#E9E7E1;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px;min-height:520px">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px"><strong style="font-family:Manrope,sans-serif">{{c.name}}</strong><span class="chip" style="background:#fff">{{c.count}}</span></div>
+<sc-for list="{{c.jobs}}" as="j" hint-placeholder-count="2">
+<article style="background:#fff;border:1px solid #E8E8E5;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;{{j.hl}}">
+<div style="display:flex;justify-content:space-between;gap:6px"><span class="chip" style="{{j.pStyle}}">{{j.pri}}</span><span class="muted" style="font-size:12px">{{j.order}}</span></div>
+<strong style="font-size:14px">{{j.name}}</strong>
+<span class="muted" style="font-size:12px">Qty {{j.qty}} · {{j.mat}} · {{j.est}}</span>
+<span class="muted" style="font-size:12px">{{j.cust}}{{j.due}}</span>
+<sc-if value="{{j.hasNote}}" hint-placeholder-val="{{ false }}"><p style="font-size:12px;background:#F6F5F1;border-radius:8px;padding:6px 8px">📝 {{j.note}}</p></sc-if>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<sc-if value="{{j.canBack}}" hint-placeholder-val="{{ false }}"><button class="btn btn-o" onClick="{{j.back}}" aria-label="Move {{j.name}} back to {{j.prevName}}">←</button></sc-if>
+<sc-if value="{{j.canFwd}}" hint-placeholder-val="{{ true }}"><button class="btn btn-d" style="flex:1" onClick="{{j.fwd}}">{{j.fwdLabel}}</button></sc-if>
+</div>
+</article>
+</sc-for>
+<sc-if value="{{c.empty}}" hint-placeholder-val="{{ false }}"><p class="muted" style="font-size:12px;text-align:center;padding:16px 6px;border:1px dashed #B9BBC1;border-radius:10px">No jobs here</p></sc-if>
+</section>
+</sc-for>
+</div></div>
+<p class="muted" style="font-size:12px">Desktop build supports drag between columns; buttons remain as the keyboard and touch alternative. Moving a job updates the customer timeline and sends the notification configured in Settings.</p>
+</main>
+</div>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;right:24px;bottom:24px;z-index:70;background:#111318;color:#fff;border-radius:12px;padding:12px 16px">✓ {{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Categories','AdminProducts.dc.html','▤'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Customers','AdminMore.dc.html','◉'],['Inventory','AdminInventory.dc.html','▦'],['Coupons','AdminMore.dc.html','%'],['Payments','AdminMore.dc.html','₹'],['Analytics','AdminMore.dc.html','◔'],['Settings','AdminMore.dc.html','⚙']];
+const COLS = ['Queued','Printing','Post Processing','Quality Check','Packed','Completed'];
+const PRI = {High:'background:#FDE7E9;color:#8E1F2B',Normal:'background:#ECECEA;color:#45474C',Rush:'background:#F97316;color:#111318'};
+const JOBS = [
+ {id:1,name:'Custom bracket_v3 · PETG Black',order:'HO-2026-10517',qty:3,mat:'PETG',est:'~6 h print',cust:'Arjun M.',due:' · due 12 Nov',pri:'High',col:1,note:'Holes must fit M4. 40% infill.',isNew:true},
+ {id:2,name:'Custom Name Plate · “AISHA”',order:'HO-2026-10488',qty:1,mat:'PLA',est:'~2 h',cust:'Neha K.',due:' · due 10 Nov',pri:'Normal',col:0,note:''},
+ {id:3,name:'Articulated Dragon · Sage',order:'HO-2026-10476',qty:2,mat:'Silk PLA',est:'~9 h',cust:'Rohan P.',due:' · due 11 Nov',pri:'Normal',col:0,note:''},
+ {id:4,name:'Lattice Lamp Shade',order:'HO-2026-10471',qty:1,mat:'PLA',est:'~14 h',cust:'Sneha I.',due:' · due 9 Nov',pri:'Rush',col:2,note:'Customer upgraded to express.'},
+ {id:5,name:'Personalized Keychain × 2',order:'HO-2026-10479',qty:2,mat:'PLA',est:'~1 h',cust:'Kabir R.',due:' · payment pending',pri:'Normal',col:0,note:'Do not start until paid.'},
+ {id:6,name:'Spiral Decor Vase · Terracotta S',order:'HO-2026-10482',qty:1,mat:'PLA',est:'from stock',cust:'Riya S.',due:' · dispatch by 9 Nov',pri:'Normal',col:3,note:''},
+ {id:7,name:'Minimal Phone Stand · Charcoal',order:'HO-2026-10482',qty:2,mat:'PETG',est:'from stock',cust:'Riya S.',due:' · dispatch by 9 Nov',pri:'Normal',col:3,note:''},
+ {id:8,name:'Gear Fidget × 3',order:'HO-2026-10440',qty:3,mat:'PLA',est:'done',cust:'Farhan A.',due:'',pri:'Normal',col:5,note:''},
+ {id:9,name:'Initial Bookmark · “R”',order:'HO-2026-10461',qty:1,mat:'PLA',est:'~40 min',cust:'Ishita B.',due:' · due 8 Nov',pri:'High',col:4,note:''}
+];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { jobs:JOBS, pf:'All', toast:'' }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  move(j,d){ const to=j.col+d; this.setState({jobs:this.state.jobs.map(x=>x.id===j.id?{...x,col:to,isNew:false}:x),toast:`${j.order} moved to ${COLS[to]}`}); clearTimeout(this.t); this.t=setTimeout(()=>this.setState({toast:''}),2200); }
+  renderVals() {
+    const s = this.state;
+    const vis = s.jobs.filter(j=>s.pf==='All'||(s.pf==='High priority'&&(j.pri==='High'||j.pri==='Rush'))||(s.pf==='Custom'&&j.name.startsWith('Custom')));
+    return {
+      nav: NAV.map(([l,h,ic],i)=>({label:l,href:h,ic,cur:i===4?'page':undefined,style:i===4?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':''})),
+      summary: `${s.jobs.filter(j=>j.col<5).length} active jobs · ${s.jobs.filter(j=>j.col===1).length} printing now · demo data`,
+      pf: ['All','High priority','Custom'].map(f=>({label:f,on:s.pf===f,style:s.pf===f?'background:#111318;color:#fff':'background:#fff;border-color:#CFCDC6',pick:()=>this.setState({pf:f})})),
+      cols: COLS.map((name,ci)=>{ const jobs = vis.filter(j=>j.col===ci);
+        return { name, count:jobs.length, empty:jobs.length===0, jobs: jobs.map(j=>({...j, pStyle:PRI[j.pri], hasNote:!!j.note, hl:j.isNew?'box-shadow:0 0 0 2px #F97316':'',
+          canBack:ci>0, canFwd:ci<5, prevName:COLS[ci-1]||'', fwdLabel: ci<5?`Move to ${COLS[ci+1]} →`:'', back:()=>this.move(j,-1), fwd:()=>this.move(j,1)})) }; }),
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

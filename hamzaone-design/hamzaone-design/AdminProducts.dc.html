@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin Products · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:20px;box-sizing:border-box}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}.btn-x{background:#DC3545;color:#fff}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}.f label,.lbl{font-size:13px;font-weight:600}
+.in{height:40px;border:1px solid #8E9097;border-radius:10px;padding:0 12px;font:14px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer;min-height:28px}
+td,th{padding:12px;border-bottom:1px solid #E8E8E5;text-align:left;white-space:nowrap}
+th{font-size:12px;color:#686B72;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="12"><a href="{{n.href}}" class="side" aria-current="{{n.cur}}" style="{{n.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap"><nav aria-label="Breadcrumb" class="muted" style="flex:1">Admin / <button class="link" style="color:#686B72" onClick="{{toList}}">Products</button>{{crumbTail}}</nav><a href="Home.dc.html" class="muted">View store ↗</a></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:20px">
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1 style="font-size:26px">Products</h1><button class="btn btn-p" onClick="{{newProduct}}">+ Add product</button></div>
+<div role="tablist" style="display:flex;gap:4px;border-bottom:1px solid #E8E8E5"><sc-for list="{{listTabs}}" as="t" hint-placeholder-count="2"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="min-height:40px;padding:0 14px;border:0;background:none;cursor:pointer;font:600 14px Inter,sans-serif;{{t.style}}">{{t.label}}</button></sc-for></div>
+<sc-if value="{{tabProducts}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;flex-wrap:wrap"><label for="ps" style="position:absolute;left:-9999px">Search products</label><input id="ps" class="in" placeholder="Search by name or SKU" style="max-width:280px" value="{{q}}" onChange="{{onQ}}">
+<sc-for list="{{statusFilters}}" as="f" hint-placeholder-count="4"><button onClick="{{f.pick}}" aria-pressed="{{f.on}}" class="btn" style="min-height:40px;{{f.style}}">{{f.label}}</button></sc-for></div>
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:820px"><thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Type</th><th>Status</th><th><span style="position:absolute;left:-9999px">Actions</span></th></tr></thead><tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8"><tr><td><strong>{{r.name}}</strong></td><td class="muted">{{r.sku}}</td><td>{{r.cat}}</td><td>₹{{r.price}}</td><td style="{{r.stockStyle}}">{{r.stock}}</td><td>{{r.type}}</td><td><span class="chip" style="{{r.sStyle}}">{{r.status}}</span></td><td style="display:flex;gap:12px"><button class="link" onClick="{{r.edit}}">Edit</button><button class="link" style="color:#B02A37" onClick="{{r.archive}}">Archive</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+<sc-if value="{{tabCats}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div class="card" style="flex:2 1 420px;padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%"><thead><tr><th>Category</th><th>Slug</th><th>Products</th><th>Visible</th></tr></thead><tbody>
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="5"><tr><td><strong>{{c.n}}</strong></td><td class="muted">/shop/{{c.slug}}</td><td>{{c.count}}</td><td><button role="switch" aria-checked="{{c.on}}" aria-label="Show {{c.n}} in store" onClick="{{c.toggle}}" style="width:40px;height:24px;border-radius:12px;border:0;position:relative;cursor:pointer;{{c.track}}"><span style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;{{c.knob}}"></span></button></td></tr></sc-for>
+</tbody></table></div>
+<form class="card" onSubmit="{{addCat}}" style="flex:1 1 260px;display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px">New category</h2><div class="f"><label for="cn">Name</label><input id="cn" class="in" value="{{newCat}}" onChange="{{onNewCat}}"></div><span class="muted" style="font-size:12px">Slug: /shop/{{newSlug}}</span><button type="submit" class="btn btn-d">Create category</button></form>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isForm}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h1 style="font-size:26px">{{formTitle}}</h1><span class="chip" style="{{draftChip}}">{{draftLabel}}</span></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-o" onClick="{{toList}}">Cancel</button><button class="btn btn-o" onClick="{{saveDraft}}">Save draft</button><button class="btn btn-o" onClick="{{openPreview}}">Preview</button><button class="btn btn-p" onClick="{{publish}}">Publish</button></div></div>
+<sc-if value="{{formErr}}" hint-placeholder-val="{{ false }}"><div role="alert" style="background:#FDE7E9;border:1px solid #F5B5BC;color:#8E1F2B;border-radius:12px;padding:10px 14px">{{formErr}}</div></sc-if>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div style="flex:2 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px">Details</h2>
+<div class="f"><label for="pn">Product name</label><input id="pn" class="in" value="{{p.name}}" onChange="{{pon.name}}"></div>
+<div class="f"><label for="pd">Description</label><textarea id="pd" rows="3" style="border:1px solid #8E9097;border-radius:10px;padding:10px 12px;font:14px Inter,sans-serif">A low-poly planter with a hidden drainage tray. Printed in matte PLA.</textarea></div></section>
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between"><h2 style="font-size:16px">Images</h2><span class="muted" style="font-size:12px">JPG/PNG/WebP · min 1600 px · 4:5 or 1:1</span></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px">
+<sc-for list="{{images}}" as="im" hint-placeholder-count="2"><div style="aspect-ratio:1/1;border-radius:12px;background:#ECEAE4;display:flex;align-items:center;justify-content:center;position:relative"><span style="width:44px;height:36px;background:#5E7A6A;clip-path:polygon(0 0,100% 0,84% 100%,16% 100%)"></span><span class="chip" style="position:absolute;left:6px;top:6px;background:#fff">{{im.label}}</span></div></sc-for>
+<button onClick="{{addImage}}" style="aspect-ratio:1/1;border-radius:12px;border:2px dashed #8E9097;background:#fff;cursor:pointer;font:600 13px Inter,sans-serif;color:#111318">+ Upload</button>
+</div></section>
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between"><h2 style="font-size:16px">Variants</h2><button class="link" onClick="{{addVariant}}">+ Add variant</button></div>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%"><thead><tr><th>Colour</th><th>Size</th><th>SKU</th><th>Price</th><th>Stock</th><th></th></tr></thead><tbody>
+<sc-for list="{{variants}}" as="v" hint-placeholder-count="3"><tr><td>{{v.color}}</td><td>{{v.size}}</td><td class="muted">{{v.sku}}</td><td>₹{{v.price}}</td><td>{{v.stock}}</td><td><button class="link" style="color:#B02A37" onClick="{{v.remove}}">Remove</button></td></tr></sc-for>
+</tbody></table></div></section>
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px">Manufacturing</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+<div class="f"><span class="lbl">Fulfilment type</span><div style="display:flex;gap:6px"><sc-for list="{{types}}" as="t" hint-placeholder-count="2"><button onClick="{{t.pick}}" aria-pressed="{{t.on}}" class="btn" style="{{t.style}}">{{t.label}}</button></sc-for></div></div>
+<div class="f"><label for="lt">Production lead time</label><input id="lt" class="in" value="{{leadTime}}"></div>
+<div class="f"><label for="mt">Material</label><select id="mt" class="in"><option>PLA (matte)</option><option>PETG</option><option>Silk PLA</option><option>TPU</option></select></div>
+<div class="f"><label for="pt">Print time per unit</label><input id="pt" class="in" value="3 h 40 min"></div>
+<div class="f"><label for="wt">Shipping weight</label><input id="wt" class="in" value="260 g"></div>
+</div></section>
+</div>
+<aside style="flex:1 1 280px;display:flex;flex-direction:column;gap:16px">
+<section class="card" style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px">Organisation</h2>
+<div class="f"><label for="pc">Category</label><select id="pc" class="in"><option>Home Decor</option><option>Desk &amp; Workspace</option><option>Personalised</option><option>Figurines</option><option>Functional Parts</option></select></div>
+<div class="f"><label for="pp">Base price (₹, incl. GST)</label><input id="pp" class="in" inputmode="numeric" value="{{p.price}}" onChange="{{pon.price}}"></div>
+<div class="f"><label for="pk">Base SKU</label><input id="pk" class="in" value="{{p.sku}}" onChange="{{pon.sku}}"></div>
+<div class="f"><label for="ph">GST rate</label><input id="ph" class="in" value="18% · HSN [CODE]"></div>
+</section>
+<section class="card" style="display:flex;flex-direction:column;gap:6px"><h2 style="font-size:16px">Inventory</h2><span class="muted">Total across variants</span><strong style="font:700 22px Manrope,sans-serif">{{stockTotal}} units</strong><a href="AdminInventory.dc.html" class="link" style="display:inline-flex;align-items:center">Adjust in Inventory →</a></section>
+</aside>
+</div>
+</sc-if>
+</main>
+</div>
+
+<sc-if value="{{preview}}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px">
+<button aria-label="Close preview" onClick="{{closePreview}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="dialog" aria-modal="true" aria-label="Storefront preview" class="card" style="position:relative;width:min(760px,100%);display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between"><strong>Storefront preview · not live</strong><button class="link" onClick="{{closePreview}}">Close</button></div>
+<div style="display:flex;flex-wrap:wrap;gap:20px;background:#F6F5F1;border-radius:14px;padding:20px">
+<div style="flex:1 1 240px;aspect-ratio:1/1;background:#ECEAE4;border-radius:14px;display:flex;align-items:center;justify-content:center"><span style="width:110px;height:86px;background:#5E7A6A;clip-path:polygon(0 0,100% 0,84% 100%,16% 100%)"></span></div>
+<div style="flex:1 1 240px;display:flex;flex-direction:column;gap:8px"><span class="chip" style="align-self:flex-start;{{previewChip}}">{{previewType}}</span><h3 style="font-size:24px">{{p.name}}</h3><strong style="font-size:20px">₹{{p.price}}</strong><span class="muted">{{variantCount}} variants · {{leadTime}}</span><span style="display:inline-flex;min-height:44px;align-items:center;justify-content:center;border-radius:999px;background:#F97316;font-weight:600;margin-top:8px">Add to cart</span></div>
+</div>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closePreview}}">Keep editing</button><button class="btn btn-p" onClick="{{publish}}">Publish now</button></div>
+</div></div>
+</sc-if>
+
+<sc-if value="{{archiving}}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px">
+<button aria-label="Cancel" onClick="{{cancelArchive}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="alertdialog" aria-modal="true" aria-labelledby="ar-t" class="card" style="position:relative;max-width:440px;display:flex;flex-direction:column;gap:12px">
+<h2 id="ar-t" style="font-size:20px">Archive “{{archiving}}”?</h2><p class="muted">It will be hidden from the store and search. Existing orders are not affected. You can restore it from Archived.</p>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{cancelArchive}}">Cancel</button><button class="btn btn-x" onClick="{{confirmArchive}}">Archive product</button></div>
+</div></div>
+</sc-if>
+
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;right:24px;bottom:24px;z-index:70;background:#111318;color:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 12px 32px rgba(17,19,24,.2)">✓ {{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Categories','AdminProducts.dc.html','▤'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Customers','AdminMore.dc.html','◉'],['Inventory','AdminInventory.dc.html','▦'],['Coupons','AdminMore.dc.html','%'],['Payments','AdminMore.dc.html','₹'],['Analytics','AdminMore.dc.html','◔'],['Settings','AdminMore.dc.html','⚙']];
+const ROWS = [
+ ['Spiral Decor Vase','HO-VAS-SPR','Home Decor',699,42,'Ready-made','Published'],['Minimal Phone Stand','HO-DSK-PHS','Desk & Workspace',249,118,'Ready-made','Published'],
+ ['Articulated Dragon','HO-FIG-DRG','Figurines',499,'—','Made to order','Published'],['Custom Name Plate','HO-PRS-NMP','Personalised',399,'—','Made to order','Published'],
+ ['Headphone Stand','HO-DSK-HPS','Desk & Workspace',799,3,'Ready-made','Published'],['Hex Pen Cup','HO-DSK-HXC','Desk & Workspace',299,0,'Ready-made','Published'],
+ ['Lattice Lamp Shade','HO-VAS-LAT','Home Decor',1299,'—','Made to order','Draft'],['Mini Ganesha','HO-FIG-GNS','Figurines',599,26,'Ready-made','Published']
+];
+const ST = {Published:'background:#E3F3EC;color:#0F5E41',Draft:'background:#ECECEA;color:#45474C',Archived:'background:#FDE7E9;color:#8E1F2B'};
+const CATS = [['Home Decor','home-decor',6],['Desk & Workspace','desk',6],['Personalised','personalised',4],['Figurines','figurines',4],['Functional Parts','functional',4]];
+const slug = t => t.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { view:'list', tab:'products', q:'', filter:'All', rows:ROWS.map(r=>({name:r[0],sku:r[1],cat:r[2],price:r[3],stock:r[4],type:r[5],status:r[6]})),
+    p:{name:'Geometric Planter',price:'449',sku:'HO-VAS-GEO'}, type:'Ready-made', images:['Main','Side'], variants:[['Sage','Medium',30],['Sand','Medium',22],['Terracotta','Large',12]],
+    saved:false, preview:false, archiving:'', toast:'', formErr:'', editName:'', catOn:CATS.map(()=>true), cats:CATS, newCat:'' }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  flash(msg, patch){ this.setState({...patch, toast:msg}); clearTimeout(this.t); this.t=setTimeout(()=>this.setState({toast:''}),2600); }
+  validate(){ const p=this.state.p; if(p.name.trim().length<3) return 'Add a product name of at least 3 characters.'; if(!/^[0-9]+$/.test(p.price)||+p.price<1) return 'Enter a valid price in rupees.'; if(this.state.images.length===0) return 'Add at least one product image.'; if(this.state.variants.length===0) return 'Add at least one variant.'; return ''; }
+  renderVals() {
+    const s = this.state;
+    const sel = on => on?'background:#111318;color:#fff;border-color:#111318':'';
+    let rows = s.rows; if(s.filter!=='All') rows = rows.filter(r=>r.status===s.filter);
+    if(s.q) rows = rows.filter(r=>(r.name+r.sku).toLowerCase().includes(s.q.toLowerCase()));
+    const pon = {}; ['name','price','sku'].forEach(k=>{ pon[k]=e=>this.setState({p:{...s.p,[k]:e.target.value},formErr:''}); });
+    const stockTotal = s.variants.reduce((a,v)=>a+v[2],0);
+    return {
+      nav: NAV.map(([l,h,ic],i)=>({label:l,href:h,ic,cur:i===1?'page':undefined,style:i===1?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':''})),
+      isList:s.view==='list', isForm:s.view==='form', crumbTail: s.view==='form' ? (s.editName?` / Edit ${s.editName}`:' / New product') : (s.tab==='cats'?' / Categories':''),
+      toList:()=>this.setState({view:'list',preview:false}),
+      listTabs:[['products','All products'],['cats','Categories']].map(([k,l])=>({label:l,on:s.tab===k,style:s.tab===k?'color:#111318;box-shadow:inset 0 -2px 0 #F97316':'color:#686B72',pick:()=>this.setState({tab:k})})),
+      tabProducts:s.tab==='products', tabCats:s.tab==='cats',
+      q:s.q, onQ:e=>this.setState({q:e.target.value}),
+      statusFilters:['All','Published','Draft','Archived'].map(f=>({label:f,on:s.filter===f,style:sel(s.filter===f)||'background:#fff;border-color:#CFCDC6',pick:()=>this.setState({filter:f})})),
+      rows: rows.map(r=>({...r,price:Number(r.price).toLocaleString('en-IN'),sStyle:ST[r.status],stockStyle: r.stock===0?'color:#B02A37;font-weight:600':(typeof r.stock==='number'&&r.stock<5?'color:#8A5209;font-weight:600':''),
+        edit:()=>this.setState({view:'form',editName:r.name,p:{name:r.name,price:String(r.price),sku:r.sku},type:r.type,saved:r.status==='Published',formErr:''}),
+        archive:()=>this.setState({archiving:r.name})})),
+      newProduct:()=>this.setState({view:'form',editName:'',p:{name:'Geometric Planter',price:'449',sku:'HO-VAS-GEO'},saved:false,formErr:''}),
+      cats: s.cats.map((c,i)=>({n:c[0],slug:c[1],count:c[2],on:s.catOn[i],track:s.catOn[i]?'background:#16845B':'background:#8E9097',knob:s.catOn[i]?'left:19px':'left:3px',toggle:()=>this.setState({catOn:s.catOn.map((v,j)=>j===i?!v:v)})})),
+      newCat:s.newCat, newSlug: slug(s.newCat)||'new-category', onNewCat:e=>this.setState({newCat:e.target.value}),
+      addCat:e=>{ if(e&&e.preventDefault) e.preventDefault(); if(!s.newCat.trim()) return; this.flash(`Category “${s.newCat}” created`,{cats:[...s.cats,[s.newCat,slug(s.newCat),0]],catOn:[...s.catOn,true],newCat:''}); },
+      formTitle: s.editName?`Edit ${s.editName}`:'Add new product', draftLabel: s.saved?'Saved':'Unsaved draft', draftChip: s.saved?'background:#E3F3EC;color:#0F5E41':'background:#ECECEA;color:#45474C',
+      formErr:s.formErr, p:s.p, pon,
+      images: s.images.map(l=>({label:l})), addImage:()=>this.setState({images:[...s.images,`Image ${s.images.length+1}`]}),
+      variants: s.variants.map((v,i)=>({color:v[0],size:v[1],stock:v[2],price:s.p.price,sku:`${s.p.sku}-${v[0].slice(0,3).toUpperCase()}-${v[1][0]}`,remove:()=>this.setState({variants:s.variants.filter((_,j)=>j!==i)})})),
+      addVariant:()=>this.setState({variants:[...s.variants,['Charcoal','Small',10]]}),
+      types:['Ready-made','Made to order'].map(t=>({label:t,on:s.type===t,style:sel(s.type===t)||'background:#fff;border-color:#CFCDC6',pick:()=>this.setState({type:t})})),
+      leadTime: s.type==='Ready-made'?'Dispatch in 1–2 business days':'Printed in 3–5 business days',
+      stockTotal, variantCount:s.variants.length,
+      saveDraft:()=>this.flash('Draft saved',{saved:true}),
+      openPreview:()=>{ const er=this.validate(); if(er) this.setState({formErr:er}); else this.setState({preview:true}); },
+      closePreview:()=>this.setState({preview:false}),
+      preview:s.preview, previewType:s.type, previewChip: s.type==='Ready-made'?'background:#E3F3EC;color:#0F5E41':'background:#FDEBD8;color:#8A4A0A',
+      publish:()=>{ const er=this.validate(); if(er){ this.setState({formErr:er,preview:false}); return; }
+        const row={name:s.p.name,sku:s.p.sku,cat:'Home Decor',price:s.p.price,stock:s.type==='Ready-made'?stockTotal:'—',type:s.type,status:'Published'};
+        const rest=s.rows.filter(r=>r.name!==s.p.name&&r.name!==s.editName);
+        this.flash(`${s.p.name} is live in the store`,{rows:[row,...rest],view:'list',tab:'products',filter:'All',preview:false}); },
+      archiving:s.archiving, cancelArchive:()=>this.setState({archiving:''}),
+      confirmArchive:()=>this.flash(`${s.archiving} archived`,{rows:s.rows.map(r=>r.name===s.archiving?{...r,status:'Archived'}:r),archiving:''}),
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

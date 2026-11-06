@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HamzaOne Wireframes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F4F4;color:#222;font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.45}
+a{color:#222}
+h1,h2{margin:0}
+.blk{background:#D4D4D4;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#444;text-align:center;overflow:hidden;box-sizing:border-box;padding:2px}
+button:focus-visible,a:focus-visible{outline:2px solid #222;outline-offset:2px}
+</style>
+</helmet>
+<main style="max-width:1600px;margin:0 auto;padding:48px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px">
+<div><span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#555">02 — Low-fidelity wireframes · grayscale</span><h1 style="font-size:40px;margin-top:6px">Structure before style</h1><p style="color:#555;margin-top:6px">Desktop and mobile wireframes for every unique template. Use the player to click through the wireframe prototype; each card also opens its approved hi-fi board.</p></div>
+
+<section style="background:#fff;border:1px solid #DDD;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="font-size:20px">Wireframe player · {{cur.id}} — {{cur.name}}</h2>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button onClick="{{prev}}" style="min-height:40px;padding:0 14px;border:1px solid #888;background:#fff;border-radius:8px;cursor:pointer">← Back</button><button onClick="{{next}}" style="min-height:40px;padding:0 14px;border:0;background:#222;color:#fff;border-radius:8px;cursor:pointer">{{nextLabel}}</button><a href="{{cur.hifi}}" style="min-height:40px;padding:0 14px;border:1px solid #888;border-radius:8px;display:flex;align-items:center;text-decoration:none">Open hi-fi →</a></div></div>
+<p style="color:#555">{{cur.note}}</p>
+<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+<div style="flex:3 1 560px;border:2px solid #999;border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;background:#FAFAFA"><sc-for list="{{cur.dRows}}" as="r" hint-placeholder-count="5"><div style="display:flex;gap:8px"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="3"><div class="blk" style="flex:{{c.f}};height:{{c.h}}px;{{c.x}}">{{c.l}}</div></sc-for></div></sc-for></div>
+<div style="flex:0 0 200px;border:2px solid #999;border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:6px;background:#FAFAFA"><sc-for list="{{cur.mRows}}" as="r" hint-placeholder-count="5"><div style="display:flex;gap:6px"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="2"><div class="blk" style="flex:{{c.f}};height:{{c.h}}px;{{c.x}}">{{c.l}}</div></sc-for></div></sc-for></div>
+</div>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px">
+<sc-for list="{{all}}" as="w" hint-placeholder-count="11">
+<article style="background:#fff;border:1px solid #DDD;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;{{w.ring}}">
+<div style="display:flex;justify-content:space-between;gap:8px"><strong>{{w.id}} — {{w.name}}</strong><span style="color:#666;font-size:12px">{{w.route}}</span></div>
+<div style="display:flex;gap:10px">
+<div style="flex:3;border:1px solid #BBB;border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:4px"><sc-for list="{{w.dRows}}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:4px"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="3"><div class="blk" style="flex:{{c.f}};height:{{c.hs}}px;font-size:0;{{c.x}}"></div></sc-for></div></sc-for></div>
+<div style="flex:1;border:1px solid #BBB;border-radius:10px;padding:4px;display:flex;flex-direction:column;gap:3px"><sc-for list="{{w.mRows}}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:3px"><sc-for list="{{r.cells}}" as="c" hint-placeholder-count="2"><div class="blk" style="flex:{{c.f}};height:{{c.hs}}px;font-size:0;{{c.x}}"></div></sc-for></div></sc-for></div>
+</div>
+<div style="display:flex;gap:12px"><button onClick="{{w.play}}" style="background:none;border:0;padding:0;font:600 13px Inter,sans-serif;cursor:pointer;text-decoration:underline;min-height:28px">View in player</button><a href="{{w.hifi}}" style="font-weight:600;min-height:28px;display:inline-flex;align-items:center">Hi-fi board →</a></div>
+</article>
+</sc-for>
+</section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1680,"height":1700}}'>
+const D = 'background:#888;color:#fff', A = 'background:#444;color:#fff';
+const W = [
+ ['WF-C01','Home','/','Home.dc.html','Header with search and Custom Print CTA, hero with two CTAs, categories, featured grid, custom print band, how it works, reviews, FAQ, newsletter, footer.',
+   [[[1,24,'Header · search · Custom Print · cart'] ],[[3,140,'Hero headline + 2 CTAs'],[2,140,'Hero image']],[[1,60,'Cat'],[1,60,'Cat'],[1,60,'Cat'],[1,60,'Cat'],[1,60,'Cat']],[[1,90,'Card'],[1,90,'Card'],[1,90,'Card'],[1,90,'Card']],[[1,70,'Custom print band',D]],[[1,40,'FAQ · newsletter · footer']]],
+   [[[1,18,'Header']],[[1,60,'Hero']],[[1,22,'CTA',A]],[[1,36,'Cat scroller']],[[1,50,'Card'],[1,50,'Card']],[[1,40,'Custom band',D]],[[1,24,'Footer']]]],
+ ['WF-C02','Catalog','/shop','Shop.dc.html','Breadcrumb, title and count, sort control, filter sidebar, product grid, load more. Empty state offers reset and custom print.',
+   [[[1,24,'Header']],[[3,30,'Title · count'],[2,30,'Sort']],[[1,220,'Filters'],[4,220,'Product grid · 3–4 columns']],[[1,24,'Load more']]],
+   [[[1,18,'Header']],[[1,22,'Search']],[[1,20,'Filters'],[1,20,'Sort']],[[1,50,'Card'],[1,50,'Card']],[[1,50,'Card'],[1,50,'Card']],[[1,40,'Bottom sheet',D]]]],
+ ['WF-C03','Product Details','/products/[slug]','Product.dc.html','Gallery left, decision column right: price, colour, size, personalisation, quantity, Add to cart, Buy now, production vs shipping, PIN check, specs.',
+   [[[1,24,'Header']],[[3,240,'Gallery + thumbs'],[2,240,'Price · variants · qty · Add to cart · production / shipping']],[[1,40,'Specs accordion']]],
+   [[[1,18,'Header']],[[1,90,'Swipe gallery']],[[1,40,'Price · variants']],[[1,30,'Production / shipping']],[[1,40,'Specs']],[[1,22,'Sticky Add to cart',A]]]],
+ ['WF-C04','Cart','/cart','Cart.dc.html','Line items with qty, remove, move to wishlist; warnings above list; sticky summary with coupon and checkout.',
+   [[[1,24,'Header']],[[3,40,'Price change warning',D],[2,40,'']],[[3,170,'Line items'],[2,170,'Summary · coupon · Checkout']]],
+   [[[1,18,'Header']],[[1,60,'Line items']],[[1,40,'Coupon']],[[1,40,'Summary']],[[1,22,'Checkout',A]]]],
+ ['WF-C05','Checkout','/checkout','Checkout.dc.html','Four-step stepper, one form per step, summary always visible. Razorpay handoff, then success, failure or pending.',
+   [[[1,24,'Logo · back to cart']],[[1,20,'Stepper: Contact · Address · Shipping · Review']],[[3,180,'Step form'],[2,180,'Summary']],[[1,30,'Razorpay handoff (external)',D]]],
+   [[[1,18,'Header']],[[1,14,'Stepper']],[[1,80,'Step form']],[[1,30,'Summary (collapsible)']],[[1,22,'Continue',A]]]],
+ ['WF-C06','Custom Print','/custom-print','CustomPrint.dc.html','Landing, then 5-step wizard: upload, preview, options, contact, review. Then submitted, quote, payment, tracking.',
+   [[[1,24,'Header']],[[1,20,'Wizard progress']],[[3,180,'Drop zone / 3D viewer'],[2,180,'File info · options']],[[1,26,'Back · Continue']]],
+   [[[1,18,'Header']],[[1,12,'Progress']],[[1,80,'Drop zone / viewer']],[[1,40,'Options']],[[1,22,'Continue',A]]]],
+ ['WF-C07','Account','/account','Account.dc.html','Side navigation and content area: overview cards, orders table, order detail, addresses, wishlist, profile.',
+   [[[1,24,'Header']],[[1,200,'Account nav'],[4,200,'Content: overview / orders / detail']]],
+   [[[1,18,'Header']],[[1,20,'Tabs (scroll)']],[[1,90,'Content']],[[1,30,'Order card']]]],
+ ['WF-C08','Track Order','/track-order','Track.dc.html','Order number and contact, OTP verify, then timeline with shipment details.',
+   [[[1,24,'Header']],[[1,60,'Order no. · contact form']],[[3,150,'Timeline'],[2,150,'Shipment · items']]],
+   [[[1,18,'Header']],[[1,50,'Form']],[[1,90,'Timeline']]]],
+ ['WF-A01','Dashboard','/admin','AdminOverview.dc.html','Collapsible sidebar, top bar with search and notifications, 8 metric tiles, charts, recent orders, workload, alerts.',
+   [[[1,230,'Sidebar',D],[5,230,'Top bar · 8 metrics · sales chart · status · recent orders']]],
+   [[[1,18,'Top bar + menu']],[[1,30,'Metric'],[1,30,'Metric']],[[1,60,'Chart']],[[1,60,'Order cards']]]],
+ ['WF-A02','Product Management','/admin/products','AdminProducts.dc.html','List with filters and actions; form with details, images, variants, manufacturing, organisation; preview and publish.',
+   [[[1,230,'Sidebar',D],[3,230,'Form sections'],[2,230,'Organisation · inventory']]],
+   [[[1,18,'Top bar']],[[1,60,'Form']],[[1,40,'Variants (cards)']],[[1,22,'Publish',A]]]],
+ ['WF-A03','Production Queue','/admin/production','AdminProduction.dc.html','Six-column Kanban with move controls and priority filters.',
+   [[[1,230,'Sidebar',D],[1,230,'Queued'],[1,230,'Printing'],[1,230,'Post'],[1,230,'QC'],[1,230,'Packed']]],
+   [[[1,18,'Top bar']],[[1,20,'Column picker']],[[1,50,'Job card']],[[1,50,'Job card']]]]
+];
+const rows = (rs,scale)=>rs.map(r=>({cells:r.map(([f,h,l,x])=>({f,h,hs:Math.max(4,Math.round(h*scale)),l:l||'',x:x||''}))}));
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { i:0 }; }
+  renderVals() {
+    const s = this.state;
+    const all = W.map(([id,name,route,hifi,note,d,m],i)=>({id,name,route,hifi,note,dRows:rows(d,1),mRows:rows(m,1.4),ring:i===s.i?'outline:2px solid #222':'',play:()=>this.setState({i})}));
+    const smalls = W.map(([id,name,route,hifi,note,d,m],i)=>({...all[i],dRows:rows(d,0.35),mRows:rows(m,0.5)}));
+    const flow = [0,1,2,3,4];
+    return {
+      cur: all[s.i], all: smalls,
+      prev:()=>this.setState({i:(s.i+W.length-1)%W.length}),
+      next:()=>this.setState({i:(s.i+1)%W.length}),
+      nextLabel: s.i<W.length-1 ? `Next: ${W[s.i+1][0]} →` : 'Restart at WF-C01'
+    };
+  }
+}
+</script>
+</body>
+</html>

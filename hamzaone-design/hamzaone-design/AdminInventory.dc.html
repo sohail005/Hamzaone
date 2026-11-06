@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inventory · HamzaOne Admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F2EE;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.card{background:#fff;border:1px solid #E8E8E5;border-radius:16px;padding:20px;box-sizing:border-box}
+.side{display:flex;align-items:center;gap:12px;min-height:40px;padding:0 12px;border-radius:10px;color:#C9CBD0;font-weight:500;white-space:nowrap}
+.side:hover{background:#24272C;color:#fff}
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-d{background:#111318;color:#fff}.btn-o{background:#fff;border-color:#CFCDC6;color:#111318}
+.ibtn{width:44px;height:44px;border-radius:10px;border:1px solid #CFCDC6;background:#fff;cursor:pointer;font-size:18px}
+.f{display:flex;flex-direction:column;gap:6px}.f label,.lbl{font-size:13px;font-weight:600}
+.in{height:40px;border:1px solid #8E9097;border-radius:10px;padding:0 12px;font:14px Inter,sans-serif;background:#fff;box-sizing:border-box;width:100%}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 13px Inter,sans-serif;cursor:pointer;min-height:28px}
+td,th{padding:12px;border-bottom:1px solid #E8E8E5;text-align:left;white-space:nowrap}
+th{font-size:12px;color:#686B72;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-wrap:wrap">
+<aside aria-label="Admin navigation" style="flex:0 0 240px;background:#17191D;padding:20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:2px">
+<a href="AdminOverview.dc.html" style="font:800 20px Manrope,sans-serif;color:#fff;padding:0 6px 16px">Hamza<span style="color:#F97316">One</span></a>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="12"><a href="{{n.href}}" class="side" aria-current="{{n.cur}}" style="{{n.style}}"><span aria-hidden="true" style="width:20px;text-align:center;font-weight:700">{{n.ic}}</span>{{n.label}}</a></sc-for>
+</aside>
+<div style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column">
+<header style="background:#fff;border-bottom:1px solid #E8E8E5;padding:14px 24px"><nav aria-label="Breadcrumb" class="muted">Admin / <strong style="color:#111318">Inventory</strong></nav></header>
+<main style="padding:24px;display:flex;flex-direction:column;gap:20px">
+<h1 style="font-size:26px">Inventory</h1>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+<div class="card" style="padding:16px"><span class="muted" style="font-size:13px">Ready-made units</span><div style="font:700 24px Manrope,sans-serif">{{totalUnits}}</div></div>
+<div class="card" style="padding:16px"><span class="muted" style="font-size:13px">Reserved in open orders</span><div style="font:700 24px Manrope,sans-serif">{{reserved}}</div></div>
+<div class="card" style="padding:16px"><span class="muted" style="font-size:13px">Low stock variants</span><div style="font:700 24px Manrope,sans-serif;color:#8A5209">{{lowCount}}</div></div>
+<div class="card" style="padding:16px"><span class="muted" style="font-size:13px">Out of stock</span><div style="font:700 24px Manrope,sans-serif;color:#B02A37">{{outCount}}</div></div>
+</div>
+<div role="tablist" style="display:flex;gap:4px;border-bottom:1px solid #E8E8E5"><sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="min-height:40px;padding:0 14px;border:0;background:none;cursor:pointer;font:600 14px Inter,sans-serif;{{t.style}}">{{t.label}}</button></sc-for></div>
+<sc-if value="{{showStock}}" hint-placeholder-val="{{ true }}">
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:820px"><thead><tr><th>Product · variant</th><th>SKU</th><th>On hand</th><th>Reserved</th><th>Available</th><th>Alert at</th><th>Status</th><th></th></tr></thead><tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8"><tr style="{{r.hl}}"><td><strong>{{r.p}}</strong> · {{r.v}}</td><td class="muted">{{r.sku}}</td><td>{{r.on}}</td><td>{{r.res}}</td><td style="font-weight:600">{{r.avail}}</td><td class="muted">{{r.min}}</td><td><span class="chip" style="{{r.sStyle}}">{{r.status}}</span></td><td><button class="link" onClick="{{r.adjust}}">Adjust stock</button></td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+<sc-if value="{{showHistory}}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding:0;overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:720px"><thead><tr><th>When</th><th>Variant</th><th>Change</th><th>New on hand</th><th>Reason</th><th>By</th></tr></thead><tbody>
+<sc-for list="{{history}}" as="h" hint-placeholder-count="5"><tr><td class="muted">{{h.w}}</td><td>{{h.v}}</td><td style="{{h.cStyle}}">{{h.c}}</td><td>{{h.n}}</td><td>{{h.r}}</td><td class="muted">{{h.by}}</td></tr></sc-for>
+</tbody></table></div>
+</sc-if>
+</main>
+</div>
+
+<sc-if value="{{adj}}" hint-placeholder-val="{{ false }}"><div style="position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px"><button aria-label="Close" onClick="{{closeAdj}}" style="position:absolute;inset:0;background:rgba(17,19,24,.45);border:0"></button>
+<div role="dialog" aria-modal="true" aria-labelledby="adj-t" class="card" style="position:relative;width:min(460px,100%);display:flex;flex-direction:column;gap:14px">
+<h2 id="adj-t" style="font-size:20px">Adjust stock</h2><p class="muted">{{adjName}} · currently {{adjOn}} on hand</p>
+<div class="f"><span class="lbl">Change</span><div style="display:flex;align-items:center;gap:10px"><button class="ibtn" aria-label="Decrease" onClick="{{dDec}}">−</button><output style="min-width:56px;text-align:center;font:700 22px Manrope,sans-serif;{{deltaStyle}}">{{deltaText}}</output><button class="ibtn" aria-label="Increase" onClick="{{dInc}}">+</button><span class="muted">→ {{newOn}} on hand</span></div></div>
+<div class="f"><label for="rs">Reason</label><select id="rs" class="in" onChange="{{onReason}}"><option>Restock from print batch</option><option>Damaged or failed QC</option><option>Stock count correction</option><option>Returned to stock</option></select></div>
+<sc-if value="{{adjErr}}" hint-placeholder-val="{{ false }}"><span role="alert" style="color:#B02A37;font-size:13px">{{adjErr}}</span></sc-if>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-o" onClick="{{closeAdj}}">Cancel</button><button class="btn btn-p" onClick="{{confirmAdj}}">Confirm adjustment</button></div>
+</div></div></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div role="status" style="position:fixed;right:24px;bottom:24px;z-index:70;background:#111318;color:#fff;border-radius:12px;padding:12px 16px">✓ {{toast}}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+const NAV = [['Overview','AdminOverview.dc.html','◧'],['Products','AdminProducts.dc.html','▣'],['Categories','AdminProducts.dc.html','▤'],['Orders','AdminOrders.dc.html','☰'],['Production Queue','AdminProduction.dc.html','▥'],['Custom Requests','AdminQuotes.dc.html','◈'],['Customers','AdminMore.dc.html','◉'],['Inventory','AdminInventory.dc.html','▦'],['Coupons','AdminMore.dc.html','%'],['Payments','AdminMore.dc.html','₹'],['Analytics','AdminMore.dc.html','◔'],['Settings','AdminMore.dc.html','⚙']];
+const V = [
+ ['Spiral Decor Vase','Terracotta · S','HO-VAS-SPR-TER-S',18,1,5],['Spiral Decor Vase','Charcoal · S','HO-VAS-SPR-CHA-S',14,0,5],['Spiral Decor Vase','Sand · L','HO-VAS-SPR-SAN-L',10,0,4],
+ ['Minimal Phone Stand','Charcoal','HO-DSK-PHS-CHA',46,2,10],['Headphone Stand','Grey','HO-DSK-HPS-GRY',3,0,5],['Wave Coaster Set','Blue','HO-VAS-WAV-BLU',2,0,4],
+ ['Hex Pen Cup','Sage','HO-DSK-HXC-SAG',0,0,4],['Ribbed Bud Vase','Sage','HO-VAS-RIB-SAG',0,0,3]
+];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { rows:V.map((r,i)=>({id:i,p:r[0],v:r[1],sku:r[2],on:r[3],res:r[4],min:r[5]})), tab:'stock', adj:null, delta:10, reason:'Restock from print batch', adjErr:'', hl:null, toast:'',
+    history:[{w:'5 Nov, 6:40 PM',v:'Minimal Phone Stand · Charcoal',c:'+30',n:48,r:'Restock from print batch',by:'Ayaan'},{w:'4 Nov, 11:15 AM',v:'Hex Pen Cup · Sage',c:'−2',n:0,r:'Damaged or failed QC',by:'Hamza'},{w:'2 Nov, 9:00 AM',v:'Spiral Decor Vase · Terracotta · S',c:'+12',n:19,r:'Restock from print batch',by:'Ayaan'}] }; }
+  componentWillUnmount(){ clearTimeout(this.t); }
+  renderVals() {
+    const s = this.state;
+    const status = r => { const a=r.on-r.res; return a<=0?['Out of stock','background:#FDE7E9;color:#8E1F2B']:a<=r.min?['Low stock','background:#FFF4E0;color:#8A5209']:['In stock','background:#E3F3EC;color:#0F5E41']; };
+    let rows = s.rows; if(s.tab==='low') rows = rows.filter(r=>r.on-r.res<=r.min);
+    const cur = s.adj!==null ? s.rows.find(r=>r.id===s.adj) : null;
+    return {
+      nav: NAV.map(([l,h,ic],i)=>({label:l,href:h,ic,cur:i===7?'page':undefined,style:i===7?'background:#2A2D33;color:#fff;box-shadow:inset 3px 0 0 #F97316':''})),
+      totalUnits: s.rows.reduce((a,r)=>a+r.on,0), reserved: s.rows.reduce((a,r)=>a+r.res,0),
+      lowCount: s.rows.filter(r=>{const a=r.on-r.res; return a>0&&a<=r.min;}).length, outCount: s.rows.filter(r=>r.on-r.res<=0).length,
+      tabs:[['stock','Stock by variant'],['low','Low stock alerts'],['history','Stock history']].map(([k,l])=>({label:l,on:s.tab===k,style:s.tab===k?'color:#111318;box-shadow:inset 0 -2px 0 #F97316':'color:#686B72',pick:()=>this.setState({tab:k})})),
+      showStock:s.tab!=='history', showHistory:s.tab==='history',
+      rows: rows.map(r=>{ const st=status(r); return {...r,avail:r.on-r.res,status:st[0],sStyle:st[1],hl:s.hl===r.id?'background:#F1FAF6':'',adjust:()=>this.setState({adj:r.id,delta:10,adjErr:''})}; }),
+      history: s.history.map(h=>({...h,cStyle:h.c.startsWith('+')?'color:#0F5E41;font-weight:600':'color:#B02A37;font-weight:600'})),
+      adj: !!cur, adjName: cur?`${cur.p} · ${cur.v}`:'', adjOn: cur?cur.on:0,
+      deltaText: s.delta>0?`+${s.delta}`:String(s.delta), deltaStyle: s.delta<0?'color:#B02A37':'color:#0F5E41', newOn: cur?cur.on+s.delta:0,
+      dDec:()=>this.setState({delta:s.delta-1,adjErr:''}), dInc:()=>this.setState({delta:s.delta+1,adjErr:''}),
+      onReason:e=>this.setState({reason:e.target.value}), adjErr:s.adjErr, closeAdj:()=>this.setState({adj:null}),
+      confirmAdj:()=>{ if(s.delta===0){ this.setState({adjErr:'Change must not be zero.'}); return; } if(cur.on+s.delta<cur.res){ this.setState({adjErr:`On hand cannot go below the ${cur.res} units reserved for open orders.`}); return; }
+        const n=cur.on+s.delta;
+        this.setState({rows:s.rows.map(r=>r.id===cur.id?{...r,on:n}:r),adj:null,hl:cur.id,toast:`${cur.p} · ${cur.v} updated to ${n}`,
+          history:[{w:'Just now',v:`${cur.p} · ${cur.v}`,c:s.delta>0?`+${s.delta}`:`−${Math.abs(s.delta)}`,n,r:s.reason,by:'Hamza'},...s.history]});
+        clearTimeout(this.t); this.t=setTimeout(()=>this.setState({toast:''}),2600); },
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

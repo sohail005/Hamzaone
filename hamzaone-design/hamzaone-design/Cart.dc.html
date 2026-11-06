@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cart · HamzaOne</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F6F5F1;color:#111318;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+a{color:#111318;text-decoration:none}a:hover{color:#C2410C}
+h1,h2,h3{font-family:Manrope,Inter,sans-serif;margin:0;letter-spacing:-0.02em}
+p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-left:24px;padding-right:24px;box-sizing:border-box;width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border-radius:999px;font:600 16px Inter,sans-serif;border:1px solid transparent;cursor:pointer;box-sizing:border-box}
+.btn-p{background:#F97316;color:#111318}.btn-p:hover{background:#EA6A0C;color:#111318}
+.btn-o{background:transparent;border-color:#111318;color:#111318}.btn-o:hover{background:#111318;color:#fff}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;border:0;background:transparent;color:#111318;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.muted{color:#686B72}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600}
+.art{position:relative;background:#ECEAE4;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.in{height:48px;border:1px solid #8E9097;border-radius:12px;padding:0 14px;font:16px Inter,sans-serif;background:#fff;color:#111318;box-sizing:border-box}
+.link{background:none;border:0;padding:0;color:#C2410C;font:600 14px Inter,sans-serif;cursor:pointer;min-height:32px}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+<header style="background:#F6F5F1;border-bottom:1px solid #E8E8E5">
+<div class="wrap" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px">
+<a href="Home.dc.html" style="font:800 24px Manrope,sans-serif;letter-spacing:-0.03em">Hamza<span style="color:#F97316">One</span></a>
+<nav aria-label="Primary" style="display:flex;gap:4px;flex:1;flex-wrap:wrap"><a href="Shop.dc.html" style="padding:12px;font-weight:500">Continue shopping</a></nav>
+<span class="muted" style="font-size:14px">🔒 Secure checkout with Razorpay</span>
+</div>
+</header>
+<main class="wrap" style="flex:1;padding-top:40px;padding-bottom:80px;display:flex;flex-direction:column;gap:24px">
+<h1 style="font-size:40px">Your cart</h1>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:64px 32px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center">
+<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#686B72" stroke-width="1.4" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>
+<h2 style="font-size:24px">Your cart is empty</h2><p class="muted">Find something you love, or get your own idea printed.</p>
+<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px"><a href="Shop.dc.html" class="btn btn-p">Shop products</a><a href="CustomPrint.dc.html" class="btn btn-o">Start a custom print</a></div>
+<button class="link" onClick="{{restore}}" style="margin-top:8px">Prototype: restore demo cart</button>
+</div>
+</sc-if>
+<sc-if value="{{notEmpty}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+<section aria-label="Cart items" style="flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<sc-if value="{{priceChanged}}" hint-placeholder-val="{{ true }}"><div role="status" style="background:#FFF4E0;border:1px solid #F3D9A6;color:#6B3F06;border-radius:14px;padding:12px 16px;font-size:14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span><strong>Price updated:</strong> Minimal Phone Stand is now ₹249 (was ₹229 when added). Your total reflects the new price.</span><button class="link" style="color:#6B3F06" onClick="{{ackPrice}}">Got it</button></div></sc-if>
+<div style="background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:8px 24px">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="3">
+<article style="display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #E8E8E5;flex-wrap:wrap;{{l.dim}}">
+<a href="Product.dc.html" class="art" style="width:112px;height:112px;flex:0 0 auto" aria-label="{{l.name}}"><div style="{{l.shape}}"></div></a>
+<div style="flex:1 1 220px;display:flex;flex-direction:column;gap:4px">
+<a href="Product.dc.html"><strong style="font:700 17px Manrope,sans-serif">{{l.name}}</strong></a>
+<span class="muted" style="font-size:14px">{{l.meta}}</span>
+<span class="chip" style="align-self:flex-start;{{l.leadStyle}}">{{l.lead}}</span>
+<div style="display:flex;gap:16px;margin-top:8px;align-items:center;flex-wrap:wrap">
+<sc-if value="{{l.ok}}" hint-placeholder-val="{{ true }}"><div role="group" aria-label="Quantity for {{l.name}}" style="display:flex;align-items:center;border:1px solid #8E9097;border-radius:999px;height:44px"><button class="ibtn" aria-label="Decrease" onClick="{{l.dec}}">−</button><output aria-live="polite" style="min-width:28px;text-align:center;font-weight:600">{{l.qty}}</output><button class="ibtn" aria-label="Increase" onClick="{{l.inc}}">+</button></div></sc-if>
+<button class="link" onClick="{{l.remove}}">Remove</button>
+<button class="link" style="color:#111318" onClick="{{l.save}}">Move to wishlist</button>
+</div>
+<sc-if value="{{l.oos}}" hint-placeholder-val="{{ false }}"><p role="alert" style="font-size:14px;color:#B02A37;margin-top:4px">Out of stock in Sage. Not included in your total. Move it to your wishlist or remove it.</p></sc-if>
+</div>
+<div style="text-align:right;display:flex;flex-direction:column;gap:2px"><strong style="font-size:17px">{{l.totalText}}</strong><span class="muted" style="font-size:13px">{{l.unitText}}</span></div>
+</article>
+</sc-for>
+</div>
+<sc-if value="{{removedName}}" hint-placeholder-val="{{ false }}"><div role="status" style="background:#111318;color:#fff;border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;gap:12px;font-size:14px"><span>{{removedName}} removed.</span><button class="link" style="color:#FDBA74" onClick="{{undo}}">Undo</button></div></sc-if>
+</section>
+
+<aside aria-label="Order summary" style="flex:1 1 340px;max-width:420px;position:sticky;top:24px;background:#fff;border:1px solid #E8E8E5;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px;box-sizing:border-box">
+<h2 style="font-size:20px">Order summary</h2>
+<form onSubmit="{{apply}}" style="display:flex;flex-direction:column;gap:6px">
+<label for="cp" style="font-size:14px;font-weight:600">Coupon code</label>
+<div style="display:flex;gap:8px"><input id="cp" class="in" style="flex:1;min-width:0;text-transform:uppercase;{{couponBorder}}" value="{{code}}" onChange="{{onCode}}" aria-invalid="{{couponErr}}" aria-describedby="cp-msg" placeholder="Try FIRST100"><button type="submit" class="btn btn-o" style="min-height:48px;padding:0 18px">Apply</button></div>
+<sc-if value="{{couponMsg}}" hint-placeholder-val="{{ false }}"><p id="cp-msg" role="status" style="font-size:13px;{{couponMsgStyle}}">{{couponMsg}}</p></sc-if>
+</form>
+<dl style="margin:0;display:flex;flex-direction:column;gap:10px;font-size:15px;border-top:1px solid #E8E8E5;padding-top:16px">
+<div style="display:flex;justify-content:space-between"><dt>Subtotal ({{count}} items)</dt><dd style="margin:0">₹{{subText}}</dd></div>
+<sc-if value="{{hasDiscount}}" hint-placeholder-val="{{ false }}"><div style="display:flex;justify-content:space-between;color:#0F5E41"><dt>Discount · FIRST100 <button class="link" style="color:#0F5E41;font-size:13px" onClick="{{removeCoupon}}">Remove</button></dt><dd style="margin:0">−₹100</dd></div></sc-if>
+<div style="display:flex;justify-content:space-between"><dt>Standard shipping</dt><dd style="margin:0">{{shipText}}</dd></div>
+<div style="display:flex;justify-content:space-between;border-top:1px solid #E8E8E5;padding-top:12px;font:700 20px Manrope,sans-serif"><dt>Total</dt><dd style="margin:0">₹{{totalText}}</dd></div>
+</dl>
+<p class="muted" style="font-size:13px">Inclusive of GST. {{freeHint}}</p>
+<a href="Checkout.dc.html" class="btn btn-p">Proceed to checkout</a>
+<p class="muted" style="font-size:13px;text-align:center">Guest checkout available · UPI, cards, net banking via Razorpay</p>
+<div style="background:#F6F5F1;border-radius:14px;padding:12px 14px;font-size:13px;display:flex;flex-direction:column;gap:4px"><strong>When will it arrive?</strong><span class="muted">Ready-made items dispatch in 1–2 days. Made-to-order items print in 3–5 days. Mixed carts ship together once everything is ready. Delivery is then 3–6 business days (estimate).</span></div>
+</aside>
+</div>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const fmt = n => n.toLocaleString('en-IN');
+const START = [
+  {id:'v',name:'Spiral Decor Vase',meta:'Terracotta · Small · PLA',unit:699,qty:1,lead:'Ready to ship · 1–2 days',ok:true,shape:'width:36px;height:72px;border-radius:18px 18px 10px 10px;background:#C96F4A'},
+  {id:'p',name:'Minimal Phone Stand',meta:'Charcoal · PETG',unit:249,qty:2,lead:'Ready to ship · 1–2 days',ok:true,shape:'width:56px;height:60px;background:#2B2E33;clip-path:polygon(30% 0,46% 0,72% 78%,100% 78%,100% 100%,0 100%,0 78%,52% 78%)'},
+  {id:'b',name:'Ribbed Bud Vase',meta:'Sage · PLA',unit:549,qty:1,lead:'Out of stock',ok:false,shape:'width:30px;height:64px;border-radius:15px 15px 9px 9px;background:#5E7A6A'}
+];
+class Component extends DCLogic {
+  constructor(p){ super(p); this.state = { lines:START, code:'', coupon:false, couponMsg:'', couponErr:false, priceAck:false, removed:null }; }
+  renderVals() {
+    const s = this.state;
+    const live = s.lines.filter(l=>l.ok);
+    const sub = live.reduce((a,l)=>a+l.unit*l.qty,0);
+    const disc = s.coupon && sub>=999 ? 100 : 0;
+    const ship = sub===0 ? 0 : (sub>=1499 ? 0 : 79);
+    const total = sub - disc + ship;
+    const set = (id,patch)=>this.setState({lines:s.lines.map(l=>l.id===id?{...l,...patch}:l)});
+    const drop = (l)=>this.setState({lines:s.lines.filter(x=>x.id!==l.id),removed:l});
+    return {
+      empty: s.lines.length===0, notEmpty: s.lines.length>0,
+      restore:()=>this.setState({lines:START,removed:null}),
+      priceChanged: !s.priceAck && s.lines.some(l=>l.id==='p'), ackPrice:()=>this.setState({priceAck:true}),
+      lines: s.lines.map(l=>({...l, oos:!l.ok, dim:l.ok?'':'opacity:.85',
+        leadStyle: l.ok?'background:#E3F3EC;color:#0F5E41':'background:#FDE7E9;color:#8E1F2B',
+        totalText: l.ok?`₹${fmt(l.unit*l.qty)}`:'—', unitText: `₹${fmt(l.unit)} each`,
+        dec:()=>{ if(l.qty<=1) drop(l); else set(l.id,{qty:l.qty-1}); }, inc:()=>set(l.id,{qty:Math.min(10,l.qty+1)}),
+        remove:()=>drop(l), save:()=>drop({...l,saved:true})})),
+      removedName: s.removed ? (s.removed.saved?`${s.removed.name} moved to wishlist and`:s.removed.name) : '',
+      undo:()=>{ const r=s.removed; this.setState({lines:START.filter(x=>x.id===r.id||s.lines.some(l=>l.id===x.id)).map(x=>s.lines.find(l=>l.id===x.id)||{...r,saved:undefined}),removed:null}); },
+      code:s.code, onCode:e=>this.setState({code:e.target.value.toUpperCase(),couponMsg:'',couponErr:false}),
+      apply:e=>{ if(e&&e.preventDefault) e.preventDefault(); const c=s.code.trim();
+        if(c==='FIRST100'){ if(sub<999) this.setState({couponErr:true,couponMsg:`FIRST100 needs a subtotal of ₹999. Add ₹${fmt(999-sub)} more.`}); else this.setState({coupon:true,couponErr:false,couponMsg:'FIRST100 applied. You save ₹100.'}); }
+        else this.setState({coupon:false,couponErr:true,couponMsg: c?`“${c}” is not a valid coupon or has expired.`:'Enter a coupon code.'}); },
+      removeCoupon:()=>this.setState({coupon:false,couponMsg:'',code:''}),
+      couponErr:s.couponErr, couponMsg:s.couponMsg, couponMsgStyle:s.couponErr?'color:#B02A37':'color:#0F5E41', couponBorder:s.couponErr?'border:2px solid #DC3545':'',
+      count: live.reduce((a,l)=>a+l.qty,0), subText:fmt(sub), hasDiscount: disc>0,
+      shipText: ship===0 ? 'Free' : `₹${ship}`, totalText: fmt(total),
+      freeHint: sub>=1499 ? 'Free standard shipping unlocked.' : `Add ₹${fmt(1499-sub)} more for free standard shipping.`
+    };
+  }
+}
+</script>
+</body>
+</html>
