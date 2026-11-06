@@ -79,7 +79,7 @@ class Component extends DCLogic {
       qty:s.qty, dec:()=>this.setState({qty:Math.max(1,s.qty-1)}), inc:()=>this.setState({qty:Math.min(10,s.qty+1)}),
       line:(unit*s.qty).toLocaleString('en-IN'), add:()=>this.setState({added:true,cart:s.cart+s.qty}), added:s.added, cartCount:s.cart,
       wished:s.wish, wishFill:s.wish?'#F97316':'none', wishStroke:s.wish?'#F97316':'#111318', wishLabel:s.wish?'Remove from wishlist':'Add to wishlist', toggleWish:()=>this.setState({wish:!s.wish}),
-      specs:[['Specifications','Matte PLA with PETG inner sleeve. Watertight. Layer height 0.16 mm.'],['Production and delivery','Ready-made: dispatch in 1–2 business days. Delivery 3–6 business days after dispatch (estimate).'],['Returns','Returnable within 7 days if unused.']].map(([t,b],i)=>({t,b,open:s.spec===i,sign:s.spec===i?'−':'+',toggle:()=>this.setState({spec:s.spec===i?-1:i})}))
+      specs:[['Specifications','Matte PLA with PETG inner sleeve. Watertight. Layer height 0.16 mm.'],['Production and delivery','Ready-made: dispatch in 1–2 business days. Delivery 3–6 business days after dispatch (Estimated).'],['Returns','Returnable within 7 days if unused.']].map(([t,b],i)=>({t,b,open:s.spec===i,sign:s.spec===i?'−':'+',toggle:()=>this.setState({spec:s.spec===i?-1:i})}))
     };
   }
 }

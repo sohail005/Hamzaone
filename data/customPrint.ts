@@ -27,7 +27,7 @@ export const materials = {
 };
 
 export const faqs = [
-  { category: "Orders", q: "How long does production take?", a: "Most in-stock items print and ship within 3–6 business days of dispatch (estimate)." },
+  { category: "Orders", q: "How long does production take?", a: "Most in-stock items print and ship within 3–6 business days of dispatch (Estimated)." },
   { category: "Orders", q: "Can I change my order after placing it?", a: "Contact support within 2 hours of placing your order and we'll try to adjust it before production starts." },
   { category: "Custom print", q: "How does the quoting process work?", a: "Upload your 3D model, choose material and color, and we'll send a quote within 24 hours based on print time and material use." },
   { category: "Custom print", q: "What file formats are supported?", a: "STL, STEP and 3MF files up to 100 MB. OBJ files are not currently supported." },

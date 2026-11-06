@@ -1,16 +1,17 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart, cartTotals } from "@/store/cart";
 import { getProduct } from "@/data/products";
-import { formatINR } from "@/lib/format";
+import { formatINR, cx } from "@/lib/format";
 import { Button } from "./Button";
 import { Field, PhoneField } from "./Input";
 import { Stepper } from "./Stepper";
 import { RazorpayModal } from "./RazorpayModal";
 import { Loader2 } from "lucide-react";
+import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 
 const STEPS = [
   { key: "contact", label: "Contact" },
@@ -47,10 +48,9 @@ export function CheckoutFlow() {
 
   const { subtotal } = cartTotals(effectiveLines);
 
-  const [guest, setGuest] = useState(true);
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [address, setAddress] = useState({ name: "", pin: "", line1: "", line2: "", landmark: "", city: "", state: "", type: "Home" });
-  const [pinChecked, setPinChecked] = useState(false);
+  const delivery = useDeliveryEstimate();
   const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -59,6 +59,13 @@ export function CheckoutFlow() {
 
   const shipping = shippingMethod === "express" ? 149 : subtotal >= 1499 ? 0 : 79;
   const total = subtotal + shipping;
+
+  useEffect(() => {
+    if (!/^\d{6}$/.test(address.pin)) return;
+    const timeout = setTimeout(() => delivery.check(address.pin), 400);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address.pin]);
 
   function goto(key: string) {
     const sp = new URLSearchParams(params.toString());
@@ -146,22 +153,9 @@ export function CheckoutFlow() {
         <div className="rounded-card bg-surface p-6 shadow-sm">
           {step === "contact" && (
             <div className="flex flex-col gap-4">
-              <div className="flex gap-2">
-                <button onClick={() => setGuest(true)} className={`rounded-full px-4 py-2 text-sm font-semibold ${guest ? "bg-dark text-white" : "border border-border-input"}`}>Guest</button>
-                <button onClick={() => setGuest(false)} className={`rounded-full px-4 py-2 text-sm font-semibold ${!guest ? "bg-dark text-white" : "border border-border-input"}`}>Signed in</button>
-              </div>
-              {!guest ? (
-                <div className="rounded-card border border-border p-4 text-sm">
-                  <p>Sign in to use saved addresses.</p>
-                  <Link href="/login?next=/checkout" className="font-semibold text-accent-text">Sign in</Link>
-                </div>
-              ) : (
-                <>
-                  <Field id="name" label="Full name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} error={errors.name} />
-                  <Field id="email" label="Email" type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} error={errors.email} />
-                  <PhoneField id="phone" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} error={errors.phone} />
-                </>
-              )}
+              <Field id="name" label="Full name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} error={errors.name} />
+              <Field id="email" label="Email" type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} error={errors.email} />
+              <PhoneField id="phone" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} error={errors.phone} />
               <Button onClick={validateContact} className="self-start">Continue</Button>
             </div>
           )}
@@ -173,8 +167,16 @@ export function CheckoutFlow() {
               )}
               <Field id="addr-name" label="Full name" value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} error={errors.name} />
               <div>
-                <Field id="pin" label="PIN code" value={address.pin} maxLength={6} onChange={(e) => { setAddress({ ...address, pin: e.target.value }); setPinChecked(false); }} error={errors.pin} />
-                {/^\d{6}$/.test(address.pin) && <p className="mt-1 text-sm text-success-text">Delivery available to this PIN code.</p>}
+                <Field id="pin" label="PIN code" value={address.pin} maxLength={6} onChange={(e) => setAddress({ ...address, pin: e.target.value })} error={errors.pin} />
+                {delivery.status === "loading" && <p className="mt-1 text-sm text-text-muted">Checking delivery…</p>}
+                {delivery.status === "success" && delivery.result && (
+                  <p className={cx("mt-1 text-sm", delivery.result.serviceable ? "text-success-text" : "text-error-text")}>
+                    {delivery.result.message}
+                  </p>
+                )}
+                {delivery.status === "error" && delivery.error && (
+                  <p className="mt-1 text-sm text-text-muted">{delivery.error}</p>
+                )}
               </div>
               <Field id="line1" label="Address line 1" value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} error={errors.line1} />
               <Field id="line2" label="Address line 2 (optional)" value={address.line2} onChange={(e) => setAddress({ ...address, line2: e.target.value })} />

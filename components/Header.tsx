@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Box } from "lucide-react";
@@ -42,8 +43,8 @@ export function Header() {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <Link href="/" className="font-display text-2xl font-extrabold tracking-tight text-text">
-            Hamza<span className="text-accent">One</span>
+          <Link href="/" aria-label="HamzaOne home" className="flex items-center">
+            <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} priority className="h-12 w-12 object-contain md:h-14 md:w-14" />
           </Link>
           <nav aria-label="Primary" className="hidden flex-wrap items-center gap-1 md:flex">
             <Link href="/shop" className="rounded-full px-3 py-3 font-medium text-text hover:bg-black/5">
@@ -135,9 +136,7 @@ export function Header() {
           <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-[82%] max-w-xs bg-surface p-5 shadow-lg">
             <div className="mb-6 flex items-center justify-between">
-              <span className="font-display text-lg font-extrabold">
-                Hamza<span className="text-accent">One</span>
-              </span>
+              <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} className="h-10 w-10 object-contain" />
               <button aria-label="Close menu" onClick={() => setMenuOpen(false)}>
                 <X className="h-5 w-5" />
               </button>

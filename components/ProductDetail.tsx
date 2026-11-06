@@ -3,9 +3,14 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ChevronDown, Heart } from "lucide-react";
 import type { Product } from "@/data/products";
-import { ConceptRender } from "./ConceptRender";
+
+const Product3DViewer = dynamic(() => import("./Product3DViewer").then((m) => m.Product3DViewer), {
+  ssr: false,
+  loading: () => <div className="aspect-square animate-pulse rounded-panel bg-art-tile" />,
+});
 import { AvailabilityChip } from "./StatusChip";
 import { PriceDisplay } from "./PriceDisplay";
 import { Button } from "./Button";
@@ -15,6 +20,7 @@ import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { formatINR, cx } from "@/lib/format";
 import { getCategory } from "@/data/categories";
+import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 
 const VIEWS = ["Front", "Side", "Top", "Scale with hand"];
 
@@ -28,7 +34,8 @@ export function ProductDetail({ product }: { product: Product }) {
   const [engraveText, setEngraveText] = useState("");
   const [qty, setQty] = useState(1);
   const [pin, setPin] = useState("");
-  const [pinMsg, setPinMsg] = useState<string | null>(null);
+  const [pinError, setPinError] = useState<string | null>(null);
+  const delivery = useDeliveryEstimate();
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notified, setNotified] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
@@ -80,9 +87,10 @@ export function ProductDetail({ product }: { product: Product }) {
   function checkPin(e: React.FormEvent) {
     e.preventDefault();
     if (/^\d{6}$/.test(pin)) {
-      setPinMsg(pin === "560102" ? "Delivery available — 3–6 business days after dispatch (estimate)." : "Delivery available to this PIN code (estimate).");
+      setPinError(null);
+      delivery.check(pin);
     } else {
-      setPinMsg("Enter a valid 6-digit PIN code.");
+      setPinError("Enter a valid 6-digit PIN code.");
     }
   }
 
@@ -102,7 +110,7 @@ export function ProductDetail({ product }: { product: Product }) {
       <div className="mt-5 grid grid-cols-1 gap-10 md:grid-cols-2">
         {/* Gallery */}
         <div className="md:sticky md:top-24 md:self-start">
-          <ConceptRender shape={product.shape} color={product.colors.find((c) => c.name === color)?.hex} className="aspect-square rounded-panel" />
+          <Product3DViewer shape={product.shape} color={product.colors.find((c) => c.name === color)?.hex} view={view} className="aspect-square rounded-panel" />
           <div className="mt-3 flex gap-2">
             {VIEWS.map((v, i) => (
               <button
@@ -225,7 +233,7 @@ export function ProductDetail({ product }: { product: Product }) {
                 </div>
                 <div className="rounded-card border border-border p-4">
                   <h4 className="text-sm font-semibold">Shipping</h4>
-                  <p className="mt-1 text-sm text-text-muted">3–6 business days after dispatch (estimate).</p>
+                  <p className="mt-1 text-sm text-text-muted">3–6 business days after dispatch (Estimated).</p>
                 </div>
               </div>
 
@@ -238,9 +246,19 @@ export function ProductDetail({ product }: { product: Product }) {
                   maxLength={6}
                   className="flex-1"
                 />
-                <Button type="submit" variant="outline">Check</Button>
+                <Button type="submit" variant="outline" disabled={delivery.status === "loading"}>
+                  {delivery.status === "loading" ? "Checking…" : "Check"}
+                </Button>
               </form>
-              {pinMsg && <p className="text-sm text-success-text">{pinMsg}</p>}
+              {pinError && <p className="text-sm text-error-text">{pinError}</p>}
+              {delivery.status === "success" && delivery.result && (
+                <p className={cx("text-sm", delivery.result.serviceable ? "text-success-text" : "text-error-text")}>
+                  {delivery.result.message}
+                </p>
+              )}
+              {delivery.status === "error" && delivery.error && (
+                <p className="text-sm text-text-muted">{delivery.error}</p>
+              )}
             </>
           )}
 
