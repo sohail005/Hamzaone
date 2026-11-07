@@ -80,7 +80,7 @@ function InventoryContent() {
               <tr><th className="px-4 py-3">Variant</th><th className="px-4 py-3">Stock</th><th className="px-4 py-3">Reserved</th><th className="px-4 py-3 text-right">Action</th></tr>
             </thead>
             <tbody>
-              {rows.map((item, idx) => (
+              {rows.map((item) => (
                 <tr key={`${item.slug}-${item.variant}`} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">{item.variant}</td>
                   <td className={cx("px-4 py-3", item.low && "font-semibold text-warning-text")}>{item.stock}</td>

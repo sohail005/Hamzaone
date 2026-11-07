@@ -92,11 +92,12 @@ export function CustomPrintFlow() {
     if (Object.keys(e).length === 0) goto("review");
   }
 
-  useEffect(() => {
-    if (material === "PLA") { setColor(materials.PLA.colors[0]); setFinish(materials.PLA.finishes[0]); }
-    if (material === "PETG") { setColor(materials.PETG.colors[0]); setFinish(materials.PETG.finishes[0]); }
-    if (material === "TPU") { setColor(materials.TPU.colors[0]); setFinish(materials.TPU.finishes[0]); }
-  }, [material]);
+  function selectMaterial(m: "PLA" | "PETG" | "TPU") {
+    if (m === material) return;
+    setMaterial(m);
+    setColor(materials[m].colors[0]);
+    setFinish(materials[m].finishes[0]);
+  }
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
@@ -196,7 +197,7 @@ export function CustomPrintFlow() {
                 {(["PLA", "PETG", "TPU"] as const).map((m) => (
                   <button
                     key={m}
-                    onClick={() => setMaterial(m)}
+                    onClick={() => selectMaterial(m)}
                     className={cx("rounded-full border px-4 py-2 text-sm font-medium", material === m ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
                   >
                     {m}

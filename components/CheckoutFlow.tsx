@@ -122,7 +122,7 @@ export function CheckoutFlow() {
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-bold">Payment pending</h1>
         <p className="max-w-md text-sm text-text-muted">
-          We're waiting for confirmation from your bank. Please don't pay again — we'll update your order automatically.
+          We&apos;re waiting for confirmation from your bank. Please don&apos;t pay again — we&apos;ll update your order automatically.
         </p>
         <div className="flex gap-3">
           <Button onClick={() => router.push("/order/success?order=HO-2026-10482")}>Check status now</Button>

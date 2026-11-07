@@ -10,7 +10,7 @@ export function CustomPrintLanding() {
         <div>
           <h1 className="font-display text-[40px] font-extrabold leading-tight">Your Design. Our Precision.</h1>
           <p className="mt-4 max-w-md text-lg text-text-muted">
-            Upload any 3D model — STL, STEP or 3MF — and we'll quote, print and ship it to you.
+            Upload any 3D model — STL, STEP or 3MF — and we&apos;ll quote, print and ship it to you.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/custom-print?step=upload"><Button size="lg">Upload Your 3D Model</Button></Link>

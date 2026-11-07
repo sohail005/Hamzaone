@@ -33,7 +33,7 @@ export function QuoteView({ id }: { id: string }) {
 
         {state === "awaiting" && (
           <p className="mt-4 text-sm text-text-muted">
-            Our team is reviewing your model. We'll notify you by email once a quote is ready — usually within 24 hours.
+            Our team is reviewing your model. We&apos;ll notify you by email once a quote is ready — usually within 24 hours.
           </p>
         )}
 

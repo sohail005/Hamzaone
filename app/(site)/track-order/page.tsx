@@ -54,7 +54,7 @@ function TrackContent() {
 
         {stage === "notfound" && (
           <div className="mt-4 flex flex-col gap-3">
-            <p className="text-sm text-error-text">We couldn't find an order with that number. Please check and try again.</p>
+            <p className="text-sm text-error-text">We couldn&apos;t find an order with that number. Please check and try again.</p>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setStage("find")}>Try again</Button>
               <Link href="/contact"><Button>Contact support</Button></Link>
@@ -64,7 +64,7 @@ function TrackContent() {
 
         {stage === "verify" && order && (
           <form onSubmit={verifyOtp} className="mt-4 flex flex-col gap-4">
-            <p className="text-sm text-text-muted">We've sent a 6-digit code to verify it's you. (Demo code: 123456)</p>
+            <p className="text-sm text-text-muted">We&apos;ve sent a 6-digit code to verify it&apos;s you. (Demo code: 123456)</p>
             <Field id="otp" label="Verification code" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={6} error={otpError ?? undefined} />
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setStage("find")}>Change order number</Button>

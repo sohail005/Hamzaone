@@ -14,7 +14,7 @@ export function NotFoundView() {
     <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
       <p className="font-display text-6xl font-extrabold text-accent-text">404</p>
       <h1 className="text-2xl font-bold">Page not found</h1>
-      <p className="text-sm text-text-muted">The page you're looking for doesn't exist or may have moved.</p>
+      <p className="text-sm text-text-muted">The page you&apos;re looking for doesn&apos;t exist or may have moved.</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();

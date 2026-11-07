@@ -58,12 +58,15 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
     setTimeout(() => setLoading(false), 450);
   }
 
+  // Show the skeleton briefly whenever the filter combination changes
+  // (including back/forward navigation), without a synchronous setState.
+  const filterKey = [category, avail, price, material, sort, q].join("|");
+  const [settledKey, setSettledKey] = useState<string | null>(null);
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => setLoading(false), 450);
+    const t = setTimeout(() => setSettledKey(filterKey), 450);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, avail, price, material, sort, q]);
+  }, [filterKey]);
+  const showLoading = loading || settledKey !== filterKey;
 
   const filtered = useMemo(() => {
     let list = products.slice();
@@ -168,7 +171,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
         </aside>
 
         <div>
-          {loading ? (
+          {showLoading ? (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="aspect-[3/4] animate-pulse rounded-card bg-surface" />

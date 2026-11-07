@@ -16,7 +16,7 @@ export default function CartPage() {
   const { lines, removeLine, setQty, addLine } = useCart();
   const { toggle: toggleWishlist } = useWishlist();
   const push = useToast((s) => s.push);
-  const { subtotal, billable } = cartTotals(lines);
+  const { subtotal } = cartTotals(lines);
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState<{ code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
