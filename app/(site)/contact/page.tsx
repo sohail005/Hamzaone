@@ -16,7 +16,7 @@ export default function ContactPage() {
         <div className="flex flex-col items-center gap-3 rounded-card bg-surface p-8 text-center shadow-sm">
           <MailCheck className="h-10 w-10 text-success" />
           <h1 className="text-xl font-bold">Message sent</h1>
-          <p className="text-sm text-text-muted">Thanks, {form.name || "there"} — we'll get back to you within 1 business day.</p>
+          <p className="text-sm text-text-muted">Thanks, {form.name || "there"} — we&apos;ll get back to you within 1 business day.</p>
         </div>
       </InfoLayout>
     );

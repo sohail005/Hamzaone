@@ -45,7 +45,7 @@ export function AccountSideNav() {
           <div className="absolute inset-0 bg-black/40" onClick={() => setConfirmOpen(false)} />
           <div role="dialog" aria-modal="true" className="relative w-full max-w-sm rounded-panel bg-surface p-6 shadow-lg">
             <h3 className="text-lg font-bold">Log out?</h3>
-            <p className="mt-2 text-sm text-text-muted">You'll need to sign in again to access your account.</p>
+            <p className="mt-2 text-sm text-text-muted">You&apos;ll need to sign in again to access your account.</p>
             <div className="mt-5 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setConfirmOpen(false)}>Cancel</Button>
               <Button variant="destructive" onClick={() => router.push("/")}>Log out</Button>

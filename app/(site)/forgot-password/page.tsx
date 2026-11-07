@@ -19,7 +19,7 @@ function ForgotForm() {
       <AuthLayout title="Check your email">
         <div className="flex flex-col items-center gap-3 text-center">
           <MailCheck className="h-10 w-10 text-success" />
-          <p className="text-sm text-text-muted">We've sent a password reset link to {email || "your email"}.</p>
+          <p className="text-sm text-text-muted">We&apos;ve sent a password reset link to {email || "your email"}.</p>
           <Link href="/reset-password?token=demo" className="text-sm font-semibold text-accent-text">
             Prototype: open reset link
           </Link>

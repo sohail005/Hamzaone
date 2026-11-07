@@ -266,7 +266,7 @@ export function ProductDetail({ product }: { product: Product }) {
             <div className="rounded-card border border-border p-5">
               <h3 className="text-sm font-semibold">This item is out of stock</h3>
               {notified ? (
-                <p className="mt-2 text-sm text-success-text">We'll email you when it's back in stock.</p>
+                <p className="mt-2 text-sm text-success-text">We&apos;ll email you when it&apos;s back in stock.</p>
               ) : (
                 <form
                   onSubmit={(e) => {

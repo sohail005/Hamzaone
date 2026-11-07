@@ -13,7 +13,7 @@ export default function AboutPage() {
       </p>
       <p className="mt-4 text-sm text-text-muted">
         We started with a single printer and a love for good design. Today we run a small studio focused on
-        craft, consistency and fast turnaround — whether you're ordering from our catalogue or sending us your
+        craft, consistency and fast turnaround — whether you&apos;re ordering from our catalogue or sending us your
         own design.
       </p>
       <div className="mt-6 flex gap-3">
