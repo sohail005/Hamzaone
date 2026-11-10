@@ -4,8 +4,13 @@ import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Timeline } from "@/components/Timeline";
+import { orders } from "@/data/orders";
 
 const STATUS_STEPS = ["printing", "post-processing", "quality-check", "packed", "shipped", "delivered"];
+
+export async function generateStaticParams() {
+  return orders.map((o) => ({ id: o.id }));
+}
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

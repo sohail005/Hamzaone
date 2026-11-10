@@ -1,0 +1,9 @@
+:HL["/_next/static/chunks/2wkbyea4shfxk.css","style"]
+:HL["/_next/static/media/07c7676b89ed2778-s.p.2bn3s6zvc0dyp.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/82450a180bcad83c-s.p.0p-wng2nn8o-p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+5:[["children",{"s":"__PAGE__","h":160}]]
+4:[["children",{"s":"edit","h":96,"c":"$Q5"}]]
+3:[["children",{"s":{"n":"id","t":"d","k":"spiral-decor-vase","s":["new"]},"h":96,"c":"$Q4"}]]
+2:[["children",{"s":"products","h":96,"c":"$Q3"}]]
+1:[["children",{"s":"admin","h":96,"c":"$Q2"}]]
+0:{"b":"xa9vI3BPOBJaOWZ_EnE3-","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

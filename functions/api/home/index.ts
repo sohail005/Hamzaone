@@ -8,7 +8,7 @@ import {
   homeFaqs,
   heroChecklist,
   categoryShapes,
-} from "../../../data/home";
+} from "@/data/home";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);
@@ -29,7 +29,7 @@ export const onRequestGet: PagesFunction = async (context) => {
   if (section) {
     const key = Object.keys(sections).find((k) => k === section);
     if (!key) {
-      return Response.json({ error: `Unknown section. Available: ${Object.keys(sections).join(", ")}` }, { status: 400 });
+      return Response.json({ error: "Unknown section" }, { status: 400 });
     }
     return Response.json({ [key]: sections[key] });
   }

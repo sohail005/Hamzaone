@@ -5,16 +5,7 @@ import {
   productionCards,
   inventory,
   customRequests,
-} from "../../../data/admin";
-
-const RESOURCES: Record<string, unknown> = {
-  customers,
-  coupons,
-  payments,
-  production: productionCards,
-  inventory,
-  "custom-requests": customRequests,
-};
+} from "@/data/admin";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);
@@ -31,13 +22,19 @@ export const onRequestGet: PagesFunction = async (context) => {
     });
   }
 
-  const key = Object.keys(RESOURCES).find((k) => k.toLowerCase() === resource.toLowerCase());
+  const map: Record<string, unknown> = {
+    customers,
+    coupons,
+    payments,
+    production: productionCards,
+    inventory,
+    "custom-requests": customRequests,
+  };
+
+  const key = Object.keys(map).find((k) => k.toLowerCase() === resource.toLowerCase());
   if (!key) {
-    return Response.json(
-      { error: `Unknown resource. Available: ${Object.keys(RESOURCES).join(", ")}` },
-      { status: 400 },
-    );
+    return Response.json({ error: "Unknown resource" }, { status: 400 });
   }
 
-  return Response.json({ [key]: RESOURCES[key] });
+  return Response.json({ [key]: map[key] });
 };
