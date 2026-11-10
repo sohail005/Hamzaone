@@ -1,4 +1,4 @@
-import { quote, materials, faqs, testimonials } from "@/data/customPrint";
+import { quote, materials, faqs, testimonials } from "../../../data/customPrint";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);

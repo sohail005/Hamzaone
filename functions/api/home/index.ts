@@ -8,7 +8,7 @@ import {
   homeFaqs,
   heroChecklist,
   categoryShapes,
-} from "@/data/home";
+} from "../../../data/home";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);

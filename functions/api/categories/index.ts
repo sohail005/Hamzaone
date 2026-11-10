@@ -1,4 +1,4 @@
-import { categories, getCategory } from "@/data/categories";
+import { categories, getCategory } from "../../../data/categories";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);

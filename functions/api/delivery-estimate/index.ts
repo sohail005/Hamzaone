@@ -1,4 +1,4 @@
-import { checkServiceability, NimbusPostApiError, NimbusPostNotConfiguredError } from "@/lib/nimbuspost";
+import { checkServiceability, NimbusPostApiError, NimbusPostNotConfiguredError } from "../../../lib/nimbuspost";
 
 function formatMessage(result: Awaited<ReturnType<typeof checkServiceability>>) {
   if (!result.serviceable) return "Delivery isn't currently available to this PIN code.";

@@ -1,4 +1,4 @@
-import { products } from "@/data/products";
+import { products } from "../../../data/products";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);

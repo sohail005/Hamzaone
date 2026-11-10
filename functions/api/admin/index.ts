@@ -5,7 +5,7 @@ import {
   productionCards,
   inventory,
   customRequests,
-} from "@/data/admin";
+} from "../../../data/admin";
 
 export const onRequestGet: PagesFunction = async (context) => {
   const { searchParams } = new URL(context.request.url);
