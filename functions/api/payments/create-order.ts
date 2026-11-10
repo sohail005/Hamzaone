@@ -85,7 +85,7 @@ export const onRequestPost: PagesFunction = async (context) => {
 
   const shipping = body.shippingMethod === "express" ? 149 : subtotal >= 1499 ? 0 : 79;
   const totalPaise = (subtotal + shipping) * 100;
-  if (!Number.isSafeInteger(totalPaise) || totalPaise <= 0 || totalPaise > 50_000_000) {
+  if (!Number.isSafeInteger(totalPaise) || totalPaise < 100 || totalPaise > 50_000_000) {
     return jsonError("The checkout total is outside the supported range.", 400);
   }
 
@@ -107,6 +107,10 @@ export const onRequestPost: PagesFunction = async (context) => {
       }),
     });
     const result = await readJson(response);
+    if (response.status === 401 || response.status === 403) {
+      console.error("Razorpay rejected the configured credentials.", response.status);
+      return jsonError("Razorpay credentials were rejected. Check the server configuration.", 401);
+    }
     if (!response.ok || typeof result?.id !== "string") {
       console.error("Razorpay order creation failed.", response.status);
       return jsonError("Razorpay could not create the payment order.", 502);

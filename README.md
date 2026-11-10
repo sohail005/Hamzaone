@@ -39,14 +39,14 @@ Open [http://localhost:3000](http://localhost:3000). Visit `/prototype` for a si
 
 - **Product imagery** is CSS-only "Concept render" shapes (per spec) rather than real photography/3D renders.
 - **State persistence**: cart, wishlist, addresses, and most wizard state live in React/Zustand state only — a hard refresh resets them. This matches the "front-end only, no backend" scope, but means in-progress flows don't survive a reload.
-- **Razorpay test payments**: set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as Cloudflare Pages secrets. Use only keys beginning with `rzp_test_`; live keys are rejected. For local Pages Functions testing, put the credentials in the ignored `.dev.vars` file:
+- **Razorpay test payments**: the checkout uses Cloudflare Pages Functions at `/api/payments/create-order` and `/api/payments/verify-payment`; the server recomputes the cart total, creates the Razorpay order, verifies the signature, and captures authorized payments. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as Cloudflare Pages secrets in production. Use only keys beginning with `rzp_test_`; live keys are rejected. The ignored `.env` file may hold these variables for local configuration, but Pages Functions load their local secrets from `.dev.vars`:
 
   ```dotenv
   RAZORPAY_KEY_ID=rzp_test_your_key_id
   RAZORPAY_KEY_SECRET=your_test_key_secret
   ```
 
-  Then run `npm run build` followed by `npx wrangler pages dev out`. Do not put the secret in a `NEXT_PUBLIC_*` variable or commit it. The API creates orders and verifies/captures payments, but there is no database or webhook-backed order persistence.
+  Then run `npm run build` followed by `npx wrangler pages dev out`. Do not put the secret in a `NEXT_PUBLIC_*` variable or commit it. The API creates orders and verifies/captures payments, but there is no database or webhook-backed order persistence. The Next.js development server alone does not run the Cloudflare Pages Functions; use the Pages preview command to test the complete checkout.
 - **OTP (demo code `123456`), login (first attempt fails, second succeeds), and all admin actions** remain simulated via prototype buttons; no real SMS provider is called.
 - The original design link (`claude.ai/artifact/...`) was not accessible to the assistant (not shared), so this build was implemented directly from the detailed written spec rather than pixel-diffed against the Claude canvas boards. If you share the artifact, a follow-up pass can true up spacing/typography against it directly.
 - Admin inventory/production/coupons state resets on reload (no persistence layer), consistent with the "front-end only" scope.

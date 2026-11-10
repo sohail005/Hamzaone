@@ -63,6 +63,15 @@ export const onRequestPost: PagesFunction = async (context) => {
       readJson(orderResponse),
     ]);
     if (
+      paymentResponse.status === 401 ||
+      paymentResponse.status === 403 ||
+      orderResponse.status === 401 ||
+      orderResponse.status === 403
+    ) {
+      console.error("Razorpay rejected the configured credentials.", paymentResponse.status, orderResponse.status);
+      return jsonError("Razorpay credentials were rejected. Check the server configuration.", 401);
+    }
+    if (
       !paymentResponse.ok ||
       !orderResponse.ok ||
       !payment ||
@@ -87,6 +96,10 @@ export const onRequestPost: PagesFunction = async (context) => {
         },
       );
       const capturedPayment = await readJson(captureResponse);
+      if (captureResponse.status === 401 || captureResponse.status === 403) {
+        console.error("Razorpay rejected the configured credentials during capture.", captureResponse.status);
+        return jsonError("Razorpay credentials were rejected. Check the server configuration.", 401);
+      }
       if (capturedPayment?.status === "captured") {
         return Response.json({ status: "success" });
       }
