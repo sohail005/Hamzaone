@@ -11,6 +11,7 @@ export default function AboutPage() {
         uploaded by customers. Every order is printed in-house in India, quality-checked, and dispatched within
         3–6 business days.
       </p>
+      
       <p className="mt-4 text-sm text-text-muted">
         We started with a single printer and a love for good design. Today we run a small studio focused on
         craft, consistency and fast turnaround — whether you&apos;re ordering from our catalogue or sending us your
