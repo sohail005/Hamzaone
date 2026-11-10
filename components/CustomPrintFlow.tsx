@@ -7,8 +7,10 @@ import { Upload, RotateCw, ZoomIn, RefreshCw, AlertCircle, Loader2, Box } from "
 import { Button } from "./Button";
 import { Field, PhoneField, Textarea } from "./Input";
 import { Stepper } from "./Stepper";
-import { materials } from "@/data/customPrint";
+import { api } from "@/lib/api";
 import { cx } from "@/lib/format";
+
+type Materials = Record<string, { colors: string[]; finishes: string[] }>;
 
 const STEPS = [
   { key: "upload", label: "Upload" },
@@ -32,13 +34,29 @@ export function CustomPrintFlow() {
   const [continueBlocked, setContinueBlocked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [materials, setMaterials] = useState<Materials>({});
+  const [materialsLoaded, setMaterialsLoaded] = useState(false);
+
   const [material, setMaterial] = useState<"PLA" | "PETG" | "TPU">("PLA");
-  const [color, setColor] = useState(materials.PLA.colors[0]);
-  const [finish, setFinish] = useState(materials.PLA.finishes[0]);
+  const [color, setColor] = useState("");
+  const [finish, setFinish] = useState("");
+
+  useEffect(() => {
+    api.customPrint.list("materials").then(({ materials }: { materials: Materials }) => {
+      setMaterials(materials);
+      setColor(materials.PLA.colors[0]);
+      setFinish(materials.PLA.finishes[0]);
+      setMaterialsLoaded(true);
+    });
+  }, []);
 
   const [contact, setContact] = useState({ name: "", email: "", phone: "", notes: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [consent, setConsent] = useState(false);
+
+  if (!materialsLoaded) {
+    return null;
+  }
 
   function goto(key: string) {
     router.push(`/custom-print?step=${key}`);

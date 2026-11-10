@@ -3,16 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Box } from "lucide-react";
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
+import { api } from "@/lib/api";
 
-function categoryCount(slug: string) {
-  return products.filter((p) => p.category === slug).length;
-}
+type Category = { slug: string; name: string; description: string };
+type Product = { slug: string; name: string; category: string; price: number; availability: string; isNew?: boolean };
 
 export function Header() {
   const router = useRouter();
@@ -22,10 +20,36 @@ export function Header() {
   const lines = useCart((s) => s.lines);
   const wishSlugs = useWishlist((s) => s.slugs);
   const cartCount = lines.reduce((n, l) => n + l.qty, 0);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
+  useEffect(() => {
+    let loaded = 0;
+    const total = 2;
+    api.categories.list().then(({ categories }: { categories: Category[] }) => {
+      setCategories(categories);
+      loaded++;
+      if (loaded === total) setDataLoaded(true);
+    });
+    api.products.list().then(({ products }: { products: Product[] }) => {
+      setProducts(products);
+      loaded++;
+      if (loaded === total) setDataLoaded(true);
+    });
+  }, []);
+
+  function categoryCount(slug: string) {
+    return products.filter((p) => p.category === slug).length;
+  }
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
     router.push(`/shop?q=${encodeURIComponent(query)}`);
+  }
+
+  if (!dataLoaded) {
+    return null;
   }
 
   return (
@@ -145,7 +169,7 @@ export function Header() {
               </button>
             </div>
             <nav className="flex flex-col gap-1">
-              <Link onClick={() => setMenuOpen(false)} href="/shop" className="rounded-chip px-3 py-3 text-sm font-semibold hover:bg-bg">
+              <Link onClick={() => setMenuOpen(false)} href="/shop" className="rounded-chip px-3 py-3 text-sm font-semibold hover:bg:bg">
                 All products
               </Link>
               {categories.map((c) => (
@@ -153,7 +177,7 @@ export function Header() {
                   key={c.slug}
                   onClick={() => setMenuOpen(false)}
                   href={`/shop/${c.slug}`}
-                  className="rounded-chip px-3 py-3 text-sm hover:bg-bg"
+                  className="rounded-chip px-3 py-3 text-sm hover:bg:bg"
                 >
                   {c.name}
                 </Link>
@@ -161,13 +185,13 @@ export function Header() {
               <Link onClick={() => setMenuOpen(false)} href="/custom-print" className="mt-2 flex items-center gap-2 rounded-chip bg-accent px-3 py-3 text-sm font-semibold text-text">
                 <Box className="h-4 w-4" /> Custom 3D Print
               </Link>
-              <Link onClick={() => setMenuOpen(false)} href="/track-order" className="rounded-chip px-3 py-3 text-sm hover:bg-bg">
+              <Link onClick={() => setMenuOpen(false)} href="/track-order" className="rounded-chip px-3 py-3 text-sm hover:bg:bg">
                 Track order
               </Link>
-              <Link onClick={() => setMenuOpen(false)} href="/account" className="rounded-chip px-3 py-3 text-sm hover:bg-bg">
+              <Link onClick={() => setMenuOpen(false)} href="/account" className="rounded-chip px-3 py-3 text-sm hover:bg:bg">
                 Account &amp; wishlist
               </Link>
-              <Link onClick={() => setMenuOpen(false)} href="/login" className="rounded-chip px-3 py-3 text-sm hover:bg-bg">
+              <Link onClick={() => setMenuOpen(false)} href="/login" className="rounded-chip px-3 py-3 text-sm hover:bg:bg">
                 Sign in
               </Link>
             </nav>

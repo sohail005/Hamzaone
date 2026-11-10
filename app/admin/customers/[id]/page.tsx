@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { customers } from "@/data/admin";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
+
+type Customer = { id: string; name: string; email: string; phone: string; orders: string[]; totalSpend: number; joined: string };
 
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const customer = customers.find((c) => c.id === id);
+  const { customers } = await api.admin.list("customers");
+  const customer = (customers as Customer[]).find((c) => c.id === id);
   if (!customer) notFound();
 
   return (

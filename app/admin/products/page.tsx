@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { products } from "@/data/products";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { AvailabilityChip } from "@/components/StatusChip";
 import { Button } from "@/components/Button";
 
+type Product = { slug: string; name: string; category: string; price: number; availability: string };
+
 export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [archiving, setArchiving] = useState<string | null>(null);
   const [archived, setArchived] = useState<string[]>([]);
+
+  useEffect(() => {
+    api.products.list().then(({ products }: { products: Product[] }) => {
+      setProducts(products);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   const visible = products.filter((p) => !archived.includes(p.slug));
 
@@ -40,7 +53,7 @@ export default function AdminProductsPage() {
                 <td className="px-4 py-3 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-text-muted">{p.category}</td>
                 <td className="px-4 py-3">{formatINR(p.price)}</td>
-                <td className="px-4 py-3"><AvailabilityChip status={p.availability} /></td>
+                <td className="px-4 py-3"><AvailabilityChip status={(p.availability as unknown as "available")} /></td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/admin/products/${p.slug}/edit`} className="mr-3 text-xs font-semibold text-accent-text">Edit</Link>
                   <button onClick={() => setArchiving(p.slug)} className="text-xs font-semibold text-error-text">Archive</button>

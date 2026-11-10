@@ -1,18 +1,31 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { payments } from "@/data/admin";
+import { api } from "@/lib/api";
 import { formatINR, cx } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
+
+type Payment = { id: string; orderId: string; method: string; amount: number; status: string; maskedId: string; date: string };
 
 const FILTERS = ["all", "paid", "pending", "failed", "refunded"];
 
 function PaymentsContent() {
   const router = useRouter();
   const params = useSearchParams();
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const status = params.get("status") ?? "all";
   const selectedId = params.get("id");
+
+  useEffect(() => {
+    api.admin.list("payments").then(({ payments }: { payments: Payment[] }) => {
+      setPayments(payments);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   const filtered = status === "all" ? payments : payments.filter((p) => p.status === status);
   const selected = payments.find((p) => p.id === selectedId);

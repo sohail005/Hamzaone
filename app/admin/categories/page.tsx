@@ -1,16 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { categories as initialCategories } from "@/data/categories";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
 
+type Category = { slug: string; name: string; description: string };
+
 export default function AdminCategoriesPage() {
-  const [visibility, setVisibility] = useState<Record<string, boolean>>(
-    Object.fromEntries(initialCategories.map((c) => [c.slug, true]))
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [visibility, setVisibility] = useState<Record<string, boolean>>({});
   const [newName, setNewName] = useState("");
   const [created, setCreated] = useState<string[]>([]);
+
+  useEffect(() => {
+    api.categories.list().then(({ categories }: { categories: Category[] }) => {
+      setCategories(categories);
+      setVisibility(Object.fromEntries(categories.map((c) => [c.slug, true])));
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   return (
     <div className="flex flex-col gap-5">
@@ -26,7 +38,7 @@ export default function AdminCategoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {initialCategories.map((c) => (
+            {categories.map((c) => (
               <tr key={c.slug} className="border-b border-border last:border-0">
                 <td className="px-4 py-3 font-medium">{c.name}</td>
                 <td className="px-4 py-3 text-text-muted">{c.description}</td>

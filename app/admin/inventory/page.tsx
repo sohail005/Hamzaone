@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { inventory as initial } from "@/data/admin";
+import { api } from "@/lib/api";
 import { Button } from "@/components/Button";
 import { cx } from "@/lib/format";
 
@@ -12,14 +12,26 @@ const HISTORY = [
   { date: "2026-10-28", variant: "Drawer Pull Set — Charcoal / Standard", change: "+10", reason: "Restock" },
 ];
 
+type InventoryItem = { slug: string; variant: string; stock: number; reserved: number; low: boolean };
+
 function InventoryContent() {
   const router = useRouter();
   const params = useSearchParams();
   const tab = params.get("tab") ?? "stock";
-  const [items, setItems] = useState(initial);
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [adjusting, setAdjusting] = useState<number | null>(null);
   const [newStock, setNewStock] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.admin.list("inventory").then(({ inventory }: { inventory: InventoryItem[] }) => {
+      setItems(inventory);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   const rows = tab === "low" ? items.filter((i) => i.low) : items;
 

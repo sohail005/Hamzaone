@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart, cartTotals } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { useToast } from "@/store/toast";
@@ -9,8 +9,10 @@ import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Input";
 import { ConceptRender } from "@/components/ConceptRender";
-import { getProduct } from "@/data/products";
+import { api } from "@/lib/api";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+
+type Product = { slug: string; name: string; shape: string; colors: Array<{ name: string; hex: string }> };
 
 export default function CartPage() {
   const { lines, removeLine, setQty, addLine } = useCart();
@@ -20,8 +22,18 @@ export default function CartPage() {
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState<{ code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [productCache, setProductCache] = useState<Record<string, Product>>({});
 
   const hasOOS = lines.some((l) => l.availability === "out-of-stock");
+
+  useEffect(() => {
+    const slugs = lines.map((l) => l.slug);
+    const uncached = slugs.filter((s) => !productCache[s]);
+    Promise.all(uncached.map((s) => api.products.get(s).then(({ product }: { product: Product }) => ({ slug: s, product }))))
+      .then((results) => {
+        setProductCache((prev) => ({ ...prev, ...Object.fromEntries(results.map((r) => [r.slug, r.product])) }));
+      });
+  }, [lines, productCache]);
 
   function applyCoupon(e: React.FormEvent) {
     e.preventDefault();
@@ -88,12 +100,12 @@ export default function CartPage() {
       <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[1fr_340px]">
         <ul className="flex flex-col gap-4">
           {lines.map((l) => {
-            const product = getProduct(l.slug);
+            const product = productCache[l.slug];
             const isOOS = l.availability === "out-of-stock";
             return (
               <li key={l.id} className={`flex gap-4 rounded-card bg-surface p-4 shadow-sm ${isOOS ? "opacity-60" : ""}`}>
                 <Link href={`/products/${l.slug}`} className="shrink-0">
-                  <ConceptRender shape={product?.shape ?? "vase"} color={product?.colors[0].hex} className="h-20 w-20 rounded-chip" />
+                  <ConceptRender shape={(product?.shape as unknown as "vase")} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
                 </Link>
                 <div className="flex flex-1 flex-col gap-1">
                   <Link href={`/products/${l.slug}`} className="text-sm font-semibold hover:text-accent-text">{l.name}</Link>

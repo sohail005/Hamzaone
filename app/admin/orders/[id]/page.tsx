@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { findOrder } from "@/data/orders";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Input";
@@ -12,10 +12,13 @@ import { customers } from "@/data/admin";
 
 const STEPS = ["Printing", "Post Processing", "Quality Check", "Packed", "Shipped", "Delivered"];
 
+type Order = { id: string; customer: string; items: Array<{ name: string; color: string; size: string; qty: number; price: number }>; subtotal: number; discount: number; couponCode?: string; shipping: number; total: number; status: string; paymentStatus: string; address: { line1: string; line2?: string; city: string; state: string; pin: string } };
+
 export default function AdminOrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const order = findOrder(params.id);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const [stepIndex, setStepIndex] = useState(0);
   const [statusDialog, setStatusDialog] = useState(false);
@@ -25,6 +28,14 @@ export default function AdminOrderDetailPage() {
   const [shipped, setShipped] = useState(false);
   const [log, setLog] = useState<string[]>(["Order placed and payment captured."]);
 
+  useEffect(() => {
+    api.orders.get(params.id).then(({ order }: { order: Order }) => {
+      setOrder(order);
+      setLoaded(true);
+    });
+  }, [params.id]);
+
+  if (!loaded) return null;
   if (!order) {
     return (
       <div className="flex flex-col gap-4">
@@ -116,7 +127,7 @@ export default function AdminOrderDetailPage() {
               <button
                 key={s}
                 onClick={() => { setStepIndex(i); setLog((l) => [...l, `Status updated to ${s}.`]); setStatusDialog(false); }}
-                className="rounded-chip border border-border px-3 py-2.5 text-left text-sm hover:bg-bg"
+                className="rounded-chip border border-border px-3 py-2.5 text-left text-sm hover:bg:bg"
               >
                 {s}
               </button>

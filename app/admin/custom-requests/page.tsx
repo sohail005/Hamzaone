@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { customRequests } from "@/data/admin";
+import { api } from "@/lib/api";
 import { StatusChip } from "@/components/StatusChip";
 
-export default function AdminCustomRequestsPage() {
+export default async function AdminCustomRequestsPage() {
+  const { "custom-requests": customRequests } = await api.admin.list("custom-requests");
+
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-bold">Custom requests</h1>
@@ -19,7 +21,7 @@ export default function AdminCustomRequestsPage() {
             </tr>
           </thead>
           <tbody>
-            {customRequests.map((r) => (
+            {customRequests.map((r: { id: string; customer: string; fileName: string; material: string; status: string }) => (
               <tr key={r.id} className="border-b border-border last:border-0">
                 <td className="px-4 py-3 font-medium">{r.id}</td>
                 <td className="px-4 py-3">{r.customer}</td>

@@ -1,0 +1,9 @@
+name = "hamzaone-api"
+compatibility_date = "2026-11-10"
+pages_build_output_dir = ".next"
+[observability]
+enabled = true
+
+[[kv_namespaces]]
+binding = "DATA_KV"
+id = "18132f5eb689474e9df6430c8b10d43d"

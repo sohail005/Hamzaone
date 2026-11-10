@@ -1,14 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useWishlist } from "@/store/wishlist";
-import { products } from "@/data/products";
+import { api } from "@/lib/api";
 import { ConceptRender } from "@/components/ConceptRender";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { Button } from "@/components/Button";
 
+type Product = { slug: string; name: string; price: number; shape: string; colors: Array<{ name: string; hex: string }> };
+
 export default function WishlistPage() {
   const { slugs, toggle } = useWishlist();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    api.products.list().then(({ products }: { products: Product[] }) => {
+      setProducts(products);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
+
   const items = products.filter((p) => slugs.includes(p.slug));
 
   if (items.length === 0) {
@@ -28,7 +43,7 @@ export default function WishlistPage() {
         {items.map((p) => (
           <div key={p.slug} className="flex flex-col gap-2 rounded-card bg-surface p-3 shadow-sm">
             <Link href={`/products/${p.slug}`}>
-              <ConceptRender shape={p.shape} color={p.colors[0].hex} className="aspect-square rounded-chip" />
+              <ConceptRender shape={(p.shape as unknown as "vase")} color={p.colors[0].hex} className="aspect-square rounded-chip" />
             </Link>
             <Link href={`/products/${p.slug}`} className="text-sm font-semibold hover:text-accent-text">{p.name}</Link>
             <PriceDisplay amount={p.price} />

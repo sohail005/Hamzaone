@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { productionCards as initial, type ProductionCard } from "@/data/admin";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 import { cx } from "@/lib/format";
 
-const STAGES: { key: ProductionCard["stage"]; label: string }[] = [
+type ProductionCard = { id: string; label: string; stage: string; priority: string };
+
+const STAGES: { key: string; label: string }[] = [
   { key: "queued", label: "Queued" },
   { key: "printing", label: "Printing" },
   { key: "post-processing", label: "Post Processing" },
@@ -14,8 +16,18 @@ const STAGES: { key: ProductionCard["stage"]; label: string }[] = [
 ];
 
 export default function AdminProductionPage() {
-  const [cards, setCards] = useState(initial);
+  const [cards, setCards] = useState<ProductionCard[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState<"all" | "high">("all");
+
+  useEffect(() => {
+    api.admin.list("production").then(({ production }: { production: ProductionCard[] }) => {
+      setCards(production);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   function move(id: string, dir: 1 | -1) {
     setCards((prev) =>

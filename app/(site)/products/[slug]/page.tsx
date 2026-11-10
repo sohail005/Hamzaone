@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getProduct } from "@/data/products";
+import { api } from "@/lib/api";
 import { ProductDetail } from "@/components/ProductDetail";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const { product } = await api.products.get(slug);
   if (!product) notFound();
   return (
     <Suspense>

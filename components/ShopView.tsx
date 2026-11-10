@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal, X } from "lucide-react";
-import { products, type Availability } from "@/data/products";
-import { categories } from "@/data/categories";
+import type { Product } from "@/data/products";
+import type { Category } from "@/data/categories";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ProductCard } from "./ProductCard";
 import { Button } from "./Button";
 import { cx } from "@/lib/format";
+import { api } from "@/lib/api";
 
 const SORTS = [
   { key: "featured", label: "Featured" },
@@ -23,7 +24,7 @@ const PRICE_BANDS = [
   { key: "over-700", label: "Over ₹700", test: (p: number) => p > 700 },
 ];
 
-const AVAILABILITY: { key: Availability; label: string }[] = [
+const AVAILABILITY: { key: string; label: string }[] = [
   { key: "available", label: "In stock" },
   { key: "made-to-order", label: "Made to order" },
   { key: "low-stock", label: "Low stock" },
@@ -38,6 +39,10 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
   const [loading, setLoading] = useState(false);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [mobileSort, setMobileSort] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [settledKey, setSettledKey] = useState<string | null>(null);
 
   const category = categorySlug ?? params.get("category") ?? "";
   const avail = params.get("avail") ?? "";
@@ -47,21 +52,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
   const q = params.get("q") ?? "";
   const page = parseInt(params.get("page") ?? "1", 10);
 
-  function update(next: Record<string, string | null>) {
-    const sp = new URLSearchParams(params.toString());
-    for (const [k, v] of Object.entries(next)) {
-      if (v === null || v === "") sp.delete(k);
-      else sp.set(k, v);
-    }
-    setLoading(true);
-    router.replace(`${categorySlug ? `/shop/${categorySlug}` : "/shop"}?${sp.toString()}`);
-    setTimeout(() => setLoading(false), 450);
-  }
-
-  // Show the skeleton briefly whenever the filter combination changes
-  // (including back/forward navigation), without a synchronous setState.
   const filterKey = [category, avail, price, material, sort, q].join("|");
-  const [settledKey, setSettledKey] = useState<string | null>(null);
   useEffect(() => {
     const t = setTimeout(() => setSettledKey(filterKey), 450);
     return () => clearTimeout(t);
@@ -84,7 +75,45 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
     else if (sort === "price-desc") list = list.slice().sort((a, b) => b.price - a.price);
 
     return list;
-  }, [category, avail, price, material, sort, q]);
+  }, [products, category, avail, price, material, sort, q]);
+
+  useEffect(() => {
+    let loaded = 0;
+    const total = 2;
+    api.products.list().then(({ products }: { products: Product[] }) => {
+      setProducts(products);
+      loaded++;
+      if (loaded === total) setDataLoaded(true);
+    });
+    api.categories.list().then(({ categories }: { categories: Category[] }) => {
+      setCategories(categories);
+      loaded++;
+      if (loaded === total) setDataLoaded(true);
+    });
+  }, []);
+
+  if (!dataLoaded) {
+    return (
+      <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-[3/4] animate-pulse rounded-card bg-surface" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function update(next: Record<string, string | null>) {
+    const sp = new URLSearchParams(params.toString());
+    for (const [k, v] of Object.entries(next)) {
+      if (v === null || v === "") sp.delete(k);
+      else sp.set(k, v);
+    }
+    setLoading(true);
+    router.replace(`${categorySlug ? `/shop/${categorySlug}` : "/shop"}?${sp.toString()}`);
+    setTimeout(() => setLoading(false), 450);
+  }
 
   const visibleCount = Math.min(page * 12, filtered.length);
   const visible = filtered.slice(0, visibleCount);
@@ -167,6 +196,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
             material={material}
             onChange={update}
             showCategory={!categorySlug}
+            categories={categories}
           />
         </aside>
 
@@ -223,6 +253,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
               material={material}
               onChange={update}
               showCategory={!categorySlug}
+              categories={categories}
             />
             <Button className="mt-4 w-full" onClick={() => setMobileFilters(false)}>Show results</Button>
           </div>
@@ -265,6 +296,7 @@ function FilterPanel({
   material,
   onChange,
   showCategory,
+  categories,
 }: {
   category: string;
   avail: string;
@@ -272,6 +304,7 @@ function FilterPanel({
   material: string;
   onChange: (next: Record<string, string | null>) => void;
   showCategory: boolean;
+  categories: Category[];
 }) {
   return (
     <div className="flex flex-col gap-6">

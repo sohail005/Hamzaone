@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ChevronDown, Heart } from "lucide-react";
 import type { Product } from "@/data/products";
+import type { Category } from "@/data/categories";
 
 const Product3DViewer = dynamic(() => import("./Product3DViewer").then((m) => m.Product3DViewer), {
   ssr: false,
@@ -19,7 +20,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { formatINR, cx } from "@/lib/format";
-import { getCategory } from "@/data/categories";
+import { api } from "@/lib/api";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 
 const VIEWS = ["Front", "Side", "Top", "Scale with hand"];
@@ -39,6 +40,11 @@ export function ProductDetail({ product }: { product: Product }) {
   const [notifyEmail, setNotifyEmail] = useState("");
   const [notified, setNotified] = useState(false);
   const [specsOpen, setSpecsOpen] = useState(false);
+  const [category, setCategory] = useState<Category | null>(null);
+
+  useEffect(() => {
+    api.categories.get(product.category).then(({ category }: { category: Category }) => setCategory(category));
+  }, [product.category]);
 
   const color = params.get("color") ?? product.colors[0].name;
   const size = params.get("size") ?? "Small";
@@ -94,8 +100,6 @@ export function ProductDetail({ product }: { product: Product }) {
     }
   }
 
-  const category = getCategory(product.category);
-
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 pb-28 sm:px-6 md:pb-8">
       <Breadcrumbs
@@ -108,7 +112,6 @@ export function ProductDetail({ product }: { product: Product }) {
       />
 
       <div className="mt-5 grid grid-cols-1 gap-10 md:grid-cols-2">
-        {/* Gallery */}
         <div className="md:sticky md:top-24 md:self-start">
           <Product3DViewer shape={product.shape} color={product.colors.find((c) => c.name === color)?.hex} view={view} className="aspect-square rounded-panel" />
           <div className="mt-3 flex gap-2">
@@ -127,7 +130,6 @@ export function ProductDetail({ product }: { product: Product }) {
           </div>
         </div>
 
-        {/* Info */}
         <div className="flex flex-col gap-5">
           <div>
             <AvailabilityChip status={product.availability} />

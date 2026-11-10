@@ -1,23 +1,27 @@
 import Link from "next/link";
-import { orders } from "@/data/orders";
-import { products } from "@/data/products";
-import { customRequests, productionCards, inventory } from "@/data/admin";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 
 const SALES = [40, 55, 38, 62, 70, 58, 80, 66, 90, 72, 85, 95, 60, 77];
 
-const TILES = [
-  { label: "Revenue (30d)", value: formatINR(184320), href: "/admin/analytics" },
-  { label: "Orders (30d)", value: "142", href: "/admin/orders" },
-  { label: "Pending orders", value: "6", href: "/admin/orders?status=pending" },
-  { label: "Active prints", value: String(productionCards.filter((p) => p.stage !== "completed").length), href: "/admin/production" },
-  { label: "Products", value: String(products.length), href: "/admin/products" },
-  { label: "Low stock", value: String(inventory.filter((i) => i.low).length), href: "/admin/inventory?tab=low" },
-  { label: "Custom requests", value: String(customRequests.length), href: "/admin/custom-requests" },
-  { label: "Avg. order value", value: formatINR(1298), href: "/admin/analytics" },
-];
+export default async function AdminOverviewPage() {
+  const { orders } = await api.orders.list();
+  const { products } = await api.products.list();
+  const { production: productionCards } = await api.admin.list("production");
+  const { inventory } = await api.admin.list("inventory");
+  const { "custom-requests": customRequests } = await api.admin.list("custom-requests");
 
-export default function AdminOverviewPage() {
+  const TILES = [
+    { label: "Revenue (30d)", value: formatINR(184320), href: "/admin/analytics" },
+    { label: "Orders (30d)", value: "142", href: "/admin/orders" },
+    { label: "Pending orders", value: "6", href: "/admin/orders?status=pending" },
+    { label: "Active prints", value: String((productionCards as Array<{ stage: string }>).filter((p) => p.stage !== "completed").length), href: "/admin/production" },
+    { label: "Products", value: String(products.length), href: "/admin/products" },
+    { label: "Low stock", value: String((inventory as Array<{ low: boolean }>).filter((i) => i.low).length), href: "/admin/inventory?tab=low" },
+    { label: "Custom requests", value: String(customRequests.length), href: "/admin/custom-requests" },
+    { label: "Avg. order value", value: formatINR(1298), href: "/admin/analytics" },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -52,7 +56,7 @@ export default function AdminOverviewPage() {
             <Link href="/admin/orders" className="text-xs font-semibold text-accent-text">View all orders</Link>
           </div>
           <ul className="mt-3 flex flex-col gap-2">
-            {orders.map((o) => (
+            {orders.slice(0, 4).map((o: { id: string; total: number; status: string }) => (
               <li key={o.id} className="flex justify-between text-sm">
                 <Link href={`/admin/orders/${o.id}`} className="text-accent-text">{o.id}</Link>
                 <span className="text-text-muted">{formatINR(o.total)} · {o.status}</span>
@@ -67,7 +71,7 @@ export default function AdminOverviewPage() {
             <Link href="/admin/production" className="text-xs font-semibold text-accent-text">Queue</Link>
           </div>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
-            {productionCards.slice(0, 4).map((p) => (
+            {(productionCards as Array<{ id: string; label: string; stage: string }>).slice(0, 4).map((p) => (
               <li key={p.id} className="flex justify-between">
                 <span className="text-text-muted">{p.label}</span>
                 <span className="font-medium capitalize">{p.stage.replace("-", " ")}</span>
@@ -84,7 +88,7 @@ export default function AdminOverviewPage() {
             <Link href="/admin/inventory" className="text-xs font-semibold text-accent-text">Inventory</Link>
           </div>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
-            {inventory.filter((i) => i.low).map((i) => (
+            {(inventory as Array<{ slug: string; variant: string; stock: number; low: boolean }>).filter((i) => i.low).map((i) => (
               <li key={`${i.slug}-${i.variant}`} className="flex justify-between">
                 <span className="text-text-muted">{i.variant}</span>
                 <span className="font-medium text-warning-text">{i.stock} left</span>
@@ -99,7 +103,7 @@ export default function AdminOverviewPage() {
             <Link href="/admin/custom-requests" className="text-xs font-semibold text-accent-text">Review custom requests</Link>
           </div>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
-            {customRequests.map((r) => (
+            {customRequests.map((r: { id: string; status: string }) => (
               <li key={r.id} className="flex justify-between">
                 <span className="text-text-muted">{r.id}</span>
                 <span className="font-medium capitalize">{r.status}</span>

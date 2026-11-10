@@ -1,19 +1,40 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Clock, CheckCircle2, XCircle, FileText } from "lucide-react";
-import { quote } from "@/data/customPrint";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "./Button";
 import { StatusChip } from "./StatusChip";
 
 type QuoteState = "awaiting" | "received" | "accepted" | "rejected" | "expired";
 
+type Quote = {
+  id: string;
+  printingCost: number;
+  materialCost: number;
+  shipping: number;
+  total: number;
+  validUntil: string;
+};
+
 export function QuoteView({ id }: { id: string }) {
   const router = useRouter();
   const params = useSearchParams();
   const state = (params.get("state") as QuoteState) ?? "awaiting";
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [quoteLoaded, setQuoteLoaded] = useState(false);
+
+  useEffect(() => {
+    api.customPrint.list("quote").then(({ quote }: { quote: Quote }) => {
+      setQuote(quote);
+      setQuoteLoaded(true);
+    });
+  }, [id]);
+
+  if (!quoteLoaded || !quote) return null;
 
   function setState(s: QuoteState) {
     router.push(`/custom-print/quotes/${id}?state=${s}`);

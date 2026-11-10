@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { categories } from "@/data/categories";
-import { products } from "@/data/products";
-import { categoryShapes, featuredProducts, newArrivals, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } from "@/data/home";
+import { api } from "@/lib/api";
+import { categoryShapes } from "@/data/home";
 import { ConceptRender } from "@/components/ConceptRender";
 import { HeroArt } from "@/components/HeroArt";
 import { HomeProductCard } from "@/components/HomeProductCard";
@@ -9,14 +8,21 @@ import { Button } from "@/components/Button";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { Newsletter } from "@/components/Newsletter";
 
-function categoryCount(slug: string) {
-  return products.filter((p) => p.category === slug).length;
-}
+export default async function HomePage() {
+  const { categories } = await api.categories.list();
+  const { products } = await api.products.list() as { products: Array<{ slug: string; name: string; category: string; price: number }> };
+  const { featured, newArrivals, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } =
+    await api.home.list();
 
-export default function HomePage() {
+  function categoryCount(slug: string) {
+    return products.filter((p) => p.category === slug).length;
+  }
+
+  const featuredProducts = featured as Array<{ id: number; name: string; slug: string; price: number; shape: string; color: string; badge: string; availability: string }>;
+  const newArrivalsProducts = newArrivals as Array<{ id: number; name: string; slug: string; price: number; shape: string; color: string; badge: string; availability: string }>;
+
   return (
     <main className="flex flex-col">
-      {/* Hero */}
       <section className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-col gap-6" style={{ flex: "1 1 440px" }}>
           <span className="eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
@@ -39,7 +45,7 @@ export default function HomePage() {
             </Link>
           </div>
           <ul className="mt-2 flex flex-wrap gap-6 text-sm text-text-muted">
-            {heroChecklist.map((item) => (
+            {heroChecklist.map((item: string) => (
               <li key={item}>✓ {item}</li>
             ))}
           </ul>
@@ -47,14 +53,13 @@ export default function HomePage() {
         <HeroArt className="aspect-[5/4] min-h-[320px]" style={{ flex: "1 1 480px" }} />
       </section>
 
-      {/* Shop by category */}
       <section className="mx-auto w-full px-4 py-6 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="text-[36px] font-bold">Shop by category</h2>
           <Link href="/shop" className="font-semibold text-accent-text">View all products →</Link>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-          {categories.map((c) => {
+          {categories.map((c: { slug: string; name: string }) => {
             const shape = categoryShapes[c.slug];
             return (
               <Link key={c.slug} href={`/shop/${c.slug}`} className="flex flex-col gap-3">
@@ -69,7 +74,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Customer favourites */}
       <section className="mx-auto w-full px-4 py-9 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -80,12 +84,11 @@ export default function HomePage() {
         </div>
         <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
           {featuredProducts.map((p) => (
-            <HomeProductCard key={p.id} card={p} />
+            <HomeProductCard key={p.id} card={p as unknown as never} />
           ))}
         </div>
       </section>
 
-      {/* Custom 3D printing band */}
       <section className="bg-dark text-bg">
         <div className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-20 sm:px-6" style={{ maxWidth: 1280 }}>
           <div className="flex flex-col gap-5" style={{ flex: "1 1 420px" }}>
@@ -111,7 +114,7 @@ export default function HomePage() {
             <p className="text-[13px] text-[#9EA1A8]">STL, 3MF · up to 100 MB · PLA, PETG, TPU</p>
           </div>
           <ol className="grid list-none grid-cols-2 gap-4 p-0" style={{ flex: "1 1 420px" }}>
-            {customSteps.map((s) => (
+            {customSteps.map((s: { n: string; t: string; d: string }) => (
               <li key={s.n} className="flex flex-col gap-2 rounded-card border border-[#2F3237] p-5">
                 <span className="font-display text-sm font-bold text-accent">{s.n}</span>
                 <strong className="font-display text-lg text-white">{s.t}</strong>
@@ -122,12 +125,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
       <section className="mx-auto w-full px-4 py-20 sm:px-6" style={{ maxWidth: 1280 }}>
         <span className="eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">How it works</span>
         <h2 className="mt-1 text-[36px] font-bold">From print bed to your door</h2>
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
-          {howItWorks.map((h) => (
+          {howItWorks.map((h: { t: string; d: string }) => (
             <div key={h.t} className="flex flex-col gap-2 border-t-2 border-text pt-4">
               <strong className="font-display text-xl">{h.t}</strong>
               <span className="text-text-muted">{h.d}</span>
@@ -136,7 +138,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* New arrivals */}
       <section className="mx-auto w-full px-4 py-9 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -146,16 +147,15 @@ export default function HomePage() {
           <Link href="/shop" className="font-semibold text-accent-text">See what is new →</Link>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
-          {newArrivals.map((p) => (
-            <HomeProductCard key={p.id} card={p} variant="compact" />
+          {newArrivalsProducts.map((p: { id: number; name: string; slug: string; price: number; shape: string; color: string; badge: string; availability: string }) => (
+            <HomeProductCard key={p.id} card={p as unknown as never} variant="compact" />
           ))}
         </div>
       </section>
 
-      {/* Value props */}
       <section className="border-y border-border bg-surface">
         <div className="mx-auto grid w-full grid-cols-2 gap-8 px-4 py-16 sm:px-6 sm:grid-cols-4" style={{ maxWidth: 1280 }}>
-          {valueProps.map((v) => (
+          {valueProps.map((v: { n: string; t: string; d: string }) => (
             <div key={v.n} className="flex flex-col gap-2">
               <span className="flex h-10 w-10 items-center justify-center rounded-chip font-display text-base font-bold text-[#8A4A0A]" style={{ backgroundColor: "#FDEBD8" }}>
                 {v.n}
@@ -167,7 +167,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
       <section className="mx-auto w-full px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-[36px] font-bold">What customers say</h2>
@@ -176,7 +175,7 @@ export default function HomePage() {
           </span>
         </div>
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {homeReviews.map((r) => (
+          {homeReviews.map((r: { who: string; q: string; what: string }) => (
             <figure key={r.who} className="m-0 flex flex-col gap-4 rounded-card border border-border bg-surface p-6">
               <div aria-label="5 out of 5" className="text-accent-text" style={{ letterSpacing: 2 }}>★★★★★</div>
               <blockquote className="m-0 text-lg">&ldquo;{r.q}&rdquo;</blockquote>
@@ -186,7 +185,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="mx-auto flex w-full flex-wrap gap-12 px-4 py-9 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-col gap-3" style={{ flex: "1 1 300px" }}>
           <h2 className="text-[36px] font-bold">Questions, answered</h2>
@@ -198,7 +196,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter */}
       <section className="mx-auto w-full px-4 pb-20 sm:px-6" style={{ maxWidth: 1280 }}>
         <Newsletter />
       </section>

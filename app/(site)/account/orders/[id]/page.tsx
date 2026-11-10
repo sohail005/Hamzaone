@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { findOrder } from "@/data/orders";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Timeline } from "@/components/Timeline";
@@ -9,7 +9,7 @@ const STATUS_STEPS = ["printing", "post-processing", "quality-check", "packed", 
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const order = findOrder(id);
+  const { order } = await api.orders.get(id);
   if (!order) notFound();
 
   const current = STATUS_STEPS.indexOf(order.status);
@@ -26,7 +26,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <div className="rounded-card bg-surface p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Items</h2>
         <ul className="flex flex-col gap-2 text-sm">
-          {order.items.map((item) => (
+          {order.items.map((item: { name: string; color: string; size: string; qty: number; price: number }) => (
             <li key={item.name} className="flex justify-between">
               <span className="text-text-muted">{item.name} · {item.color} · {item.size} × {item.qty}</span>
               <span>{formatINR(item.price * item.qty)}</span>

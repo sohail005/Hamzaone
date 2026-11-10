@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { getCategory } from "@/data/categories";
+import { api } from "@/lib/api";
 import { ShopView } from "@/components/ShopView";
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
-  if (!getCategory(category)) notFound();
+  const { category: cat } = await api.categories.get(category);
+  if (!cat) notFound();
   return (
     <Suspense>
       <ShopView categorySlug={category} />

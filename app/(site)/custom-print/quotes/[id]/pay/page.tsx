@@ -1,17 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { quote } from "@/data/customPrint";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { AlertCircle } from "lucide-react";
+
+type Quote = { id: string; printingCost: number; materialCost: number; shipping: number; total: number; validUntil: string };
 
 export default function QuotePayPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [error, setError] = useState(false);
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    api.customPrint.list("quote").then(({ quote }: { quote: Quote }) => {
+      setQuote(quote);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded || !quote) return null;
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">

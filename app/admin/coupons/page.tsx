@@ -1,10 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { coupons as initial } from "@/data/admin";
+import { api } from "@/lib/api";
 import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
+
+type Coupon = { code: string; type: "flat" | "percent"; value: number; minOrder: number; enabled: boolean; expires: string };
 
 function CouponsContent() {
   const router = useRouter();
@@ -12,8 +14,18 @@ function CouponsContent() {
   const isNew = params.get("new") === "1";
   const editing = params.get("edit");
 
-  const [coupons, setCoupons] = useState(initial);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [form, setForm] = useState({ code: "", type: "flat" as "flat" | "percent", value: 0, minOrder: 0, expires: "" });
+
+  useEffect(() => {
+    api.admin.list("coupons").then(({ coupons }: { coupons: Coupon[] }) => {
+      setCoupons(coupons);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
 
   const editingCoupon = editing ? coupons.find((c) => c.code === editing) : null;
 

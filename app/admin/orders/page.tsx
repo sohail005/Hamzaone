@@ -1,18 +1,31 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { orders } from "@/data/orders";
+import { api } from "@/lib/api";
 import { formatINR, cx } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
+
+type Order = { id: string; customer: string; total: number; status: string; paymentStatus: string; items: Array<{ name: string }>; placedAt: string };
 
 const FILTERS = ["all", "printing", "shipped", "delivered", "pending", "canceled"];
 
 function OrdersContent() {
   const router = useRouter();
   const params = useSearchParams();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const status = params.get("status") ?? "all";
+
+  useEffect(() => {
+    api.orders.list({ status: status === "all" ? undefined : status }).then(({ orders }: { orders: Order[] }) => {
+      setOrders(orders);
+      setLoaded(true);
+    });
+  }, [status]);
+
+  if (!loaded) return null;
 
   const filtered = orders.filter((o) => {
     if (status === "all") return true;

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { customRequests } from "@/data/admin";
+import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Field, Textarea } from "@/components/Input";
@@ -15,10 +15,12 @@ const CHECKLIST = [
   "No unsupported overhangs beyond tolerance",
 ];
 
+type CustomRequest = { id: string; customer: string; email: string; fileName: string; material: string; status: string };
+
 export default function AdminCustomRequestDetailPage() {
   const params = useParams<{ id: string }>();
-  const request = customRequests.find((r) => r.id === params.id);
-
+  const [requests, setRequests] = useState<CustomRequest[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [printingCost, setPrintingCost] = useState(1560);
   const [materialCost, setMaterialCost] = useState(280);
   const [shipping, setShipping] = useState(79);
@@ -29,9 +31,17 @@ export default function AdminCustomRequestDetailPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectOpen, setRejectOpen] = useState(false);
 
-  if (!request) {
-    return <p className="text-sm text-text-muted">Request not found.</p>;
-  }
+  useEffect(() => {
+    api.admin.list("custom-requests").then(({ "custom-requests": reqs }: { "custom-requests": CustomRequest[] }) => {
+      setRequests(reqs);
+      setLoaded(true);
+    });
+  }, []);
+
+  if (!loaded) return null;
+
+  const request = requests.find((r) => r.id === params.id);
+  if (!request) return <p className="text-sm text-text-muted">Request not found.</p>;
 
   const total = printingCost + materialCost + shipping;
   const allChecked = checked.every(Boolean);
