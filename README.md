@@ -1,6 +1,6 @@
 # HamzaOne
 
-A front-end-only, pixel-oriented implementation of the HamzaOne storefront and admin panel: ready-made 3D printed goods plus a custom 3D print quoting flow. No backend, no database, no real payments — everything runs on static mock data and client state.
+A static Cloudflare Pages storefront and admin panel for ready-made 3D printed goods and custom print quotes. Catalog and admin data use mock data. Checkout supports Razorpay test-mode payments through Cloudflare Pages Functions; orders are not persisted.
 
 ## Getting started
 
@@ -39,7 +39,15 @@ Open [http://localhost:3000](http://localhost:3000). Visit `/prototype` for a si
 
 - **Product imagery** is CSS-only "Concept render" shapes (per spec) rather than real photography/3D renders.
 - **State persistence**: cart, wishlist, addresses, and most wizard state live in React/Zustand state only — a hard refresh resets them. This matches the "front-end only, no backend" scope, but means in-progress flows don't survive a reload.
-- **The Razorpay modal, OTP (demo code `123456`), login (first attempt fails, second succeeds), and all admin actions** are simulated via prototype buttons, exactly as specified — nothing calls a real payment or SMS provider.
+- **Razorpay test payments**: set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as Cloudflare Pages secrets. Use only keys beginning with `rzp_test_`; live keys are rejected. For local Pages Functions testing, put the credentials in the ignored `.dev.vars` file:
+
+  ```dotenv
+  RAZORPAY_KEY_ID=rzp_test_your_key_id
+  RAZORPAY_KEY_SECRET=your_test_key_secret
+  ```
+
+  Then run `npm run build` followed by `npx wrangler pages dev out`. Do not put the secret in a `NEXT_PUBLIC_*` variable or commit it. The API creates orders and verifies/captures payments, but there is no database or webhook-backed order persistence.
+- **OTP (demo code `123456`), login (first attempt fails, second succeeds), and all admin actions** remain simulated via prototype buttons; no real SMS provider is called.
 - The original design link (`claude.ai/artifact/...`) was not accessible to the assistant (not shared), so this build was implemented directly from the detailed written spec rather than pixel-diffed against the Claude canvas boards. If you share the artifact, a follow-up pass can true up spacing/typography against it directly.
 - Admin inventory/production/coupons state resets on reload (no persistence layer), consistent with the "front-end only" scope.
 - The project folder is named `hamzaone` (lowercase) because npm package names can't contain capital letters — the app title and all on-screen branding is "HamzaOne".

@@ -10,7 +10,6 @@ import { Button } from "./Button";
 import { Field, PhoneField } from "./Input";
 import { Stepper } from "./Stepper";
 import { RazorpayModal } from "./RazorpayModal";
-import { Loader2 } from "lucide-react";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 
 const STEPS = [
@@ -55,7 +54,6 @@ export function CheckoutFlow() {
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
-  const [processing, setProcessing] = useState(false);
 
   const shipping = shippingMethod === "express" ? 149 : subtotal >= 1499 ? 0 : 79;
   const total = subtotal + shipping;
@@ -94,27 +92,20 @@ export function CheckoutFlow() {
     if (Object.keys(e).length === 0) goto("shipping");
   }
 
-  function handleResult(result: "success" | "failure" | "pending") {
+  function handleResult(
+    result: "success" | "pending",
+    payment?: { orderId: string; paymentId: string },
+  ) {
     setModalOpen(false);
-    if (result === "success") {
-      setProcessing(true);
-      setTimeout(() => {
-        router.push("/order/success?order=HO-2026-10482");
-      }, 1800);
-    } else if (result === "failure") {
-      router.push("/order/failed?order=HO-2026-10482");
-    } else {
-      goto("pending");
+    if (result === "success" && payment) {
+      router.push(`/order/success?paymentId=${encodeURIComponent(payment.paymentId)}&razorpayOrderId=${encodeURIComponent(payment.orderId)}`);
+      return;
     }
-  }
-
-  if (processing) {
-    return (
-      <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-center gap-4 px-4 py-32 text-center">
-        <Loader2 className="h-10 w-10 animate-spin text-accent" />
-        <p className="text-lg font-semibold">Processing your payment…</p>
-      </div>
-    );
+    if (payment) {
+      router.push(`/checkout?step=pending&paymentId=${encodeURIComponent(payment.paymentId)}`);
+      return;
+    }
+    goto("pending");
   }
 
   if (step === "pending") {
@@ -122,11 +113,11 @@ export function CheckoutFlow() {
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-bold">Payment pending</h1>
         <p className="max-w-md text-sm text-text-muted">
-          We&apos;re waiting for confirmation from your bank. Please don&apos;t pay again — we&apos;ll update your order automatically.
+          Razorpay authorized this test payment, but it has not confirmed capture yet. Don&apos;t retry this payment until you have checked its status.
         </p>
         <div className="flex gap-3">
-          <Button onClick={() => router.push("/order/success?order=HO-2026-10482")}>Check status now</Button>
-          <Link href="/track-order"><Button variant="outline">Go to order tracking</Button></Link>
+          <Link href="/contact"><Button>Contact the store</Button></Link>
+          <Link href="/shop"><Button variant="outline">Return to shop</Button></Link>
         </div>
       </div>
     );
@@ -276,10 +267,18 @@ export function CheckoutFlow() {
       {modalOpen && (
         <RazorpayModal
           amount={total}
+          items={effectiveLines.map((line) => ({
+            productSlug: line.slug,
+            qty: line.qty,
+            color: line.color,
+            size: line.size,
+            ...(line.engraving ? { engraving: line.engraving } : {}),
+          }))}
+          shippingMethod={shippingMethod}
+          customer={contact}
           onResult={handleResult}
           onClose={() => {
             setModalOpen(false);
-            goto("review");
             router.push("/checkout?step=review&canceled=1");
           }}
         />

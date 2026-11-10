@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --bg: #F6F5F1;
@@ -27,49 +29,6 @@
   --neutral-chip-text: #45474C;
   --art-tile: #ECEAE4;
   --admin-bg: #F3F2EE;
-}
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-text: var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-text: var(--accent-text);
-  --color-dark: var(--dark);
-  --color-border: var(--border);
-  --color-border-input: var(--border-input);
-  --color-success: var(--success);
-  --color-success-tint: var(--success-tint);
-  --color-success-text: var(--success-text);
-  --color-error: var(--error);
-  --color-error-text: var(--error-text);
-  --color-error-tint: var(--error-tint);
-  --color-error-tint-text: var(--error-tint-text);
-  --color-warning: var(--warning);
-  --color-warning-tint: var(--warning-tint);
-  --color-warning-text: var(--warning-text);
-  --color-mto-chip-bg: var(--mto-chip-bg);
-  --color-mto-chip-text: var(--mto-chip-text);
-  --color-neutral-chip-bg: var(--neutral-chip-bg);
-  --color-neutral-chip-text: var(--neutral-chip-text);
-  --color-art-tile: var(--art-tile);
-  --color-admin-bg: var(--admin-bg);
-
-  --font-display: var(--font-manrope);
-  --font-body: var(--font-inter);
-
-  --shadow-sm: 0 1px 2px rgba(17,19,24,.06);
-  --shadow-md: 0 12px 24px rgba(17,19,24,.06);
-  --shadow-lg: 0 12px 32px rgba(17,19,24,.16);
-
-  --radius-chip: 8px;
-  --radius-input: 12px;
-  --radius-card: 16px;
-  --radius-panel: 20px;
-  --radius-sheet: 24px;
-  --radius-pill: 999px;
 }
 
 * {

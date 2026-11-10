@@ -9,5 +9,5 @@ export const onRequestGet: PagesFunction = async (context) => {
   if (category) result = result.filter((p) => p.category === category);
   if (featured === "true") result = result.filter((p) => p.isNew === true || p.availability === "low-stock");
 
-  return Response.json({ products: result, count: result.length });
+  return Response.json({ products: result, count: result.length }, { headers: { "Access-Control-Allow-Origin": "*" } });
 };

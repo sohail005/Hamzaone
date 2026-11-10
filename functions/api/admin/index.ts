@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       production: productionCards,
       inventory,
       customRequests: customRequests,
-    });
+    }, { headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
   const map: Record<string, unknown> = {
@@ -33,8 +33,8 @@ export const onRequestGet: PagesFunction = async (context) => {
 
   const key = Object.keys(map).find((k) => k.toLowerCase() === resource.toLowerCase());
   if (!key) {
-    return Response.json({ error: "Unknown resource" }, { status: 400 });
+    return Response.json({ error: "Unknown resource" }, { status: 400, headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
-  return Response.json({ [key]: map[key] });
+  return Response.json({ [key]: map[key] }, { headers: { "Access-Control-Allow-Origin": "*" } });
 };

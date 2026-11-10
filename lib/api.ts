@@ -24,9 +24,26 @@ import { quote, materials, faqs, testimonials } from "@/data/customPrint";
 
 const isBuild = process.env.NEXT_PHASE === "phase-production-build";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+const DEMO_API_BASES = new Set([
+  "https://hamzaone.store",
+  "https://www.hamzaone.store",
+  "https://hamzaone.pages.dev",
+  "https://www.hamzaone.pages.dev",
+]);
+
+const API_BASE = (() => {
+  const value = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/$/, "");
+  if (!value) return "";
+  return DEMO_API_BASES.has(value) ? "" : value;
+})();
+
+const shouldUseMockData = isBuild || !API_BASE;
 
 async function apiFetch(path: string, init?: RequestInit) {
+  if (!API_BASE) {
+    throw new Error("API backend is not configured for this front-end-only demo.");
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
     cache: "no-store",
@@ -42,7 +59,7 @@ async function apiFetch(path: string, init?: RequestInit) {
 export const api = {
   products: {
     list: async (params?: { category?: string; featured?: string }) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         let result = products;
         if (params?.category) result = result.filter((p) => p.category === params.category);
         if (params?.featured === "true") result = result.filter((p) => p.isNew === true || p.availability === "low-stock");
@@ -54,7 +71,7 @@ export const api = {
       return apiFetch(`/api/products?${sp.toString()}`);
     },
     get: async (slug: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         const product = products.find((p) => p.slug === slug);
         return { product };
       }
@@ -63,11 +80,11 @@ export const api = {
   },
   categories: {
     list: async () => {
-      if (isBuild) return { categories, count: categories.length };
+      if (shouldUseMockData) return { categories, count: categories.length };
       return apiFetch("/api/categories");
     },
     get: async (slug: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         const category = categories.find((c) => c.slug === slug);
         return { category };
       }
@@ -76,7 +93,7 @@ export const api = {
   },
   orders: {
     list: async (params?: { id?: string; status?: string; paymentStatus?: string }) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         let result = orders;
         if (params?.id) {
           const order = findOrder(params.id);
@@ -93,20 +110,20 @@ export const api = {
       return apiFetch(`/api/orders?${sp.toString()}`);
     },
     get: async (id: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         const order = findOrder(id);
         return { order };
       }
       return apiFetch(`/api/orders/${encodeURIComponent(id)}`);
     },
     create: async (body: unknown) => {
-      if (isBuild) return { message: "Order received", order: body };
+      if (shouldUseMockData) return { message: "Order received", order: body };
       return apiFetch("/api/orders", { method: "POST", body: JSON.stringify(body) });
     },
   },
   admin: {
     list: async (resource?: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         if (resource === "all") {
           return {
             customers,
@@ -135,7 +152,7 @@ export const api = {
   },
   home: {
     list: async (section?: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         const sections: Record<string, unknown> = {
           featured: featuredProducts,
           "new-arrivals": newArrivals,
@@ -170,7 +187,7 @@ export const api = {
   },
   customPrint: {
     list: async (section?: string) => {
-      if (isBuild) {
+      if (shouldUseMockData) {
         const sections: Record<string, unknown> = {
           quote,
           materials,

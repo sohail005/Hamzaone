@@ -7,10 +7,10 @@ export const onRequestGet: PagesFunction = async (context) => {
   if (slug) {
     const category = getCategory(slug);
     if (!category) {
-      return Response.json({ error: "Category not found" }, { status: 404 });
+      return Response.json({ error: "Category not found" }, { status: 404, headers: { "Access-Control-Allow-Origin": "*" } });
     }
-    return Response.json({ category });
+    return Response.json({ category }, { headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
-  return Response.json({ categories, count: categories.length });
+  return Response.json({ categories, count: categories.length }, { headers: { "Access-Control-Allow-Origin": "*" } });
 };

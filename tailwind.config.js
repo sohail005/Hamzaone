@@ -1,0 +1,57 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        bg: 'var(--bg)',
+        surface: 'var(--surface)',
+        text: 'var(--text)',
+        'text-muted': 'var(--text-muted)',
+        accent: 'var(--accent)',
+        'accent-hover': 'var(--accent-hover)',
+        'accent-text': 'var(--accent-text)',
+        dark: 'var(--dark)',
+        border: 'var(--border)',
+        'border-input': 'var(--border-input)',
+        success: 'var(--success)',
+        'success-tint': 'var(--success-tint)',
+        'success-text': 'var(--success-text)',
+        error: 'var(--error)',
+        'error-text': 'var(--error-text)',
+        'error-tint': 'var(--error-tint)',
+        'error-tint-text': 'var(--error-tint-text)',
+        warning: 'var(--warning)',
+        'warning-tint': 'var(--warning-tint)',
+        'warning-text': 'var(--warning-text)',
+        'mto-chip-bg': 'var(--mto-chip-bg)',
+        'mto-chip-text': 'var(--mto-chip-text)',
+        'neutral-chip-bg': 'var(--neutral-chip-bg)',
+        'neutral-chip-text': 'var(--neutral-chip-text)',
+        'art-tile': 'var(--art-tile)',
+        'admin-bg': 'var(--admin-bg)',
+      },
+      fontFamily: {
+        display: ['var(--font-manrope)', 'Manrope', 'Arial', 'sans-serif'],
+        body: ['var(--font-inter)', 'Inter', 'Arial', 'sans-serif'],
+      },
+      boxShadow: {
+        sm: '0 1px 2px rgba(17,19,24,.06)',
+        md: '0 12px 24px rgba(17,19,24,.06)',
+        lg: '0 12px 32px rgba(17,19,24,.16)',
+      },
+      borderRadius: {
+        chip: '8px',
+        input: '12px',
+        card: '16px',
+        panel: '20px',
+        sheet: '24px',
+        pill: '999px',
+      },
+    },
+  },
+  plugins: [],
+}
