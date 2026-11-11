@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useCart, cartTotals } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { useToast } from "@/store/toast";
@@ -9,29 +10,43 @@ import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Input";
 import { ConceptRender } from "@/components/ConceptRender";
+import type { Product } from "@/data/products";
 import { api } from "@/lib/api";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 
-type Product = { slug: string; name: string; shape: string; colors: Array<{ name: string; hex: string }> };
-
 export default function CartPage() {
-  const { lines, removeLine, setQty, addLine } = useCart();
+  const { lines, removeLine, setQty, addLine } = useCart(
+    useShallow((state) => ({
+      lines: state.lines,
+      removeLine: state.removeLine,
+      setQty: state.setQty,
+      addLine: state.addLine,
+    })),
+  );
   const { toggle: toggleWishlist } = useWishlist();
   const push = useToast((s) => s.push);
-  const { subtotal } = cartTotals(lines);
+  const { subtotal } = useMemo(() => cartTotals(lines), [lines]);
   const [coupon, setCoupon] = useState("");
   const [applied, setApplied] = useState<{ code: string; discount: number } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [productCache, setProductCache] = useState<Record<string, Product>>({});
 
-  const hasOOS = lines.some((l) => l.availability === "out-of-stock");
+  const hasOOS = useMemo(() => lines.some((l) => l.availability === "out-of-stock"), [lines]);
 
   useEffect(() => {
-    const slugs = lines.map((l) => l.slug);
-    const uncached = slugs.filter((s) => !productCache[s]);
-    Promise.all(uncached.map((s) => api.products.get(s).then(({ product }: { product: Product }) => ({ slug: s, product }))))
+    const uncached = [...new Set(lines.map((line) => line.slug))].filter((slug) => !productCache[slug]);
+    if (uncached.length === 0) return;
+
+    Promise.all(
+      uncached.map((slug) =>
+        api.products.get(slug).then(({ product }: { product: Product }) => ({ slug, product })),
+      ),
+    )
       .then((results) => {
         setProductCache((prev) => ({ ...prev, ...Object.fromEntries(results.map((r) => [r.slug, r.product])) }));
+      })
+      .catch((error: unknown) => {
+        console.error("Could not load cart product details.", error);
       });
   }, [lines, productCache]);
 
@@ -105,7 +120,7 @@ export default function CartPage() {
             return (
               <li key={l.id} className={`flex gap-4 rounded-card bg-surface p-4 shadow-sm ${isOOS ? "opacity-60" : ""}`}>
                 <Link href={`/products/${l.slug}`} className="shrink-0">
-                  <ConceptRender shape={(product?.shape as unknown as "vase")} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
+                  <ConceptRender shape={product?.shape ?? "vase"} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
                 </Link>
                 <div className="flex flex-1 flex-col gap-1">
                   <Link href={`/products/${l.slug}`} className="text-sm font-semibold hover:text-accent-text">{l.name}</Link>
