@@ -4,8 +4,6 @@ import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { orders } from "@/data/orders";
 
-const STEPS = ["Printing", "Post Processing", "Quality Check", "Packed", "Shipped", "Delivered"];
-
 export async function generateStaticParams() {
   return orders.map((o) => ({ id: o.id }));
 }

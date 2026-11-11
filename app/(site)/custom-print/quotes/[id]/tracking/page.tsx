@@ -9,7 +9,7 @@ export async function generateStaticParams() {
   return [{ id: quote.id }];
 }
 
-export default function QuoteTrackingPage({ params }: { params: Promise<{ id: string }> }) {
+export default function QuoteTrackingPage() {
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-xl rounded-card bg-surface p-6 shadow-sm">
