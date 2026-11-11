@@ -12,14 +12,39 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const e2: Record<string, string> = {};
     if (!form.name) e2.name = "Name is required.";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) e2.email = "Enter a valid email address.";
     if (form.password.length < 8) e2.password = "Password must be at least 8 characters.";
     setErrors(e2);
-    if (Object.keys(e2).length === 0) router.push("/account?welcome=1");
+
+    if (Object.keys(e2).length > 0) return;
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = typeof data?.error === "string" ? data.error : "Unable to create account.";
+        setErrors((current) => ({ ...current, email: message }));
+        return;
+      }
+
+      const token = typeof data?.token === "string" ? data.token : "";
+      if (token) {
+        window.localStorage.setItem("hamzaone_auth_token", token);
+      }
+
+      router.push("/account?welcome=1");
+    } catch {
+      setErrors((current) => ({ ...current, email: "Unable to create account right now." }));
+    }
   }
 
   return (

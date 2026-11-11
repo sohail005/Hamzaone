@@ -2,6 +2,12 @@ const BASE_URL = "https://api.nimbuspost.com/v1/";
 const AUTH_URL = `${BASE_URL}users/login`;
 const SERVICEABILITY_URL = `${BASE_URL}courier/serviceability`;
 
+export type NimbusPostEnvironment = {
+  NIMBUSPOST_EMAIL?: string;
+  NIMBUSPOST_PASSWORD?: string;
+  NIMBUSPOST_PICKUP_PINCODE?: string;
+};
+
 export class NimbusPostNotConfiguredError extends Error {
   constructor() {
     super("NimbusPost credentials are not configured.");
@@ -27,8 +33,8 @@ type CachedToken = { token: string; expiresAt: number };
 let cachedToken: CachedToken | null = null;
 let loginPromise: Promise<string> | null = null;
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
+function requireEnv(name: keyof NimbusPostEnvironment, env: NimbusPostEnvironment): string {
+  const value = env[name];
   if (!value) throw new NimbusPostNotConfiguredError();
   return value;
 }
@@ -44,20 +50,20 @@ function jwtExpiryMs(token: string): number | null {
   }
 }
 
-function login(): Promise<string> {
+function login(env: NimbusPostEnvironment): Promise<string> {
   // Collapse concurrent callers (e.g. simultaneous requests from different
   // users) into a single NimbusPost login call instead of one each.
   if (!loginPromise) {
-    loginPromise = performLogin().finally(() => {
+    loginPromise = performLogin(env).finally(() => {
       loginPromise = null;
     });
   }
   return loginPromise;
 }
 
-async function performLogin(): Promise<string> {
-  const email = requireEnv("NIMBUSPOST_EMAIL");
-  const password = requireEnv("NIMBUSPOST_PASSWORD");
+async function performLogin(env: NimbusPostEnvironment): Promise<string> {
+  const email = requireEnv("NIMBUSPOST_EMAIL", env);
+  const password = requireEnv("NIMBUSPOST_PASSWORD", env);
 
   const res = await fetch(AUTH_URL, {
     method: "POST",
@@ -80,9 +86,9 @@ async function performLogin(): Promise<string> {
   return token;
 }
 
-async function getToken(): Promise<string> {
+async function getToken(env: NimbusPostEnvironment): Promise<string> {
   if (cachedToken && cachedToken.expiresAt > Date.now()) return cachedToken.token;
-  return login();
+  return login(env);
 }
 
 type Courier = {
@@ -123,15 +129,19 @@ async function callServiceability(pickupPincode: string, deliveryPincode: string
   });
 }
 
-export async function checkServiceability(deliveryPincode: string, weightKg = 0.5): Promise<ServiceabilityResult> {
-  const pickupPincode = requireEnv("NIMBUSPOST_PICKUP_PINCODE");
+export async function checkServiceability(
+  deliveryPincode: string,
+  env: NimbusPostEnvironment,
+  weightKg = 0.5,
+): Promise<ServiceabilityResult> {
+  const pickupPincode = requireEnv("NIMBUSPOST_PICKUP_PINCODE", env);
 
-  let token = await getToken();
+  let token = await getToken(env);
   let res = await callServiceability(pickupPincode, deliveryPincode, weightKg, token);
 
   if (res.status === 401) {
     cachedToken = null;
-    token = await login();
+    token = await login(env);
     res = await callServiceability(pickupPincode, deliveryPincode, weightKg, token);
   }
 

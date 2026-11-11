@@ -9,7 +9,15 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Visit `/prototype` for a single-page index linking every route and state in the app.
+`npm run dev` starts the Next.js UI only. Cloudflare Pages Functions (including `/api/delivery-estimate`) are not served by `next dev`, so API requests will return 404 there.
+
+To run the app with its API functions locally:
+
+1. Copy `.dev.vars.example` to `.dev.vars` and fill in the service credentials.
+2. Run `npm run dev:pages`.
+3. Open the local URL printed by Wrangler (normally [http://localhost:8788](http://localhost:8788)).
+
+This builds the static site and runs it with the Pages Functions runtime. Visit `/prototype` for a single-page index linking every route and state in the app.
 
 ## Stack
 
@@ -24,21 +32,25 @@ Open [http://localhost:3000](http://localhost:3000). Visit `/prototype` for a si
 - `app/(site)/…` — customer-facing routes (home, shop, product, cart, checkout, custom-print wizard, auth, account, wishlist, track-order, info pages)
 - `app/admin/…` — admin panel (own layout with collapsible sidebar + top bar)
 - `components/` — shared UI (Button, Input variants, Header/Footer, ProductCard, CartDrawer, Stepper, Timeline, admin components, etc.)
-- `data/` — static mock data: 24 products, categories, demo orders, custom-print quote, FAQs, admin data (customers, coupons, payments, inventory, production)
 - `store/` — Zustand stores (cart, wishlist, toast)
 - `lib/format.ts` — INR currency formatting, class-name helper
+- `functions/api/` — backend endpoints that are expected to be served by the real API layer
 
-## Mock data consistency
+## Real backend requirement
 
-- Demo order **HO-2026-10482**: Spiral Decor Vase (Terracotta, Small) × 1 = ₹699 + Minimal Phone Stand (Charcoal) × 2 = ₹498 → subtotal ₹1,197 − ₹100 (coupon `FIRST100`) + ₹79 shipping = **₹1,176**
-- Demo custom-print quote **CPR-2611-0738**: ₹1,560 printing + ₹280 material + ₹79 shipping = **₹1,919**, valid until 13 Nov 2026
-- Coupon `FIRST100`: ₹100 off, minimum order ₹999. Any other code is shown as invalid.
-- Shipping: ₹79 standard (free at ₹1,499+), ₹149 express.
+The storefront no longer falls back to static demo data. Set `NEXT_PUBLIC_API_URL` to your real backend origin before running the app.
 
-## Things to know / known gaps
+```bash
+cp .env.example .env
+# set NEXT_PUBLIC_API_URL=https://api.example.com
+npm install
+npm run dev
+```
 
-- **Product imagery** is CSS-only "Concept render" shapes (per spec) rather than real photography/3D renders.
-- **State persistence**: cart, wishlist, addresses, and most wizard state live in React/Zustand state only — a hard refresh resets them. This matches the "front-end only, no backend" scope, but means in-progress flows don't survive a reload.
+If `NEXT_PUBLIC_API_URL` is not configured, the app will fail fast instead of silently switching to demo/mock data.
+
+## Production checkout notes
+
 - **Razorpay test payments**: the checkout uses Cloudflare Pages Functions at `/api/payments/create-order` and `/api/payments/verify-payment`; the server recomputes the cart total, creates the Razorpay order, verifies the signature, and captures authorized payments. Set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as Cloudflare Pages secrets in production. Use only keys beginning with `rzp_test_`; live keys are rejected. The ignored `.env` file may hold these variables for local configuration, but Pages Functions load their local secrets from `.dev.vars`:
 
   ```dotenv
@@ -46,8 +58,6 @@ Open [http://localhost:3000](http://localhost:3000). Visit `/prototype` for a si
   RAZORPAY_KEY_SECRET=your_test_key_secret
   ```
 
-  Then run `npm run build` followed by `npx wrangler pages dev out`. Do not put the secret in a `NEXT_PUBLIC_*` variable or commit it. The API creates orders and verifies/captures payments, but there is no database or webhook-backed order persistence. The Next.js development server alone does not run the Cloudflare Pages Functions; use the Pages preview command to test the complete checkout.
-- **OTP (demo code `123456`), login (first attempt fails, second succeeds), and all admin actions** remain simulated via prototype buttons; no real SMS provider is called.
+  Then run `npm run build` followed by `npx wrangler pages dev out`. Do not put the secret in a `NEXT_PUBLIC_*` variable or commit it.
 - The original design link (`claude.ai/artifact/...`) was not accessible to the assistant (not shared), so this build was implemented directly from the detailed written spec rather than pixel-diffed against the Claude canvas boards. If you share the artifact, a follow-up pass can true up spacing/typography against it directly.
-- Admin inventory/production/coupons state resets on reload (no persistence layer), consistent with the "front-end only" scope.
 - The project folder is named `hamzaone` (lowercase) because npm package names can't contain capital letters — the app title and all on-screen branding is "HamzaOne".

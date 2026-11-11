@@ -23,20 +23,25 @@ export function Header() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    let loaded = 0;
-    const total = 2;
-    api.categories.list().then(({ categories }: { categories: Category[] }) => {
-      setCategories(categories);
-      loaded++;
-      if (loaded === total) setDataLoaded(true);
-    });
-    api.products.list().then(({ products }: { products: Product[] }) => {
-      setProducts(products);
-      loaded++;
-      if (loaded === total) setDataLoaded(true);
-    });
+    let active = true;
+    Promise.all([api.categories.list(), api.products.list()])
+      .then(([categoryResponse, productResponse]) => {
+        if (!active) return;
+        setCategories(categoryResponse.categories as Category[]);
+        setProducts(productResponse.products as Product[]);
+        setDataLoaded(true);
+      })
+      .catch((error: unknown) => {
+        if (!active) return;
+        setLoadError(error instanceof Error ? error.message : "Unable to load shop data.");
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   function categoryCount(slug: string) {
@@ -48,8 +53,16 @@ export function Header() {
     router.push(`/shop?q=${encodeURIComponent(query)}`);
   }
 
-  if (!dataLoaded) {
+  if (!dataLoaded && !loadError) {
     return null;
+  }
+
+  if (loadError) {
+    return (
+      <div role="alert" className="border-b border-border bg-warning-tint px-4 py-3 text-center text-sm text-warning-text">
+        Shop data could not be loaded: {loadError}
+      </div>
+    );
   }
 
   return (

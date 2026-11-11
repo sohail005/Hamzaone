@@ -19,18 +19,37 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (attempt === 0) {
-        setAttempt(1);
-        setError("Invalid email or password. Please try again.");
-      } else {
-        router.push(next || "/account");
+    setError(null);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = typeof data?.error === "string" ? data.error : "Invalid email or password.";
+        setAttempt((current) => current + 1);
+        setError(message);
+        return;
       }
-    }, 600);
+
+      const token = typeof data?.token === "string" ? data.token : "";
+      if (token) {
+        window.localStorage.setItem("hamzaone_auth_token", token);
+      }
+
+      router.push(next || "/account");
+    } catch {
+      setError("Unable to sign in right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -49,7 +68,7 @@ function LoginForm() {
       <p className="text-sm text-text-muted">
         New here? <Link href="/register" className="font-semibold text-accent-text">Create an account</Link>
       </p>
-      <p className="text-xs text-text-muted">Demo tip: first attempt always shows invalid credentials, second attempt succeeds.</p>
+      <p className="text-xs text-text-muted">Use the account you create below to sign in.</p>
     </AuthLayout>
   );
 }

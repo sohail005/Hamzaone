@@ -1,4 +1,9 @@
-import { checkServiceability, NimbusPostApiError, NimbusPostNotConfiguredError } from "../../../lib/nimbuspost";
+import {
+  checkServiceability,
+  NimbusPostApiError,
+  NimbusPostNotConfiguredError,
+  type NimbusPostEnvironment,
+} from "../../../lib/nimbuspost";
 
 function formatMessage(result: Awaited<ReturnType<typeof checkServiceability>>) {
   if (!result.serviceable) return "Delivery isn't currently available to this PIN code.";
@@ -9,7 +14,9 @@ function formatMessage(result: Awaited<ReturnType<typeof checkServiceability>>) 
   return "Delivery available to this PIN code.";
 }
 
-export const onRequestGet: PagesFunction = async (context) => {
+export const onRequestGet: PagesFunction = async (
+  context: Cloudflare.PagesFunctionContext<NimbusPostEnvironment>,
+) => {
   const { searchParams } = new URL(context.request.url);
   const pincode = searchParams.get("pincode") ?? "";
   if (!/^\d{6}$/.test(pincode)) {
@@ -20,7 +27,7 @@ export const onRequestGet: PagesFunction = async (context) => {
   }
 
   try {
-    const result = await checkServiceability(pincode);
+    const result = await checkServiceability(pincode, context.env);
     return new Response(JSON.stringify({ ...result, message: formatMessage(result) }), {
       status: 200,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
