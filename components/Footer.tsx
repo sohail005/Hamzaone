@@ -14,10 +14,6 @@ export function Footer() {
           </div>
           <p className="text-sm text-[#B9BBC1]">
             Your Ideas. Made Real.
-            <br />
-            [REGISTERED BUSINESS ADDRESS]
-            <br />
-            GSTIN: [GSTIN]
           </p>
         </div>
         <div className="flex flex-col gap-2.5">
