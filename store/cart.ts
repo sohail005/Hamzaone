@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export type CartLine = {
   id: string;
@@ -29,27 +30,36 @@ function lineId(slug: string, color: string, size: string) {
   return `${slug}__${color}__${size}`;
 }
 
-export const useCart = create<CartState>((set, get) => ({
-  lines: [],
-  drawerOpen: false,
-  openDrawer: () => set({ drawerOpen: true }),
-  closeDrawer: () => set({ drawerOpen: false }),
-  addLine: (line) => {
-    const id = lineId(line.slug, line.color, line.size);
-    const existing = get().lines.find((l) => l.id === id);
-    if (existing) {
-      set({
-        lines: get().lines.map((l) => (l.id === id ? { ...l, qty: l.qty + line.qty } : l)),
-      });
-    } else {
-      set({ lines: [...get().lines, { ...line, id }] });
-    }
-  },
-  removeLine: (id) => set({ lines: get().lines.filter((l) => l.id !== id) }),
-  setQty: (id, qty) =>
-    set({ lines: get().lines.map((l) => (l.id === id ? { ...l, qty } : l)) }),
-  clear: () => set({ lines: [] }),
-}));
+export const useCart = create<CartState>()(
+  persist(
+    (set, get) => ({
+      lines: [],
+      drawerOpen: false,
+      openDrawer: () => set({ drawerOpen: true }),
+      closeDrawer: () => set({ drawerOpen: false }),
+      addLine: (line) => {
+        const id = lineId(line.slug, line.color, line.size);
+        const existing = get().lines.find((l) => l.id === id);
+        if (existing) {
+          set({
+            lines: get().lines.map((l) => (l.id === id ? { ...l, qty: l.qty + line.qty } : l)),
+          });
+        } else {
+          set({ lines: [...get().lines, { ...line, id }] });
+        }
+      },
+      removeLine: (id) => set({ lines: get().lines.filter((l) => l.id !== id) }),
+      setQty: (id, qty) =>
+        set({ lines: get().lines.map((l) => (l.id === id ? { ...l, qty } : l)) }),
+      clear: () => set({ lines: [] }),
+    }),
+    {
+      name: "hamzaone-cart",
+      partialize: (state) => ({ lines: state.lines }),
+      skipHydration: true,
+    },
+  ),
+);
 
 export function cartTotals(lines: CartLine[]) {
   const billable = lines.filter((l) => l.availability !== "out-of-stock");
