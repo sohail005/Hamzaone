@@ -1,5 +1,3 @@
-"use client";
-
 import { cx } from "@/lib/format";
 import type { Product } from "@/data/products";
 

@@ -33,15 +33,23 @@ const AVAILABILITY: { key: string; label: string }[] = [
 
 const MATERIALS = ["PLA", "PETG", "TPU"];
 
-export function ShopView({ categorySlug }: { categorySlug?: string }) {
+export function ShopView({
+  categorySlug,
+  initialProducts,
+  initialCategories,
+}: {
+  categorySlug?: string;
+  initialProducts?: Product[];
+  initialCategories?: Category[];
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [mobileSort, setMobileSort] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
+  const [dataLoaded, setDataLoaded] = useState(Boolean(initialProducts && initialCategories));
   const [settledKey, setSettledKey] = useState<string | null>(null);
 
   const category = categorySlug ?? params.get("category") ?? "";
@@ -78,6 +86,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
   }, [products, category, avail, price, material, sort, q]);
 
   useEffect(() => {
+    if (initialProducts && initialCategories) return;
     let loaded = 0;
     const total = 2;
     api.products.list().then(({ products }: { products: Product[] }) => {
@@ -90,6 +99,7 @@ export function ShopView({ categorySlug }: { categorySlug?: string }) {
       loaded++;
       if (loaded === total) setDataLoaded(true);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!dataLoaded) {

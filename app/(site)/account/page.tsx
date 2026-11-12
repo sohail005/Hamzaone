@@ -1,7 +1,10 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
+
+export const metadata: Metadata = { title: "My Account" };
 
 export default async function AccountOverviewPage() {
   const { orders } = await api.orders.list();

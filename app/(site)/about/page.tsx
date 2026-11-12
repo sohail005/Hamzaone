@@ -1,6 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { InfoLayout } from "@/components/InfoLayout";
 import { Button } from "@/components/Button";
+
+export const metadata: Metadata = {
+  title: "About",
+  description: "HamzaOne designs and 3D prints ready-made home, desk and personalised goods, made in India.",
+};
 
 export default function AboutPage() {
   return (

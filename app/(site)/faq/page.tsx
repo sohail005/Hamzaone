@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import { api } from "@/lib/api";
+
+export const metadata: Metadata = {
+  title: "FAQ",
+  description: "Answers about production, shipping and custom 3D print requests at HamzaOne.",
+};
 
 export default async function FaqPage() {
   const { faqs } = await api.customPrint.list("faqs");

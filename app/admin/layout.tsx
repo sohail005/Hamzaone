@@ -1,19 +1,17 @@
-"use client";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { getCurrentUser } from "@/lib/server/auth";
+import { AdminShell } from "@/components/admin/AdminShell";
 
-import { useState } from "react";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminTopbar } from "@/components/admin/AdminTopbar";
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
+  if (!user || user.role !== "admin") {
+    redirect("/login?next=/admin");
+  }
 
-  return (
-    <div className="flex min-h-screen bg-admin-bg">
-      <AdminSidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
-      <div className="flex-1">
-        <AdminTopbar />
-        <main className="p-6">{children}</main>
-      </div>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

@@ -21,6 +21,8 @@ export function Stepper({
             <button
               onClick={() => done && onStepClick?.(s.key)}
               disabled={!done}
+              aria-current={active ? "step" : undefined}
+              aria-label={`${s.label}${active ? " (current step)" : done ? " (completed)" : ""}`}
               className={cx(
                 "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold",
                 active ? "bg-accent text-text" : done ? "bg-success text-white" : "bg-neutral-chip-bg text-neutral-chip-text"

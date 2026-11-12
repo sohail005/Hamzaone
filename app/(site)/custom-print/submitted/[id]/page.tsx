@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/Button";
-import { quote } from "@/data/customPrint";
-
-export async function generateStaticParams() {
-  return [{ id: quote.id }];
-}
-
 export default async function SubmittedPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return (

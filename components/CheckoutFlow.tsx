@@ -4,13 +4,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart, cartTotals } from "@/store/cart";
-import { getProduct } from "@/data/products";
+import { api } from "@/lib/api";
+import type { Product } from "@/data/products";
 import { formatINR, cx } from "@/lib/format";
 import { Button } from "./Button";
 import { Field, PhoneField } from "./Input";
 import { Stepper } from "./Stepper";
 import { RazorpayModal } from "./RazorpayModal";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
+import { calculateCheckoutPricing, type ShippingMethod } from "@/lib/checkout-pricing";
 
 const STEPS = [
   { key: "contact", label: "Contact" },
@@ -27,7 +29,31 @@ export function CheckoutFlow() {
   const canceled = params.get("canceled") === "1";
 
   const { lines } = useCart();
-  const buyNowProduct = buyNowSlug ? getProduct(buyNowSlug) : null;
+  const couponCode = useCart((state) => state.couponCode);
+  const [buyNowProduct, setBuyNowProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    if (!buyNowSlug) {
+      Promise.resolve().then(() => {
+        if (active) setBuyNowProduct(null);
+      });
+      return () => {
+        active = false;
+      };
+    }
+    api.products
+      .get(buyNowSlug)
+      .then(({ product }) => {
+        if (active) setBuyNowProduct(product ?? null);
+      })
+      .catch(() => {
+        if (active) setBuyNowProduct(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [buyNowSlug]);
 
   const effectiveLines = useMemo(() => {
     if (buyNowProduct) {
@@ -48,15 +74,28 @@ export function CheckoutFlow() {
   const { subtotal } = cartTotals(effectiveLines);
 
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
-  const [address, setAddress] = useState({ name: "", pin: "", line1: "", line2: "", landmark: "", city: "", state: "", type: "Home" });
+  const [address, setAddress] = useState<{
+    name: string;
+    pin: string;
+    line1: string;
+    line2: string;
+    landmark: string;
+    city: string;
+    state: string;
+    type: "Home" | "Work";
+  }>({ name: "", pin: "", line1: "", line2: "", landmark: "", city: "", state: "", type: "Home" });
   const delivery = useDeliveryEstimate();
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("standard");
   const [terms, setTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
 
-  const shipping = shippingMethod === "express" ? 149 : subtotal >= 1499 ? 0 : 79;
-  const total = subtotal + shipping;
+  const activeCouponCode = buyNowProduct ? null : couponCode;
+  const pricing = useMemo(
+    () => calculateCheckoutPricing(subtotal, shippingMethod, activeCouponCode),
+    [activeCouponCode, shippingMethod, subtotal],
+  );
+  const { discount, shipping, total } = pricing;
 
   useEffect(() => {
     if (!/^\d{6}$/.test(address.pin)) return;
@@ -98,26 +137,29 @@ export function CheckoutFlow() {
   ) {
     setModalOpen(false);
     if (result === "success" && payment) {
-      router.push(`/order/success?paymentId=${encodeURIComponent(payment.paymentId)}&razorpayOrderId=${encodeURIComponent(payment.orderId)}`);
+      router.push(`/order/success?order=${encodeURIComponent(payment.orderId)}&paymentId=${encodeURIComponent(payment.paymentId)}`);
       return;
     }
     if (payment) {
-      router.push(`/checkout?step=pending&paymentId=${encodeURIComponent(payment.paymentId)}`);
+      router.push(`/checkout?step=pending&order=${encodeURIComponent(payment.orderId)}&paymentId=${encodeURIComponent(payment.paymentId)}`);
       return;
     }
     goto("pending");
   }
 
   if (step === "pending") {
+    const pendingOrderId = params.get("order");
     return (
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-bold">Payment pending</h1>
         <p className="max-w-md text-sm text-text-muted">
           Razorpay authorized this test payment, but it has not confirmed capture yet. Don&apos;t retry this payment until you have checked its status.
         </p>
+        {pendingOrderId && <p className="text-sm">Order ID: <span className="font-semibold">{pendingOrderId}</span></p>}
         <div className="flex gap-3">
+          <Link href={`/track-order${pendingOrderId ? `?order=${encodeURIComponent(pendingOrderId)}` : ""}`}><Button variant="outline">Track this order</Button></Link>
           <Link href="/contact"><Button>Contact the store</Button></Link>
-          <Link href="/shop"><Button variant="outline">Return to shop</Button></Link>
+          <Link href="/shop"><Button variant="ghost">Return to shop</Button></Link>
         </div>
       </div>
     );
@@ -177,7 +219,7 @@ export function CheckoutFlow() {
                 <Field id="state" label="State" value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} error={errors.state} />
               </div>
               <div className="flex gap-2">
-                {["Home", "Work"].map((t) => (
+                {(["Home", "Work"] as const).map((t) => (
                   <button key={t} onClick={() => setAddress({ ...address, type: t })} className={`rounded-full px-4 py-2 text-sm font-semibold ${address.type === t ? "bg-mto-chip-bg text-accent-text" : "border border-border-input"}`}>{t}</button>
                 ))}
               </div>
@@ -239,7 +281,7 @@ export function CheckoutFlow() {
                 <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5" />
                 I agree to the <Link href="/terms" className="underline">terms and conditions</Link>.
               </label>
-              <Button disabled={!terms} size="lg" onClick={() => setModalOpen(true)}>
+              <Button disabled={!terms || Boolean(pricing.couponError)} size="lg" onClick={() => setModalOpen(true)}>
                 Pay {formatINR(total)} securely
               </Button>
             </div>
@@ -252,14 +294,16 @@ export function CheckoutFlow() {
             {effectiveLines.map((l) => (
               <li key={l.id} className="flex justify-between">
                 <span className="text-text-muted">{l.name} × {l.qty}</span>
-                <span>{formatINR(l.price * l.qty)}</span>
+              <span>{formatINR((l.price + (l.engraving ? 99 : 0)) * l.qty)}</span>
               </li>
             ))}
           </ul>
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3 text-sm">
             <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span>{formatINR(subtotal)}</span></div>
+            {discount > 0 && <div className="flex justify-between text-success-text"><span>Coupon {activeCouponCode}</span><span>−{formatINR(discount)}</span></div>}
             <div className="flex justify-between"><span className="text-text-muted">Shipping</span><span>{shipping === 0 ? "Free" : formatINR(shipping)}</span></div>
             <div className="flex justify-between text-base font-bold"><span>Total</span><span>{formatINR(total)}</span></div>
+            {pricing.couponError && <p role="alert" className="text-sm text-error-text">{pricing.couponError}</p>}
           </div>
         </div>
       </div>
@@ -275,7 +319,9 @@ export function CheckoutFlow() {
             ...(line.engraving ? { engraving: line.engraving } : {}),
           }))}
           shippingMethod={shippingMethod}
+          couponCode={pricing.couponCode}
           customer={contact}
+          address={address}
           onResult={handleResult}
           onClose={() => {
             setModalOpen(false);

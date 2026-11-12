@@ -2,11 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
-import { customers } from "@/data/admin";
 
-export async function generateStaticParams() {
-  return customers.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

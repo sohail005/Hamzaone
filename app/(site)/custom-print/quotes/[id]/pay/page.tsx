@@ -3,10 +3,6 @@ import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { quote } from "@/data/customPrint";
 
-export async function generateStaticParams() {
-  return [{ id: quote.id }];
-}
-
 export default function QuotePayPage() {
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">

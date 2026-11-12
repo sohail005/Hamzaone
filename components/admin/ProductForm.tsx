@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/data/products";
-import { categories } from "@/data/categories";
+import type { Category } from "@/data/categories";
+import { api } from "@/lib/api";
 import { Field, Textarea } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ConceptRender } from "@/components/ConceptRender";
 
 export function ProductForm({ product }: { product?: Product }) {
   const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [form, setForm] = useState({
     name: product?.name ?? "",
-    category: product?.category ?? categories[0].slug,
+    category: product?.category ?? "",
     price: product?.price ?? 0,
     material: product?.material ?? "PLA",
     description: product?.description ?? "",
@@ -20,18 +22,46 @@ export function ProductForm({ product }: { product?: Product }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.categories
+      .list()
+      .then(({ categories: list }: { categories: Category[] }) => {
+        setCategories(list);
+        if (!form.category && list.length > 0) {
+          setForm((f) => ({ ...f, category: list[0].slug }));
+        }
+      })
+      .catch(() => setCategories([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function saveDraft() {
-    setSaved("Draft saved");
+    setSaved("Draft saved locally — publish to save to the catalog.");
     setTimeout(() => setSaved(null), 2500);
   }
 
-  function publish() {
+  async function publish() {
     const e: Record<string, string> = {};
     if (!form.name) e.name = "Name is required.";
     if (!form.price || form.price <= 0) e.price = "Price must be greater than 0.";
     setErrors(e);
-    if (Object.keys(e).length === 0) router.push("/admin/products?published=1");
+    if (Object.keys(e).length > 0) return;
+
+    setSaving(true);
+    try {
+      if (product) {
+        await api.products.update(product.slug, form);
+      } else {
+        await api.products.create({ ...form, availability: "available", colors: [], shape: "vase" });
+      }
+      router.push("/admin/products?published=1");
+    } catch (error) {
+      setErrors({ name: error instanceof Error ? error.message : "Could not save the product." });
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -80,7 +110,7 @@ export function ProductForm({ product }: { product?: Product }) {
             <Button variant="outline" onClick={() => setPreview(true)}>Preview</Button>
             <Button variant="outline" onClick={saveDraft}>Save draft</Button>
             {saved && <p className="text-xs text-success-text">{saved}</p>}
-            <Button onClick={publish}>Publish</Button>
+            <Button onClick={publish} disabled={saving}>{saving ? "Saving…" : "Publish"}</Button>
             <Button variant="ghost" onClick={() => router.push("/admin/products")}>Cancel</Button>
           </div>
         </div>

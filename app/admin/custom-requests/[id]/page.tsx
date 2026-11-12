@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { api } from "@/lib/api";
-import { customRequests } from "@/data/admin";
 
-export async function generateStaticParams() {
-  return customRequests.map((r) => ({ id: r.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function AdminCustomRequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

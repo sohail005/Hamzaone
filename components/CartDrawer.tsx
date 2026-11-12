@@ -3,12 +3,20 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { useCart, cartTotals } from "@/store/cart";
 import { formatINR } from "@/lib/format";
 import { Button } from "./Button";
 
 export function CartDrawer() {
-  const { lines, drawerOpen, closeDrawer, removeLine } = useCart();
+  const { lines, drawerOpen, closeDrawer, removeLine } = useCart(
+    useShallow((state) => ({
+      lines: state.lines,
+      drawerOpen: state.drawerOpen,
+      closeDrawer: state.closeDrawer,
+      removeLine: state.removeLine,
+    })),
+  );
   const { subtotal } = cartTotals(lines);
   const closeRef = useRef<HTMLButtonElement>(null);
 

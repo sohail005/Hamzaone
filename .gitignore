@@ -18,6 +18,12 @@
 /out/
 /_next/
 /.wrangler/
+/.open-next/
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
 # production
 /build

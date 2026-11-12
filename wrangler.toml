@@ -1,5 +1,27 @@
-name = "hamzaone-api"
+name = "hamzaone"
+main = ".open-next/worker.js"
 compatibility_date = "2026-11-10"
-pages_build_output_dir = "out"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "<the namespace ID returned by `wrangler kv namespace create AUTH_KV`>"
+
+[[kv_namespaces]]
+binding = "ORDERS_KV"
+id = "<the namespace ID returned by `wrangler kv namespace create ORDERS_KV`>"
+
+[[kv_namespaces]]
+binding = "DATA_KV"
+id = "<the namespace ID returned by `wrangler kv namespace create DATA_KV`>"
+
+[[kv_namespaces]]
+binding = "NEXT_INC_CACHE_KV"
+id = "<the namespace ID returned by `wrangler kv namespace create NEXT_INC_CACHE_KV`>"
+
 [observability]
 enabled = true

@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
-  output: "export",
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -18,5 +17,7 @@ const nextConfig: NextConfig = {
     ],
   },
 };
+
+initOpenNextCloudflareForDev();
 
 export default nextConfig;

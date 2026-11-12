@@ -22,8 +22,8 @@ const badgeLabel: Record<HomeCard["badge"], string> = {
 };
 
 export function HomeProductCard({ card, variant = "full" }: { card: HomeCard; variant?: "full" | "compact" }) {
-  const { has, toggle } = useWishlist();
-  const wished = has(card.slug);
+  const wished = useWishlist((state) => state.slugs.includes(card.slug));
+  const toggle = useWishlist((state) => state.toggle);
 
   return (
     <div className="group relative flex flex-col gap-3">

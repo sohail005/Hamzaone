@@ -10,8 +10,8 @@ import { useWishlist } from "@/store/wishlist";
 import { cx } from "@/lib/format";
 
 export function ProductCard({ product }: { product: Product }) {
-  const { has, toggle } = useWishlist();
-  const wished = has(product.slug);
+  const wished = useWishlist((state) => state.slugs.includes(product.slug));
+  const toggle = useWishlist((state) => state.toggle);
   const isOOS = product.availability === "out-of-stock";
 
   return (

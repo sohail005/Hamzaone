@@ -9,10 +9,12 @@ import { FaqAccordion } from "@/components/FaqAccordion";
 import { Newsletter } from "@/components/Newsletter";
 
 export default async function HomePage() {
-  const { categories } = await api.categories.list();
-  const { products } = await api.products.list() as { products: Array<{ slug: string; name: string; category: string; price: number }> };
-  const { featured, newArrivals, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } =
-    await api.home.list();
+  const [{ categories }, { products }, home] = await Promise.all([
+    api.categories.list(),
+    api.products.list() as Promise<{ products: Array<{ slug: string; name: string; category: string; price: number }> }>,
+    api.home.list(),
+  ]);
+  const { featured, newArrivals, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } = home;
 
   function categoryCount(slug: string) {
     return products.filter((p) => p.category === slug).length;

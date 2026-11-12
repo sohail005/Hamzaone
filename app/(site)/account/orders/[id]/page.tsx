@@ -1,23 +1,36 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Timeline } from "@/components/Timeline";
-import { orders } from "@/data/orders";
+import { getCurrentUser } from "@/lib/server/auth";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
+import { readStoredOrder, type StoredOrder } from "@/lib/server/orders-store";
 
-const STATUS_STEPS = ["printing", "post-processing", "quality-check", "packed", "shipped", "delivered"];
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  return orders.map((o) => ({ id: o.id }));
-}
+const STATUS_STEPS: StoredOrder["status"][] = [
+  "awaiting_payment",
+  "confirmed",
+  "processing",
+  "shipped",
+  "delivered",
+];
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { order } = await api.orders.get(id);
+  const user = await getCurrentUser();
+  if (!user) notFound();
+
+  const env = await getWorkerEnv();
+  const ordersKv = getKV(env, "ORDERS_KV");
+  const order: StoredOrder | null = ordersKv ? await readStoredOrder(ordersKv, id) : null;
   if (!order) notFound();
 
-  const current = STATUS_STEPS.indexOf(order.status);
+  const owns = order.customer.email.toLowerCase() === user.email.toLowerCase();
+  if (!owns && user.role !== "admin") notFound();
+
+  const current = order.status === "canceled" ? -1 : STATUS_STEPS.indexOf(order.status);
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,16 +38,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <h1 className="text-2xl font-bold">{order.id}</h1>
 
       <div className="rounded-card bg-surface p-5 shadow-sm">
-        <Timeline steps={["Printing", "Post Processing", "Quality Check", "Packed", "Shipped", "Delivered"]} current={current} />
+        <Timeline steps={["Awaiting Payment", "Confirmed", "Processing", "Shipped", "Delivered"]} current={current} />
       </div>
 
       <div className="rounded-card bg-surface p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Items</h2>
         <ul className="flex flex-col gap-2 text-sm">
-          {order.items.map((item: { name: string; color: string; size: string; qty: number; price: number }) => (
-            <li key={item.name} className="flex justify-between">
+          {order.items.map((item) => (
+            <li key={`${item.productSlug}-${item.color}-${item.size}`} className="flex justify-between">
               <span className="text-text-muted">{item.name} · {item.color} · {item.size} × {item.qty}</span>
-              <span>{formatINR(item.price * item.qty)}</span>
+              <span>{formatINR(item.unitPrice * item.qty)}</span>
             </li>
           ))}
         </ul>
@@ -48,7 +61,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
       <div className="rounded-card bg-surface p-5 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold">Shipping address</h2>
-        <p className="text-sm text-text-muted">{order.customer}, {order.address.line1}{order.address.line2 ? `, ${order.address.line2}` : ""}, {order.address.city}, {order.address.state} {order.address.pin}</p>
+        <p className="text-sm text-text-muted">{order.address.name}, {order.address.line1}{order.address.line2 ? `, ${order.address.line2}` : ""}, {order.address.city}, {order.address.state} {order.address.pin}</p>
       </div>
 
       <div className="flex gap-3">

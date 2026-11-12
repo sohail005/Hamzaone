@@ -5,10 +5,6 @@ import { quote } from "@/data/customPrint";
 
 const STEPS = ["Printing", "Post Processing", "Quality Check", "Packed", "Shipped", "Delivered"];
 
-export async function generateStaticParams() {
-  return [{ id: quote.id }];
-}
-
 export default function QuoteTrackingPage() {
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-10 sm:px-6">

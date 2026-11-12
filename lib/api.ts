@@ -1,8 +1,10 @@
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "https://hamzaone.store").trim().replace(/\/$/, "");
 
-async function apiFetch(path: string, init?: RequestInit) {
+type FetchStrategy = "revalidate" | "fresh";
+
+async function apiFetch(path: string, init?: RequestInit, strategy: FetchStrategy = "fresh") {
   if (!API_BASE) {
-    throw new Error("API backend is not configured. Set NEXT_PUBLIC_API_URL to the real backend base URL.");
+    throw new Error("API origin is not configured. Set NEXT_PUBLIC_API_URL to this app's origin (see .env.example).");
   }
 
   const headers = new Headers(init?.headers);
@@ -10,12 +12,34 @@ async function apiFetch(path: string, init?: RequestInit) {
     headers.set("Content-Type", "application/json");
   }
 
+  // A server-side fetch to our own co-located /api routes is a fresh outgoing
+  // request — it doesn't automatically carry the browser's cookies the way a
+  // same-origin browser fetch does, so the session cookie has to be forwarded
+  // by hand for auth-gated endpoints (admin/orders listings, etc.). This also
+  // means every server-rendered page that calls api.* ends up request-scoped
+  // (Next treats any cookies() read as a dynamic signal) rather than
+  // statically prerendered — expected here, since the data source is this
+  // same app's own routes, which aren't reachable yet during its own build.
+  // The Cache-Control headers set on the /api/* routes still let an edge/CDN
+  // layer cache the underlying data fetch even though the page render itself
+  // is per-request.
+  if (typeof window === "undefined") {
+    const { cookies } = await import("next/headers");
+    const store = await cookies();
+    const cookieHeader = store.toString();
+    if (cookieHeader) headers.set("Cookie", cookieHeader);
+  }
+
+  const isRevalidatable = typeof window === "undefined" && strategy === "revalidate";
+
   let res: Response;
   try {
     res = await fetch(`${API_BASE}${path}`, {
       ...init,
       headers,
-      cache: typeof window === "undefined" ? "force-cache" : "no-store",
+      credentials: "include",
+      cache: isRevalidatable ? undefined : "no-store",
+      next: isRevalidatable ? { revalidate: 60 } : undefined,
     });
   } catch (error) {
     if (error instanceof TypeError) {
@@ -37,25 +61,33 @@ async function apiFetch(path: string, init?: RequestInit) {
 
 export const api = {
   products: {
+    // Public catalog data — short revalidation window is fine.
     list: async (params?: { category?: string; featured?: string }) => {
       const sp = new URLSearchParams();
       if (params?.category) sp.set("category", params.category);
       if (params?.featured) sp.set("featured", params.featured);
-      return apiFetch(`/api/products?${sp.toString()}`);
+      return apiFetch(`/api/products?${sp.toString()}`, undefined, "revalidate");
     },
     get: async (slug: string) => {
-      return apiFetch(`/api/products/${encodeURIComponent(slug)}`);
+      return apiFetch(`/api/products/${encodeURIComponent(slug)}`, undefined, "revalidate");
+    },
+    create: async (body: unknown) => {
+      return apiFetch("/api/products", { method: "POST", body: JSON.stringify(body) });
+    },
+    update: async (slug: string, patch: unknown) => {
+      return apiFetch(`/api/products/${encodeURIComponent(slug)}`, { method: "PATCH", body: JSON.stringify(patch) });
     },
   },
   categories: {
     list: async () => {
-      return apiFetch("/api/categories");
+      return apiFetch("/api/categories", undefined, "revalidate");
     },
     get: async (slug: string) => {
-      return apiFetch(`/api/categories?slug=${encodeURIComponent(slug)}`);
+      return apiFetch(`/api/categories?slug=${encodeURIComponent(slug)}`, undefined, "revalidate");
     },
   },
   orders: {
+    // Order/account data must always be fresh and user-specific — never cached.
     list: async (params?: { id?: string; status?: string; paymentStatus?: string }) => {
       const sp = new URLSearchParams();
       if (params?.id) sp.set("id", params.id);
@@ -81,14 +113,14 @@ export const api = {
     list: async (section?: string) => {
       const sp = new URLSearchParams();
       if (section) sp.set("section", section);
-      return apiFetch(`/api/home?${sp.toString()}`);
+      return apiFetch(`/api/home?${sp.toString()}`, undefined, "revalidate");
     },
   },
   customPrint: {
     list: async (section?: string) => {
       const sp = new URLSearchParams();
       if (section) sp.set("section", section);
-      return apiFetch(`/api/custom-print?${sp.toString()}`);
+      return apiFetch(`/api/custom-print?${sp.toString()}`, undefined, "revalidate");
     },
   },
 };

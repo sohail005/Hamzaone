@@ -17,12 +17,14 @@ export type CartLine = {
 
 type CartState = {
   lines: CartLine[];
+  couponCode: string | null;
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
   addLine: (line: Omit<CartLine, "id">) => void;
   removeLine: (id: string) => void;
   setQty: (id: string, qty: number) => void;
+  setCouponCode: (code: string | null) => void;
   clear: () => void;
 };
 
@@ -34,6 +36,7 @@ export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       lines: [],
+      couponCode: null,
       drawerOpen: false,
       openDrawer: () => set({ drawerOpen: true }),
       closeDrawer: () => set({ drawerOpen: false }),
@@ -48,14 +51,19 @@ export const useCart = create<CartState>()(
           set({ lines: [...get().lines, { ...line, id }] });
         }
       },
-      removeLine: (id) => set({ lines: get().lines.filter((l) => l.id !== id) }),
+      removeLine: (id) =>
+        set((state) => {
+          const lines = state.lines.filter((line) => line.id !== id);
+          return lines.length === 0 ? { lines, couponCode: null } : { lines };
+        }),
       setQty: (id, qty) =>
         set({ lines: get().lines.map((l) => (l.id === id ? { ...l, qty } : l)) }),
-      clear: () => set({ lines: [] }),
+      setCouponCode: (couponCode) => set({ couponCode }),
+      clear: () => set({ lines: [], couponCode: null }),
     }),
     {
       name: "hamzaone-cart",
-      partialize: (state) => ({ lines: state.lines }),
+      partialize: (state) => ({ lines: state.lines, couponCode: state.couponCode }),
       skipHydration: true,
     },
   ),

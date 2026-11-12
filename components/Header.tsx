@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Box } from "lucide-react";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
@@ -24,6 +24,35 @@ export function Header() {
   const [products, setProducts] = useState<Product[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const catTriggerRef = useRef<HTMLButtonElement>(null);
+  const catPanelRef = useRef<HTMLDivElement>(null);
+  const menuTriggerRef = useRef<HTMLButtonElement>(null);
+  const menuCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!catOpen && !menuOpen) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      if (catOpen) {
+        setCatOpen(false);
+        catTriggerRef.current?.focus();
+      }
+      if (menuOpen) {
+        setMenuOpen(false);
+        menuTriggerRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [catOpen, menuOpen]);
+
+  useEffect(() => {
+    if (catOpen) catPanelRef.current?.querySelector("a")?.focus();
+  }, [catOpen]);
+
+  useEffect(() => {
+    if (menuOpen) menuCloseRef.current?.focus();
+  }, [menuOpen]);
 
   useEffect(() => {
     let active = true;
@@ -73,6 +102,7 @@ export function Header() {
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
         <div className="relative mx-auto flex flex-wrap items-center gap-6 px-4 py-1 sm:px-6" style={{ maxWidth: 1280 }}>
           <button
+            ref={menuTriggerRef}
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
             className="flex h-11 w-11 items-center justify-center rounded-full md:hidden"
@@ -80,7 +110,7 @@ export function Header() {
             <Menu className="h-5 w-5" />
           </button>
           <Link href="/" aria-label="HamzaOne home" className="flex items-center">
-            <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} priority className="h-14 w-14 object-contain md:h-18 md:w-18" />
+            <Image src="/HamzaOne_Logo.webp" alt="HamzaOne" width={72} height={72} priority className="h-14 w-14 object-contain md:h-18 md:w-18" />
           </Link>
           <nav aria-label="Primary" className="hidden flex-wrap items-center gap-1 md:flex">
             <Link href="/shop" className="rounded-full px-3 py-3 font-medium text-text hover:bg-black/5">
@@ -88,8 +118,10 @@ export function Header() {
             </Link>
             <div className="relative">
               <button
+                ref={catTriggerRef}
                 className="flex items-center gap-1 rounded-full px-3 py-3 font-medium text-text hover:bg-black/5"
                 aria-expanded={catOpen}
+                aria-haspopup="true"
                 onClick={() => setCatOpen((v) => !v)}
               >
                 Categories <ChevronDown className="h-4 w-4" />
@@ -149,7 +181,13 @@ export function Header() {
         </div>
 
         {catOpen && (
-          <div className="absolute left-0 right-0 top-full border-b border-border bg-surface shadow-md">
+          <div
+            ref={catPanelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Categories"
+            className="absolute left-0 right-0 top-full border-b border-border bg-surface shadow-md"
+          >
             <div className="mx-auto grid grid-cols-2 gap-4 px-2 sm:px-4 sm:grid-cols-3 md:grid-cols-5" style={{ maxWidth: 1280 }}>
               {categories.map((c) => (
                 <Link
@@ -174,10 +212,10 @@ export function Header() {
       {menuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
-          <div className="absolute left-0 top-0 h-full w-[82%] max-w-xs bg-surface p-5 shadow-lg">
+          <div role="dialog" aria-modal="true" aria-label="Menu" className="absolute left-0 top-0 h-full w-[82%] max-w-xs bg-surface p-5 shadow-lg">
             <div className="mb-6 flex items-center justify-between">
-              <Image src="/HamzaOne_Logo_transparent.png" alt="HamzaOne" width={160} height={160} className="h-10 w-10 object-contain" />
-              <button aria-label="Close menu" onClick={() => setMenuOpen(false)}>
+              <Image src="/HamzaOne_Logo.webp" alt="HamzaOne" width={40} height={40} className="h-10 w-10 object-contain" />
+              <button ref={menuCloseRef} aria-label="Close menu" onClick={() => setMenuOpen(false)}>
                 <X className="h-5 w-5" />
               </button>
             </div>

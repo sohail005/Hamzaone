@@ -17,6 +17,7 @@ import { PriceDisplay } from "./PriceDisplay";
 import { Button } from "./Button";
 import { Field } from "./Input";
 import { Breadcrumbs } from "./Breadcrumbs";
+import { useShallow } from "zustand/react/shallow";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { formatINR, cx } from "@/lib/format";
@@ -28,8 +29,11 @@ const VIEWS = ["Front", "Side", "Top", "Scale with hand"];
 export function ProductDetail({ product }: { product: Product }) {
   const router = useRouter();
   const params = useSearchParams();
-  const { addLine, openDrawer } = useCart();
-  const { has, toggle } = useWishlist();
+  const { addLine, openDrawer } = useCart(
+    useShallow((state) => ({ addLine: state.addLine, openDrawer: state.openDrawer })),
+  );
+  const wished = useWishlist((state) => state.slugs.includes(product.slug));
+  const toggle = useWishlist((state) => state.toggle);
   const [view, setView] = useState(0);
   const [engrave, setEngrave] = useState(false);
   const [engraveText, setEngraveText] = useState("");
@@ -218,11 +222,11 @@ export function ProductDetail({ product }: { product: Product }) {
                   Buy now
                 </Button>
                 <button
-                  aria-label={has(product.slug) ? "Remove from wishlist" : "Add to wishlist"}
+                  aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
                   onClick={() => toggle(product.slug)}
                   className="flex h-12 w-12 items-center justify-center rounded-full border border-border-input"
                 >
-                  <Heart className={cx("h-5 w-5", has(product.slug) ? "fill-accent text-accent" : "text-text")} />
+                  <Heart className={cx("h-5 w-5", wished ? "fill-accent text-accent" : "text-text")} />
                 </button>
               </div>
 
