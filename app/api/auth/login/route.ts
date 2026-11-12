@@ -3,7 +3,9 @@ import {
   createSessionForUser,
   getAuthKV,
   getUserByEmail,
+  isAdminEmail,
   normalizeEmail,
+  putUser,
   resolveAllowedOrigin,
   corsHeaders,
   sessionCookieHeader,
@@ -47,8 +49,19 @@ export async function POST(request: Request) {
   }
 
   const user = await getUserByEmail(kv, email);
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  if (!user) {
     return Response.json({ error: "Invalid email or password." }, { status: 401, headers });
+  }
+  if (user.provider === "google") {
+    return Response.json({ error: "This account uses Google sign-in — continue with Google instead." }, { status: 401, headers });
+  }
+  if (!(await verifyPassword(password, user.passwordHash))) {
+    return Response.json({ error: "Invalid email or password." }, { status: 401, headers });
+  }
+
+  if (user.role !== "admin" && isAdminEmail(env, user.email)) {
+    user.role = "admin";
+    await putUser(kv, user);
   }
 
   const token = await createSessionForUser(kv, user.id);

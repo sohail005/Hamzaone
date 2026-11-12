@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
+import { Toggle } from "@/components/Toggle";
 
 type Category = { slug: string; name: string; description: string };
 
@@ -43,14 +44,11 @@ export default function AdminCategoriesPage() {
                 <td className="px-4 py-3 font-medium">{c.name}</td>
                 <td className="px-4 py-3 text-text-muted">{c.description}</td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => setVisibility((v) => ({ ...v, [c.slug]: !v[c.slug] }))}
-                    className={`h-6 w-11 rounded-full transition-colors ${visibility[c.slug] ? "bg-success" : "bg-border-input"}`}
-                    aria-pressed={visibility[c.slug]}
-                    aria-label={`Toggle visibility for ${c.name}`}
-                  >
-                    <span className={`block h-5 w-5 translate-y-0.5 rounded-full bg-white transition-transform ${visibility[c.slug] ? "translate-x-5" : "translate-x-0.5"}`} />
-                  </button>
+                  <Toggle
+                    checked={!!visibility[c.slug]}
+                    onChange={() => setVisibility((v) => ({ ...v, [c.slug]: !v[c.slug] }))}
+                    label={`Toggle visibility for ${c.name}`}
+                  />
                 </td>
               </tr>
             ))}

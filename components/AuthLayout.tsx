@@ -9,9 +9,8 @@ export function AuthLayout({ children, title, subtitle }: { children: React.Reac
         <div>
           <ConceptRender shape="vase" color="#F97316" className="aspect-square w-full rounded-panel" />
           <p className="mt-6 text-lg font-semibold">Your Ideas. Made Real.</p>
-          <p className="mt-2 text-sm text-white/60">Ready-made and custom 3D printed goods, made in-house in India.</p>
+          <p className="mt-2 text-sm text-white/60">Ready-made and custom 3D printed Design Models, made in-house in India.</p>
         </div>
-        <span className="text-xs text-white/40">Demo account — no real data is stored.</span>
       </div>
       <div className="flex flex-col justify-center gap-6 rounded-r-panel bg-surface p-8 shadow-sm md:p-12">
         <div>

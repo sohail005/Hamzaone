@@ -28,6 +28,9 @@ export interface CloudflareEnv {
   NIMBUSPOST_EMAIL?: unknown;
   NIMBUSPOST_PASSWORD?: unknown;
   NIMBUSPOST_PICKUP_PINCODE?: unknown;
+  GOOGLE_CLIENT_ID?: unknown;
+  GOOGLE_CLIENT_SECRET?: unknown;
+  ADMIN_EMAILS?: unknown;
 }
 
 export async function getWorkerEnv(): Promise<CloudflareEnv> {

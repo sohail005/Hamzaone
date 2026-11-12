@@ -1,17 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Bell } from "lucide-react";
-
-const NOTIFICATIONS = [
-  { label: "New custom request CPR-2611-0738", href: "/admin/custom-requests/CPR-2611-0738" },
-  { label: "Low stock: Hex Pen Cup", href: "/admin/inventory?tab=low" },
-  { label: "Pending payment: HO-2026-10479", href: "/admin/orders/HO-2026-10479" },
-];
+import { api } from "@/lib/api";
+import { buildAdminNotifications, type AdminNotification } from "@/lib/notifications";
 
 export function AdminTopbar() {
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      api.orders.list(),
+      api.admin.list("inventory"),
+      api.admin.list("custom-requests"),
+    ])
+      .then(([ordersRes, inventoryRes, customRequestsRes]) => {
+        if (!active) return;
+        setNotifications(
+          buildAdminNotifications({
+            orders: ordersRes.orders,
+            inventory: inventoryRes.inventory,
+            customRequests: customRequestsRes["custom-requests"],
+          }),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const preview = notifications.slice(0, 5);
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-border bg-surface px-5">
@@ -22,15 +44,26 @@ export function AdminTopbar() {
       <div className="relative">
         <button onClick={() => setOpen((o) => !o)} aria-label="Notifications" className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-bg">
           <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" />
+          {notifications.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent" />}
         </button>
         {open && (
           <div className="absolute right-0 top-full z-30 w-72 rounded-panel bg-surface p-2 shadow-lg">
-            {NOTIFICATIONS.map((n) => (
-              <Link key={n.label} href={n.href} onClick={() => setOpen(false)} className="block rounded-chip px-3 py-2.5 text-sm text-text hover:bg-bg">
-                {n.label}
-              </Link>
-            ))}
+            {preview.length === 0 ? (
+              <p className="px-3 py-2.5 text-sm text-text-muted">No new notifications.</p>
+            ) : (
+              preview.map((n) => (
+                <Link key={n.id} href={n.href} onClick={() => setOpen(false)} className="block rounded-chip px-3 py-2.5 text-sm text-text hover:bg-bg">
+                  {n.label}
+                </Link>
+              ))
+            )}
+            <Link
+              href="/admin/notifications"
+              onClick={() => setOpen(false)}
+              className="mt-1 block rounded-chip px-3 py-2.5 text-center text-sm font-semibold text-accent-text hover:bg-bg"
+            >
+              View all notifications
+            </Link>
           </div>
         )}
       </div>

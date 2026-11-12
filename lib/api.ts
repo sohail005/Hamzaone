@@ -77,6 +77,9 @@ export const api = {
     update: async (slug: string, patch: unknown) => {
       return apiFetch(`/api/products/${encodeURIComponent(slug)}`, { method: "PATCH", body: JSON.stringify(patch) });
     },
+    remove: async (slug: string) => {
+      return apiFetch(`/api/products/${encodeURIComponent(slug)}`, { method: "DELETE" });
+    },
   },
   categories: {
     list: async () => {
@@ -121,6 +124,20 @@ export const api = {
       const sp = new URLSearchParams();
       if (section) sp.set("section", section);
       return apiFetch(`/api/custom-print?${sp.toString()}`, undefined, "revalidate");
+    },
+  },
+  addresses: {
+    list: async () => {
+      return apiFetch("/api/addresses");
+    },
+    create: async (body: unknown) => {
+      return apiFetch("/api/addresses", { method: "POST", body: JSON.stringify(body) });
+    },
+    update: async (id: string, patch: unknown) => {
+      return apiFetch(`/api/addresses/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(patch) });
+    },
+    remove: async (id: string) => {
+      return apiFetch(`/api/addresses/${encodeURIComponent(id)}`, { method: "DELETE" });
     },
   },
 };

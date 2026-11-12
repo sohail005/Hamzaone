@@ -46,6 +46,9 @@ function PaymentsContent() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_320px]">
+        {filtered.length === 0 ? (
+          <p className="text-sm text-text-muted">No payments yet.</p>
+        ) : (
         <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
           <table className="w-full min-w-[600px] text-sm">
             <thead className="border-b border-border text-left text-text-muted">
@@ -65,6 +68,7 @@ function PaymentsContent() {
             </tbody>
           </table>
         </div>
+        )}
 
         {selected && (
           <div className="rounded-card bg-surface p-5 shadow-sm">

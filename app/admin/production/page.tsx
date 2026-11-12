@@ -59,6 +59,8 @@ export default function AdminProductionPage() {
         </div>
       </div>
 
+      {cards.length === 0 && <p className="text-sm text-text-muted">Nothing in production yet.</p>}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {STAGES.map((stage, stageIdx) => (
           <div key={stage.key} className="flex flex-col gap-3 rounded-card bg-surface p-3 shadow-sm">

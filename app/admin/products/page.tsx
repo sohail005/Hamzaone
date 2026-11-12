@@ -12,8 +12,9 @@ type Product = { slug: string; name: string; category: string; price: number; av
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [archiving, setArchiving] = useState<string | null>(null);
-  const [archived, setArchived] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     api.products.list().then(({ products }: { products: Product[] }) => {
@@ -24,7 +25,20 @@ export default function AdminProductsPage() {
 
   if (!loaded) return null;
 
-  const visible = products.filter((p) => !archived.includes(p.slug));
+  async function confirmDelete() {
+    if (!deleting) return;
+    setWorking(true);
+    setError(null);
+    try {
+      await api.products.remove(deleting);
+      setProducts((p) => p.filter((x) => x.slug !== deleting));
+      setDeleting(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete this product.");
+    } finally {
+      setWorking(false);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -48,7 +62,7 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {visible.map((p) => (
+            {products.map((p) => (
               <tr key={p.slug} className="border-b border-border last:border-0">
                 <td className="px-4 py-3 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-text-muted">{p.category}</td>
@@ -56,7 +70,7 @@ export default function AdminProductsPage() {
                 <td className="px-4 py-3"><AvailabilityChip status={(p.availability as unknown as "available")} /></td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/admin/products/${p.slug}/edit`} className="mr-3 text-xs font-semibold text-accent-text">Edit</Link>
-                  <button onClick={() => setArchiving(p.slug)} className="text-xs font-semibold text-error-text">Archive</button>
+                  <button onClick={() => setDeleting(p.slug)} className="text-xs font-semibold text-error-text">Delete</button>
                 </td>
               </tr>
             ))}
@@ -64,23 +78,16 @@ export default function AdminProductsPage() {
         </table>
       </div>
 
-      {archiving && (
+      {deleting && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setArchiving(null)} />
+          <div className="absolute inset-0 bg-black/40" onClick={() => !working && setDeleting(null)} />
           <div role="dialog" aria-modal="true" className="relative w-full max-w-sm rounded-panel bg-surface p-6 shadow-lg">
-            <h3 className="text-lg font-bold">Archive product?</h3>
-            <p className="mt-2 text-sm text-text-muted">This will hide it from the storefront. You can restore it later.</p>
+            <h3 className="text-lg font-bold">Delete product?</h3>
+            <p className="mt-2 text-sm text-text-muted">This permanently removes it from the storefront and catalog. This cannot be undone.</p>
+            {error && <p className="mt-2 text-sm text-error-text">{error}</p>}
             <div className="mt-5 flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setArchiving(null)}>Cancel</Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setArchived((a) => [...a, archiving]);
-                  setArchiving(null);
-                }}
-              >
-                Archive
-              </Button>
+              <Button variant="outline" disabled={working} onClick={() => setDeleting(null)}>Cancel</Button>
+              <Button variant="destructive" loading={working} onClick={confirmDelete}>Delete</Button>
             </div>
           </div>
         </div>

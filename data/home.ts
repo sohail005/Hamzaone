@@ -25,20 +25,6 @@ export const categoryShapes: Record<string, { shape: HomeCard["shape"]; color: s
   functional: { shape: "part", color: "#3C5A80" },
 };
 
-export const featuredProducts: HomeCard[] = [
-  { id: 1, slug: "spiral-decor-vase", name: "Spiral Decor Vase", meta: "PLA · 3 colours", price: 699, shape: "vase", color: "#C96F4A", badge: "available", availability: "available" },
-  { id: 2, slug: "minimal-phone-stand", name: "Minimal Phone Stand", meta: "PETG · 4 colours", price: 249, shape: "stand", color: "#2B2E33", badge: "available", availability: "available" },
-  { id: 3, slug: "articulated-dragon", name: "Articulated Dragon", meta: "Silk PLA · 2 colours", price: 499, shape: "dragon", color: "#5E7A6A", badge: "made-to-order", availability: "made-to-order" },
-  { id: 4, slug: "custom-name-plate", name: "Custom Name Plate", meta: "Personalised · 3 to 5 days", price: 399, shape: "plate", color: "#D9C6A5", badge: "made-to-order", availability: "made-to-order" },
-];
-
-export const newArrivals: HomeCard[] = [
-  { id: 5, slug: "geometric-planter", name: "Geometric Planter", meta: "PLA · 3 sizes", price: 449, shape: "planter", color: "#5E7A6A", badge: "new", availability: "available" },
-  { id: 6, slug: "headphone-stand", name: "Headphone Stand", meta: "PETG · weighted base", price: 799, shape: "stand", color: "#8C8F96", badge: "low-stock", availability: "low-stock" },
-  { id: 7, slug: "personalized-keychain", name: "Personalized Keychain", meta: "Up to 12 characters", price: 149, shape: "keychain", color: "#F97316", badge: "made-to-order", availability: "made-to-order" },
-  { id: 8, slug: "cable-organizer", name: "Cable Organizer", meta: "TPU · set of 3", price: 149, shape: "organizer", color: "#3C5A80", badge: "available", availability: "available" },
-];
-
 export const customSteps = [
   { n: "01", t: "Upload", d: "STL or 3MF, preview it in 3D." },
   { n: "02", t: "Configure", d: "Material, colour, finish, quantity." },

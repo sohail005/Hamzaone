@@ -5,6 +5,7 @@ import {
   getAuthKV,
   getUserByEmail,
   hashPassword,
+  isAdminEmail,
   normalizeEmail,
   putUser,
   resolveAllowedOrigin,
@@ -61,13 +62,14 @@ export async function POST(request: Request) {
 
   const userId = crypto.randomUUID();
   const passwordHash = await hashPassword(password);
-  await putUser(kv, { id: userId, name, email, passwordHash, role: "customer", createdAt: new Date().toISOString() });
+  const role = isAdminEmail(env, email) ? "admin" : "customer";
+  await putUser(kv, { id: userId, name, email, passwordHash, role, createdAt: new Date().toISOString(), provider: "password" });
 
   const token = await createSessionForUser(kv, userId);
   headers["Set-Cookie"] = sessionCookieHeader(token);
 
   return Response.json(
-    { user: { id: userId, name, email, role: "customer" }, message: "Registration successful." },
+    { user: { id: userId, name, email, role }, message: "Registration successful." },
     { status: 201, headers },
   );
 }

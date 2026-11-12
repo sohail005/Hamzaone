@@ -1,13 +1,16 @@
 import { cookies } from "next/headers";
-import { getKV, getWorkerEnv, isRecord, type KVStore } from "./kv";
+import { type CloudflareEnv, getKV, getWorkerEnv, isRecord, type KVStore } from "./kv";
 
 export type AuthUser = {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  avatarUrl?: string;
   passwordHash: string;
   role: "customer" | "admin";
   createdAt: string;
+  provider: "password" | "google";
 };
 
 export type AuthSession = {
@@ -41,6 +44,12 @@ function resetKey(token: string) {
 export async function getAuthKV(): Promise<KVStore | null> {
   const env = await getWorkerEnv();
   return getKV(env, "AUTH_KV");
+}
+
+export function isAdminEmail(env: CloudflareEnv, email: string) {
+  const configured = typeof env.ADMIN_EMAILS === "string" ? env.ADMIN_EMAILS : "";
+  const allowlist = configured.split(",").map((e) => normalizeEmail(e)).filter(Boolean);
+  return allowlist.includes(normalizeEmail(email));
 }
 
 export function normalizeEmail(value: string) {

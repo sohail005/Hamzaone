@@ -8,6 +8,9 @@ export default async function AdminCustomRequestsPage() {
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-bold">Custom requests</h1>
+      {customRequests.length === 0 ? (
+        <p className="text-sm text-text-muted">No custom requests yet.</p>
+      ) : (
       <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
         <table className="w-full min-w-[700px] text-sm">
           <thead className="border-b border-border text-left text-text-muted">
@@ -36,6 +39,7 @@ export default async function AdminCustomRequestsPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

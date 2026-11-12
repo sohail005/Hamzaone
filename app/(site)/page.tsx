@@ -84,11 +84,15 @@ export default async function HomePage() {
           </div>
           <Link href="/shop" className="font-semibold text-accent-text">Shop all →</Link>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
-          {featuredProducts.map((p) => (
-            <HomeProductCard key={p.id} card={p as unknown as never} />
-          ))}
-        </div>
+        {featuredProducts.length > 0 ? (
+          <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+            {featuredProducts.map((p) => (
+              <HomeProductCard key={p.id} card={p as unknown as never} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-6 text-sm text-text-muted">No products yet — check back soon.</p>
+        )}
       </section>
 
       <section className="bg-dark text-bg">
@@ -148,11 +152,15 @@ export default async function HomePage() {
           </div>
           <Link href="/shop" className="font-semibold text-accent-text">See what is new →</Link>
         </div>
-        <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
-          {newArrivalsProducts.map((p: { id: number; name: string; slug: string; price: number; shape: string; color: string; badge: string; availability: string }) => (
-            <HomeProductCard key={p.id} card={p as unknown as never} variant="compact" />
-          ))}
-        </div>
+        {newArrivalsProducts.length > 0 ? (
+          <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+            {newArrivalsProducts.map((p: { id: number; name: string; slug: string; price: number; shape: string; color: string; badge: string; availability: string }) => (
+              <HomeProductCard key={p.id} card={p as unknown as never} variant="compact" />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-6 text-sm text-text-muted">No products yet — check back soon.</p>
+        )}
       </section>
 
       <section className="border-y border-border bg-surface">

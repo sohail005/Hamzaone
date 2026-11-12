@@ -84,6 +84,60 @@ export function CheckoutFlow() {
     state: string;
     type: "Home" | "Work";
   }>({ name: "", pin: "", line1: "", line2: "", landmark: "", city: "", state: "", type: "Home" });
+
+  type SavedAddress = {
+    id: string;
+    name: string;
+    line1: string;
+    line2?: string;
+    landmark?: string;
+    city: string;
+    state: string;
+    pin: string;
+    type: "Home" | "Work";
+    isDefault: boolean;
+  };
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | "new">("new");
+  const [saveToAccount, setSaveToAccount] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  function applySavedAddress(saved: SavedAddress) {
+    setAddress({
+      name: saved.name,
+      pin: saved.pin,
+      line1: saved.line1,
+      line2: saved.line2 ?? "",
+      landmark: saved.landmark ?? "",
+      city: saved.city,
+      state: saved.state,
+      type: saved.type,
+    });
+    setSelectedAddressId(saved.id);
+  }
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((res) => {
+        if (active) setIsLoggedIn(res.ok);
+        return res.ok ? api.addresses.list() : null;
+      })
+      .then((result: { addresses: SavedAddress[] } | null) => {
+        if (!active || !result) return;
+        setSavedAddresses(result.addresses);
+        const defaultAddress = result.addresses.find((a) => a.isDefault) ?? result.addresses[0];
+        if (defaultAddress) applySavedAddress(defaultAddress);
+      })
+      .catch(() => {
+        // Guest checkout, or the saved-address lookup failed — keep the blank manual-entry form.
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const delivery = useDeliveryEstimate();
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("standard");
   const [terms, setTerms] = useState(false);
@@ -121,6 +175,11 @@ export function CheckoutFlow() {
   }
 
   function validateAddress() {
+    if (selectedAddressId !== "new") {
+      setErrors({});
+      goto("shipping");
+      return;
+    }
     const e: Record<string, string> = {};
     if (!address.name) e.name = "Name is required.";
     if (!/^\d{6}$/.test(address.pin)) e.pin = "Enter a valid 6-digit PIN code.";
@@ -128,7 +187,14 @@ export function CheckoutFlow() {
     if (!address.city) e.city = "City is required.";
     if (!address.state) e.state = "State is required.";
     setErrors(e);
-    if (Object.keys(e).length === 0) goto("shipping");
+    if (Object.keys(e).length === 0) {
+      if (saveToAccount) {
+        api.addresses.create(address).catch(() => {
+          // Non-blocking — checkout should proceed even if saving the address fails.
+        });
+      }
+      goto("shipping");
+    }
   }
 
   function handleResult(
@@ -198,6 +264,28 @@ export function CheckoutFlow() {
               {Object.keys(errors).length > 0 && (
                 <div className="rounded-card bg-error-tint px-4 py-3 text-sm text-error-tint-text">Please fix the errors below.</div>
               )}
+
+              {savedAddresses.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-semibold">Choose a delivery address</p>
+                  {savedAddresses.map((saved) => (
+                    <label key={saved.id} className={`flex items-start gap-3 rounded-card border p-4 ${selectedAddressId === saved.id ? "border-accent" : "border-border"}`}>
+                      <input type="radio" name="saved-address" className="mt-1" checked={selectedAddressId === saved.id} onChange={() => applySavedAddress(saved)} />
+                      <div className="text-sm">
+                        <p className="font-semibold">{saved.name} · <span className="text-xs text-text-muted">{saved.type}</span>{saved.isDefault && <span className="ml-2 rounded-full bg-mto-chip-bg px-2 py-0.5 text-xs font-semibold text-accent-text">Default</span>}</p>
+                        <p className="text-text-muted">{saved.line1}, {saved.city}, {saved.state} {saved.pin}</p>
+                      </div>
+                    </label>
+                  ))}
+                  <label className={`flex items-center gap-3 rounded-card border p-4 ${selectedAddressId === "new" ? "border-accent" : "border-border"}`}>
+                    <input type="radio" name="saved-address" checked={selectedAddressId === "new"} onChange={() => setSelectedAddressId("new")} />
+                    <span className="text-sm font-semibold">Use a new address</span>
+                  </label>
+                </div>
+              )}
+
+              {selectedAddressId === "new" && (
+                <>
               <Field id="addr-name" label="Full name" value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} error={errors.name} />
               <div>
                 <Field id="pin" label="PIN code" value={address.pin} maxLength={6} onChange={(e) => setAddress({ ...address, pin: e.target.value })} error={errors.pin} />
@@ -223,6 +311,15 @@ export function CheckoutFlow() {
                   <button key={t} onClick={() => setAddress({ ...address, type: t })} className={`rounded-full px-4 py-2 text-sm font-semibold ${address.type === t ? "bg-mto-chip-bg text-accent-text" : "border border-border-input"}`}>{t}</button>
                 ))}
               </div>
+              {isLoggedIn && (
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={saveToAccount} onChange={(e) => setSaveToAccount(e.target.checked)} />
+                  Save this address to my account
+                </label>
+              )}
+                </>
+              )}
+
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => goto("contact")}>Back</Button>
                 <Button onClick={validateAddress}>Continue</Button>

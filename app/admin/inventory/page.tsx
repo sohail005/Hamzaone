@@ -6,12 +6,6 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/Button";
 import { cx } from "@/lib/format";
 
-const HISTORY = [
-  { date: "2026-11-04", variant: "Spiral Decor Vase — Charcoal / Large", change: "-2", reason: "Order HO-2026-10482" },
-  { date: "2026-11-01", variant: "Hex Pen Cup — Sand / Standard", change: "-6", reason: "Sold out" },
-  { date: "2026-10-28", variant: "Drawer Pull Set — Charcoal / Standard", change: "+10", reason: "Restock" },
-];
-
 type InventoryItem = { slug: string; variant: string; stock: number; reserved: number; low: boolean };
 
 function InventoryContent() {
@@ -68,23 +62,9 @@ function InventoryContent() {
       </div>
 
       {tab === "history" ? (
-        <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
-          <table className="w-full min-w-[600px] text-sm">
-            <thead className="border-b border-border text-left text-text-muted">
-              <tr><th className="px-4 py-3">Date</th><th className="px-4 py-3">Variant</th><th className="px-4 py-3">Change</th><th className="px-4 py-3">Reason</th></tr>
-            </thead>
-            <tbody>
-              {HISTORY.map((h, i) => (
-                <tr key={i} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 text-text-muted">{h.date}</td>
-                  <td className="px-4 py-3">{h.variant}</td>
-                  <td className="px-4 py-3">{h.change}</td>
-                  <td className="px-4 py-3 text-text-muted">{h.reason}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <p className="text-sm text-text-muted">No stock-adjustment history yet.</p>
+      ) : rows.length === 0 ? (
+        <p className="text-sm text-text-muted">No inventory tracked yet.</p>
       ) : (
         <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
           <table className="w-full min-w-[600px] text-sm">

@@ -53,13 +53,31 @@ export async function GET(request: Request) {
 
   const authKv = await getAuthKV();
   const requester = authKv ? await getUserFromRequestCookie(authKv, request) : null;
-  if (!requester || requester.role !== "admin") {
+  if (!requester) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
   if (!ordersKv) {
     return Response.json({ error: "Order storage is not configured." }, { status: 503 });
   }
 
-  const orders = await listStoredOrders(ordersKv, { status, paymentStatus });
-  return Response.json({ orders, count: orders.length }, { headers: { "Cache-Control": "no-store" } });
+  const allOrders = await listStoredOrders(ordersKv, { status, paymentStatus });
+
+  if (requester.role === "admin") {
+    return Response.json({ orders: allOrders, count: allOrders.length }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  // Non-admin customers only see their own orders (matched by checkout email),
+  // flattened to the simpler shape the account pages render.
+  const ownOrders = allOrders
+    .filter((o) => o.customer.email.toLowerCase() === requester.email.toLowerCase())
+    .map((o) => ({
+      id: o.id,
+      customer: o.customer.name,
+      total: o.total,
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      items: o.items.map((item) => ({ name: item.name })),
+      placedAt: o.createdAt,
+    }));
+  return Response.json({ orders: ownOrders, count: ownOrders.length }, { headers: { "Cache-Control": "no-store" } });
 }

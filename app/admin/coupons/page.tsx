@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
+import { Toggle } from "@/components/Toggle";
 
 type Coupon = { code: string; type: "flat" | "percent"; value: number; minOrder: number; enabled: boolean; expires: string };
 
@@ -71,6 +72,9 @@ function CouponsContent() {
         <h1 className="text-2xl font-bold">Coupons</h1>
         <Button onClick={() => router.push("/admin/coupons?new=1")}>New coupon</Button>
       </div>
+      {coupons.length === 0 ? (
+        <p className="text-sm text-text-muted">No coupons yet.</p>
+      ) : (
       <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
         <table className="w-full min-w-[600px] text-sm">
           <thead className="border-b border-border text-left text-text-muted">
@@ -83,12 +87,11 @@ function CouponsContent() {
                 <td className="px-4 py-3">{c.type === "flat" ? `₹${c.value}` : `${c.value}%`}</td>
                 <td className="px-4 py-3">₹{c.minOrder}</td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => setCoupons((arr) => arr.map((x) => (x.code === c.code ? { ...x, enabled: !x.enabled } : x)))}
-                    className={`h-6 w-11 rounded-full transition-colors ${c.enabled ? "bg-success" : "bg-border-input"}`}
-                  >
-                    <span className={`block h-5 w-5 translate-y-0.5 rounded-full bg-white transition-transform ${c.enabled ? "translate-x-5" : "translate-x-0.5"}`} />
-                  </button>
+                  <Toggle
+                    checked={c.enabled}
+                    onChange={() => setCoupons((arr) => arr.map((x) => (x.code === c.code ? { ...x, enabled: !x.enabled } : x)))}
+                    label={`Toggle ${c.code} enabled`}
+                  />
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button onClick={() => startEdit(c.code)} className="text-xs font-semibold text-accent-text">Edit</button>
@@ -98,6 +101,7 @@ function CouponsContent() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

@@ -67,7 +67,7 @@ function SettingsContent() {
               {section === "store" && (
                 <>
                   <Field id="store-name" label="Store name" defaultValue="HamzaOne" />
-                  <Field id="store-email" label="Support email" defaultValue="[SUPPORT EMAIL]" />
+                  <Field id="store-email" label="Support email" placeholder="support@hamzaone.store" />
                 </>
               )}
               {section === "branding" && <Field id="accent" label="Accent colour" defaultValue="#F97316" />}

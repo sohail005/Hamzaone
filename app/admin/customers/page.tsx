@@ -8,6 +8,9 @@ export default async function AdminCustomersPage() {
   return (
     <div className="flex flex-col gap-5">
       <h1 className="text-2xl font-bold">Customers</h1>
+      {customers.length === 0 ? (
+        <p className="text-sm text-text-muted">No customers yet.</p>
+      ) : (
       <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
         <table className="w-full min-w-[600px] text-sm">
           <thead className="border-b border-border text-left text-text-muted">
@@ -30,6 +33,7 @@ export default async function AdminCustomersPage() {
           </tbody>
         </table>
       </div>
+      )}
     </div>
   );
 }

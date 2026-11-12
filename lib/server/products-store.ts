@@ -54,3 +54,11 @@ export async function updateProduct(kv: KVStore, slug: string, patch: Partial<Om
   await kv.put(productKey(slug), JSON.stringify(updated));
   return updated;
 }
+
+export async function deleteProduct(kv: KVStore, slug: string): Promise<boolean> {
+  const slugs = await readIndex(kv);
+  if (!slugs.includes(slug)) return false;
+  await kv.delete(productKey(slug));
+  await kv.put(INDEX_KEY, JSON.stringify(slugs.filter((s) => s !== slug)));
+  return true;
+}

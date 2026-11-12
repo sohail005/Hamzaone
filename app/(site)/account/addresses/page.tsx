@@ -1,54 +1,110 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Input";
+import { api } from "@/lib/api";
 
 type Address = {
   id: string;
   name: string;
   line1: string;
+  line2?: string;
+  landmark?: string;
   city: string;
   state: string;
   pin: string;
   type: "Home" | "Work";
+  isDefault: boolean;
 };
+
+const BLANK_FORM: Omit<Address, "id" | "isDefault"> = { name: "", line1: "", city: "", state: "", pin: "", type: "Home" };
 
 function AddressesContent() {
   const router = useRouter();
   const params = useSearchParams();
   const editing = params.get("edit");
 
-  const [addresses, setAddresses] = useState<Address[]>([
-    { id: "a1", name: "Riya Sharma", line1: "4th Cross, Sector 2, HSR Layout", city: "Bengaluru", state: "Karnataka", pin: "560102", type: "Home" },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState<Omit<Address, "id" | "isDefault">>(BLANK_FORM);
+  const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState<Address>({ id: "", name: "", line1: "", city: "", state: "", pin: "", type: "Home" });
+  useEffect(() => {
+    let active = true;
+    api.addresses
+      .list()
+      .then(({ addresses }: { addresses: Address[] }) => {
+        if (active) setAddresses(addresses);
+      })
+      .catch((err: Error) => {
+        if (active) setError(err.message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function startEdit(addr?: Address) {
-    setForm(addr ?? { id: "", name: "", line1: "", city: "", state: "", pin: "", type: "Home" });
+    setForm(addr ?? BLANK_FORM);
     router.push(`/account/addresses?edit=${addr?.id ?? "new"}`);
   }
 
-  function save(e: React.FormEvent) {
+  async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (editing === "new") {
-      setAddresses((a) => [...a, { ...form, id: `a${Date.now()}` }]);
-    } else {
-      setAddresses((a) => a.map((x) => (x.id === editing ? form : x)));
+    setSaving(true);
+    setError(null);
+    try {
+      if (editing === "new") {
+        const { address } = await api.addresses.create(form);
+        setAddresses((a) => [...a.map((x) => (address.isDefault ? { ...x, isDefault: false } : x)), address]);
+      } else if (editing) {
+        const { address } = await api.addresses.update(editing, form);
+        setAddresses((a) => a.map((x) => (x.id === editing ? address : x)));
+      }
+      router.push("/account/addresses");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save this address.");
+    } finally {
+      setSaving(false);
     }
-    router.push("/account/addresses");
   }
 
-  function remove(id: string) {
-    setAddresses((a) => a.filter((x) => x.id !== id));
+  async function remove(id: string) {
+    try {
+      await api.addresses.remove(id);
+      setAddresses((a) => {
+        const removed = a.find((x) => x.id === id);
+        const remaining = a.filter((x) => x.id !== id);
+        if (removed?.isDefault && remaining.length > 0 && !remaining.some((x) => x.isDefault)) {
+          remaining[0] = { ...remaining[0], isDefault: true };
+        }
+        return remaining;
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not remove this address.");
+    }
+  }
+
+  async function makeDefault(id: string) {
+    try {
+      await api.addresses.update(id, { isDefault: true });
+      setAddresses((a) => a.map((x) => ({ ...x, isDefault: x.id === id })));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not set this as your default address.");
+    }
   }
 
   if (editing) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold">{editing === "new" ? "Add address" : "Edit address"}</h1>
+        {error && <div className="rounded-card bg-error-tint px-4 py-3 text-sm text-error-tint-text">{error}</div>}
         <form onSubmit={save} className="flex flex-col gap-4 rounded-card bg-surface p-5 shadow-sm">
           <Field id="name" label="Full name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
           <Field id="line1" label="Address" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} required />
@@ -66,7 +122,7 @@ function AddressesContent() {
           </div>
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={() => router.push("/account/addresses")}>Cancel</Button>
-            <Button type="submit">Save</Button>
+            <Button type="submit" loading={saving}>Save</Button>
           </div>
         </form>
       </div>
@@ -79,12 +135,19 @@ function AddressesContent() {
         <h1 className="text-2xl font-bold">Saved addresses</h1>
         <Button onClick={() => startEdit()}>Add address</Button>
       </div>
+      {error && <div className="rounded-card bg-error-tint px-4 py-3 text-sm text-error-tint-text">{error}</div>}
+      {loading && <p className="text-sm text-text-muted">Loading addresses…</p>}
+      {!loading && addresses.length === 0 && <p className="text-sm text-text-muted">No saved addresses yet.</p>}
       <ul className="flex flex-col gap-3">
         {addresses.map((a) => (
           <li key={a.id} className="rounded-card bg-surface p-5 shadow-sm">
-            <p className="text-sm font-semibold">{a.name} · <span className="text-xs text-text-muted">{a.type}</span></p>
+            <p className="text-sm font-semibold">
+              {a.name} · <span className="text-xs text-text-muted">{a.type}</span>
+              {a.isDefault && <span className="ml-2 rounded-full bg-mto-chip-bg px-2 py-0.5 text-xs font-semibold text-accent-text">Default</span>}
+            </p>
             <p className="text-sm text-text-muted">{a.line1}, {a.city}, {a.state} {a.pin}</p>
             <div className="mt-2 flex gap-3">
+              {!a.isDefault && <button onClick={() => makeDefault(a.id)} className="text-xs font-semibold text-accent-text">Set as default</button>}
               <button onClick={() => startEdit(a)} className="text-xs font-semibold text-accent-text">Edit</button>
               <button onClick={() => remove(a.id)} className="text-xs font-semibold text-error-text">Remove</button>
             </div>
