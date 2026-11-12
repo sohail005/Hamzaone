@@ -9,19 +9,19 @@ binding = "ASSETS"
 
 [[kv_namespaces]]
 binding = "AUTH_KV"
-id = "<the namespace ID returned by `wrangler kv namespace create AUTH_KV`>"
+id = "c2651de4cae1427b9fd0425b691d787c"
 
 [[kv_namespaces]]
 binding = "ORDERS_KV"
-id = "<the namespace ID returned by `wrangler kv namespace create ORDERS_KV`>"
+id = "1255f4c6ef0f416dbb2ba497ec41eaea"
 
 [[kv_namespaces]]
 binding = "DATA_KV"
-id = "<the namespace ID returned by `wrangler kv namespace create DATA_KV`>"
+id = "c05fe486cef24879866c8e57394d47fa"
 
 [[kv_namespaces]]
 binding = "NEXT_INC_CACHE_KV"
-id = "<the namespace ID returned by `wrangler kv namespace create NEXT_INC_CACHE_KV`>"
+id = "fd68976227464c7096cd7ad2edefaee5"
 
 [observability]
 enabled = true
