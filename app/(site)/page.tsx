@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { api } from "@/lib/api";
-import { categoryShapes } from "@/data/home";
+import { getWorkerEnv, getKV } from "@/lib/server/kv";
+import { listCategories } from "@/lib/server/categories-store";
+import { listProducts } from "@/lib/server/products-store";
+import { getFeaturedAndNewArrivals } from "@/app/api/home/route";
+import { categoryShapes, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } from "@/data/home";
 import { ConceptRender } from "@/components/ConceptRender";
 import { HeroArt } from "@/components/HeroArt";
 import { HomeProductCard } from "@/components/HomeProductCard";
@@ -9,12 +12,13 @@ import { FaqAccordion } from "@/components/FaqAccordion";
 import { Newsletter } from "@/components/Newsletter";
 
 export default async function HomePage() {
-  const [{ categories }, { products }, home] = await Promise.all([
-    api.categories.list(),
-    api.products.list() as Promise<{ products: Array<{ slug: string; name: string; category: string; price: number }> }>,
-    api.home.list(),
+  const env = await getWorkerEnv();
+  const kv = getKV(env, "DATA_KV");
+  const [categories, products, { featured, newArrivals }] = await Promise.all([
+    kv ? listCategories(kv) : [],
+    kv ? listProducts(kv) : [],
+    getFeaturedAndNewArrivals(),
   ]);
-  const { featured, newArrivals, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } = home;
 
   function categoryCount(slug: string) {
     return products.filter((p) => p.category === slug).length;

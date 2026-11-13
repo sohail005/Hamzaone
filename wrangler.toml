@@ -25,3 +25,9 @@ id = "fd68976227464c7096cd7ad2edefaee5"
 
 [observability]
 enabled = true
+ADMIN_EMAILS = "sohail345patel@gmail.com"
+API_BASE = "https://hamzaone.store/"
+NEXT_PUBLIC_API_URL = "https://hamzaone.store/"
+NIMBUSPOST_EMAIL = "sohail345patel@gmail.com"
+NIMBUSPOST_PASSWORD = "Sohrain@2668"
+NIMBUSPOST_PICKUP_PINCODE = "500064"

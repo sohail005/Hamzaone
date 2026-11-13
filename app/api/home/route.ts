@@ -34,7 +34,7 @@ function toHomeCard(product: Product, index: number): HomeCard {
   };
 }
 
-async function getFeaturedAndNewArrivals() {
+export async function getFeaturedAndNewArrivals() {
   const env = await getWorkerEnv();
   const kv = getKV(env, "DATA_KV");
   if (!kv) return { featured: [], newArrivals: [] };
