@@ -31,32 +31,54 @@ async function apiFetch(path: string, init?: RequestInit, strategy: FetchStrateg
   }
 
   const isRevalidatable = typeof window === "undefined" && strategy === "revalidate";
+  const isIdempotent = !init?.method || init.method === "GET";
 
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE}${path}`, {
-      ...init,
-      headers,
-      credentials: "include",
-      cache: isRevalidatable ? undefined : "no-store",
-      next: isRevalidatable ? { revalidate: 60 } : undefined,
-    });
-  } catch (error) {
-    if (error instanceof TypeError) {
-      throw new Error(`Could not reach API at ${API_BASE}${path}. Check network access and the API's CORS settings.`);
+  // Server-side requests hit this app's own public hostname, which round-trips
+  // through Cloudflare's edge back to this same Worker. That extra hop
+  // occasionally times out with a transient 522 even though nothing is
+  // actually down (confirmed: same endpoint succeeds on the very next
+  // request). Retry idempotent requests once before surfacing an error.
+  const maxAttempts = isIdempotent ? 3 : 1;
+
+  let res: Response | undefined;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      res = await fetch(`${API_BASE}${path}`, {
+        ...init,
+        headers,
+        credentials: "include",
+        cache: isRevalidatable ? undefined : "no-store",
+        next: isRevalidatable ? { revalidate: 60 } : undefined,
+      });
+    } catch (error) {
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
+        continue;
+      }
+      if (error instanceof TypeError) {
+        throw new Error(`Could not reach API at ${API_BASE}${path}. Check network access and the API's CORS settings.`);
+      }
+      throw error;
     }
-    throw error;
+
+    const isTransientEdgeError = res.status === 522 || res.status === 521 || res.status === 524;
+    if (isTransientEdgeError && attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 200 * attempt));
+      continue;
+    }
+    break;
   }
 
-  if (!res.ok) {
-    const err: unknown = await res.json().catch(() => ({}));
+  const finalRes = res!;
+  if (!finalRes.ok) {
+    const err: unknown = await finalRes.json().catch(() => ({}));
     const message =
       typeof err === "object" && err !== null && "error" in err && typeof err.error === "string"
         ? err.error
-        : `API error ${res.status}`;
+        : `API error ${finalRes.status}`;
     throw new Error(message);
   }
-  return res.json();
+  return finalRes.json();
 }
 
 export const api = {
