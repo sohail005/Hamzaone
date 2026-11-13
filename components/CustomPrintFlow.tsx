@@ -16,8 +16,7 @@ const PREVIEWABLE_EXTENSIONS = ["stl", "3mf"];
 type Materials = Record<string, { colors: string[]; finishes: string[] }>;
 
 const STEPS = [
-  { key: "upload", label: "Upload" },
-  { key: "preview", label: "Preview" },
+  { key: "upload", label: "Upload & Preview" },
   { key: "options", label: "Options" },
   { key: "contact", label: "Contact" },
   { key: "review", label: "Review" },
@@ -66,7 +65,7 @@ export function CustomPrintFlow() {
     router.push(`/custom-print?step=${key}`);
   }
 
-  function simulateUpload(picked: File) {
+  async function uploadFile(picked: File) {
     setUploadError(null);
     setFileName(picked.name);
     setFile(picked);
@@ -84,26 +83,18 @@ export function CustomPrintFlow() {
 
     setUploadState("uploading");
     setProgress(0);
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setUploadState("done");
-          return 100;
-        }
-        return p + 20;
-      });
-    }, 200);
-  }
-
-  function simulateNetworkFailure() {
-    setUploadState("error-network");
-    setUploadError("Upload failed due to a network error.");
+    try {
+      await api.customPrint.upload(picked, setProgress);
+      setUploadState("done");
+    } catch (error) {
+      setUploadState("error-network");
+      setUploadError(error instanceof Error ? error.message : "Upload failed due to a network error.");
+    }
   }
 
   function onFilePicked(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) simulateUpload(file);
+    if (file) uploadFile(file);
   }
 
   function validateContact() {
@@ -123,13 +114,13 @@ export function CustomPrintFlow() {
   }
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto flex min-h-[calc(100svh-80px)] max-w-[1280px] flex-col justify-center px-4 py-8 sm:px-6">
+      {/* <div className="flex items-center justify-between">
         <h1 className="text-[28px] font-bold">Custom 3D print request</h1>
-      </div>
+      </div> */}
 
-      <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-[200px_1fr]">
-        <div className="hidden md:block">
+      <div className="mt-2 grid grid-cols-1 gap-8 md:grid-cols-[200px_1fr]">
+        <div className="hidden md:block md:-ml-4">
           <Stepper steps={STEPS} current={step} onStepClick={goto} orientation="vertical" />
         </div>
         <div className="md:hidden">
@@ -139,7 +130,7 @@ export function CustomPrintFlow() {
       <div className="rounded-card bg-surface p-6 shadow-sm">
         {step === "upload" && (
           <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold">Upload your 3D model</h2>
+            <h2 className="text-lg font-bold">Upload &amp; preview your 3D model</h2>
             <p className="text-sm text-text-muted">Accepted formats: STL, STEP, 3MF. Max file size 100 MB.</p>
 
             {uploadState === "idle" && (
@@ -160,22 +151,22 @@ export function CustomPrintFlow() {
                   <div className="h-full bg-accent transition-all" style={{ width: `${progress}%` }} />
                 </div>
                 <p className="mt-1 text-xs text-text-muted">Uploading… {progress}%</p>
-                <button onClick={simulateNetworkFailure} className="mt-2 text-xs text-error-text underline">
-                  Prototype: simulate network failure
-                </button>
               </div>
             )}
 
             {uploadState === "done" && (
-              <div className="rounded-input border border-success p-5">
-                <div className="flex items-center gap-2 text-success-text">
-                  <Box className="h-5 w-5" /> <p className="text-sm font-semibold">{fileName} uploaded</p>
-                </div>
-                <div className="mt-3 flex gap-3">
-                  <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>Replace</Button>
-                  <Button size="sm" variant="ghost" onClick={() => { setUploadState("idle"); setFileName(null); setFile(null); }}>Remove</Button>
-                </div>
-              </div>
+              <ModelPreviewPanel
+                file={file}
+                fileName={fileName}
+                onReplace={() => fileInputRef.current?.click()}
+                onRemove={() => { setUploadState("idle"); setFileName(null); setFile(null); }}
+                actions={
+                  <div className="flex gap-2">
+                    <Link href="/custom-print"><Button variant="outline">Back</Button></Link>
+                    <Button onClick={() => goto("options")}>Continue</Button>
+                  </div>
+                }
+              />
             )}
 
             {(uploadState === "error-obj" || uploadState === "error-size" || uploadState === "error-network") && (
@@ -186,7 +177,7 @@ export function CustomPrintFlow() {
                 <div className="mt-3 flex gap-3">
                   <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>Choose a different file</Button>
                   {uploadState === "error-network" && file && (
-                    <Button size="sm" onClick={() => simulateUpload(file)}>Retry</Button>
+                    <Button size="sm" onClick={() => uploadFile(file)}>Retry</Button>
                   )}
                 </div>
               </div>
@@ -198,22 +189,13 @@ export function CustomPrintFlow() {
               <p className="text-sm text-error-text">Please upload a model file before continuing.</p>
             )}
 
-            <div className="flex gap-2">
-              <Link href="/custom-print"><Button variant="outline">Back</Button></Link>
-              <Button
-                onClick={() => {
-                  if (uploadState !== "done") { setContinueBlocked(true); return; }
-                  goto("preview");
-                }}
-              >
-                Continue
-              </Button>
-            </div>
+            {uploadState !== "done" && (
+              <div className="flex gap-2">
+                <Link href="/custom-print"><Button variant="outline">Back</Button></Link>
+                <Button onClick={() => setContinueBlocked(true)}>Continue</Button>
+              </div>
+            )}
           </div>
-        )}
-
-        {step === "preview" && (
-          <PreviewStep file={file} onBack={() => goto("upload")} onContinue={() => goto("options")} />
         )}
 
         {step === "options" && (
@@ -262,7 +244,7 @@ export function CustomPrintFlow() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => goto("preview")}>Back</Button>
+              <Button variant="outline" onClick={() => goto("upload")}>Back</Button>
               <Button onClick={() => goto("contact")}>Continue</Button>
             </div>
           </div>
@@ -321,7 +303,19 @@ export function CustomPrintFlow() {
   );
 }
 
-function PreviewStep({ file, onBack, onContinue }: { file: File | null; onBack: () => void; onContinue: () => void }) {
+function ModelPreviewPanel({
+  file,
+  fileName,
+  onReplace,
+  onRemove,
+  actions,
+}: {
+  file: File | null;
+  fileName: string | null;
+  onReplace: () => void;
+  onRemove: () => void;
+  actions?: React.ReactNode;
+}) {
   const [rotation, setRotation] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [dims, setDims] = useState<{ x: number; y: number; z: number } | null>(null);
@@ -332,9 +326,8 @@ function PreviewStep({ file, onBack, onContinue }: { file: File | null; onBack: 
   const ready = status === "ready";
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-bold">Preview</h2>
-      <div className="relative mx-auto flex aspect-square w-full max-w-[360px] items-center justify-center overflow-hidden rounded-panel bg-art-tile">
+    <div className="grid gap-2 md:grid-cols-[1fr_240px] md:items-start">
+      <div className="relative mx-auto flex aspect-square w-full max-w-[620px] items-center justify-center overflow-hidden rounded-panel bg-art-tile">
         {file && kind ? (
           <ModelPreview
             key={`${file.name}-${file.size}-${file.lastModified}`}
@@ -348,27 +341,46 @@ function PreviewStep({ file, onBack, onContinue }: { file: File | null; onBack: 
         ) : (
           <UnsupportedPreviewMessage />
         )}
-        <span className="pointer-events-none absolute bottom-3 right-3 rounded-chip bg-surface/90 px-2 py-0.5 text-[11px] text-text-muted">
+        <span className="pointer-events-none absolute bottom-2 right-2 rounded-chip bg-surface/90 px-2 py-0.5 text-[11px] text-text-muted">
           {ready ? "3D preview" : "Preview unavailable"}
         </span>
       </div>
-      {ready && (
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setRotation((r) => r + 45)}><RotateCw className="h-4 w-4" /></Button>
-          <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}><ZoomIn className="h-4 w-4" /></Button>
-          <Button size="sm" variant="outline" onClick={() => { setRotation(0); setZoom(1); }}><RefreshCw className="h-4 w-4" /></Button>
+
+      <div className="flex flex-col gap-4">
+        <div className="rounded-input border border-success p-2">
+          <div className="flex items-center gap-2 text-success-text">
+            <Box className="h-5 w-5 shrink-0" />
+            <p className="text-sm font-semibold break-all">{fileName} uploaded</p>
+          </div>
+          <div className="mt-3 flex gap-3">
+            <Button size="sm" variant="outline" onClick={onReplace}>Replace</Button>
+            <Button size="sm" variant="ghost" onClick={onRemove}>Remove</Button>
+          </div>
         </div>
-      )}
-      <p className="text-sm text-text-muted">
-        {ready
-          ? dims
-            ? `Estimated dimensions: ${dims.x.toFixed(0)} × ${dims.y.toFixed(0)} × ${dims.z.toFixed(0)} mm`
-            : "Measuring dimensions…"
-          : "Dimensions will be confirmed by our team during review."}
-      </p>
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onBack}>Back</Button>
-        <Button onClick={onContinue}>Continue</Button>
+
+        {ready && (
+          <div>
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">View controls</h3>
+            <div className="flex items-center gap-2">
+              <Button size="sm" variant="outline" onClick={() => setRotation((r) => r + 45)}><RotateCw className="h-4 w-4" /></Button>
+              <Button size="sm" variant="outline" onClick={() => setZoom((z) => Math.min(2.5, z + 0.2))}><ZoomIn className="h-4 w-4" /></Button>
+              <Button size="sm" variant="outline" onClick={() => { setRotation(0); setZoom(1); }}><RefreshCw className="h-4 w-4" /></Button>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Dimensions</h3>
+          <p className="text-sm text-text-muted">
+            {ready
+              ? dims
+                ? `${dims.x.toFixed(0)} × ${dims.y.toFixed(0)} × ${dims.z.toFixed(0)} mm`
+                : "Measuring dimensions…"
+              : "Confirmed by our team during review."}
+          </p>
+        </div>
+
+        {actions}
       </div>
     </div>
   );

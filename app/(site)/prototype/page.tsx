@@ -30,8 +30,7 @@ const SECTIONS: { title: string; links: { label: string; href: string }[] }[] = 
     title: "Custom 3D print",
     links: [
       { label: "Custom print landing", href: "/custom-print" },
-      { label: "Wizard — upload", href: "/custom-print?step=upload" },
-      { label: "Wizard — preview", href: "/custom-print?step=preview" },
+      { label: "Wizard — upload & preview", href: "/custom-print?step=upload" },
       { label: "Wizard — options", href: "/custom-print?step=options" },
       { label: "Wizard — contact", href: "/custom-print?step=contact" },
       { label: "Wizard — review", href: "/custom-print?step=review" },

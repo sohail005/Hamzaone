@@ -23,6 +23,10 @@ id = "c05fe486cef24879866c8e57394d47fa"
 binding = "NEXT_INC_CACHE_KV"
 id = "fd68976227464c7096cd7ad2edefaee5"
 
+[[r2_buckets]]
+binding = "CUSTOM_PRINT_FILES"
+bucket_name = "hamzaone-custom-print"
+
 [observability]
 enabled = true
 ADMIN_EMAILS = "sohail345patel@gmail.com"

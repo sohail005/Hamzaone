@@ -147,6 +147,45 @@ export const api = {
       if (section) sp.set("section", section);
       return apiFetch(`/api/custom-print?${sp.toString()}`, undefined, "revalidate");
     },
+    upload: async (
+      file: File,
+      onProgress?: (pct: number) => void,
+    ): Promise<{ key: string; originalName: string; originalSize: number }> => {
+      const { gzipFile } = await import("./compressFile");
+      const { blob, compressed } = await gzipFile(file);
+
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${API_BASE}/api/custom-print/upload`);
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader("X-Original-Name", encodeURIComponent(file.name));
+        xhr.setRequestHeader("X-Original-Size", String(file.size));
+        xhr.setRequestHeader("X-Original-Type", file.type || "application/octet-stream");
+        xhr.setRequestHeader("X-Content-Encoding", compressed ? "gzip" : "identity");
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+        };
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              reject(new Error("Could not parse upload response."));
+            }
+          } else {
+            try {
+              reject(new Error(JSON.parse(xhr.responseText)?.error ?? "Upload failed."));
+            } catch {
+              reject(new Error("Upload failed."));
+            }
+          }
+        };
+        xhr.onerror = () => reject(new Error("Upload failed due to a network error."));
+        xhr.send(blob);
+      });
+    },
   },
   addresses: {
     list: async () => {

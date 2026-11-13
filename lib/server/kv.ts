@@ -17,10 +17,22 @@ function isKVStore(value: unknown): value is KVStore {
   );
 }
 
+export interface R2Bucket {
+  put(key: string, value: ReadableStream | ArrayBuffer | Blob, options?: {
+    httpMetadata?: { contentType?: string; contentEncoding?: string };
+    customMetadata?: Record<string, string>;
+  }): Promise<unknown>;
+}
+
+function isR2Bucket(value: unknown): value is R2Bucket {
+  return isRecord(value) && typeof value.put === "function";
+}
+
 export interface CloudflareEnv {
   AUTH_KV?: unknown;
   ORDERS_KV?: unknown;
   DATA_KV?: unknown;
+  CUSTOM_PRINT_FILES?: unknown;
   ALLOWED_ORIGINS?: unknown;
   RAZORPAY_KEY_ID?: unknown;
   RAZORPAY_KEY_SECRET?: unknown;
@@ -42,6 +54,11 @@ export async function getWorkerEnv(): Promise<CloudflareEnv> {
 export function getKV(env: CloudflareEnv, binding: "AUTH_KV" | "ORDERS_KV" | "DATA_KV"): KVStore | null {
   const store = env[binding];
   return isKVStore(store) ? store : null;
+}
+
+export function getR2(env: CloudflareEnv, binding: "CUSTOM_PRINT_FILES"): R2Bucket | null {
+  const bucket = env[binding];
+  return isR2Bucket(bucket) ? bucket : null;
 }
 
 export function slugify(value: string) {
