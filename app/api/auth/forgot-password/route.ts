@@ -8,6 +8,9 @@ import {
   resolveAllowedOrigin,
 } from "@/lib/server/auth";
 import { getWorkerEnv } from "@/lib/server/kv";
+import { sendEmail } from "@/lib/server/email";
+
+const SITE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://hamzaone.store").trim().replace(/\/$/, "");
 
 export async function OPTIONS(request: Request) {
   const env = await getWorkerEnv();
@@ -46,10 +49,16 @@ export async function POST(request: Request) {
   const user = await getUserByEmail(kv, email);
   if (user) {
     const token = await createResetToken(kv, email);
-    // No email provider is wired up yet; log server-side only so the token
-    // never reaches the HTTP response. Replace with a real transactional
-    // email send (Resend/SendGrid/Cloudflare Email Workers) before launch.
-    console.log(`Password reset requested for ${email}. Reset token: ${token}`);
+    const resetLink = `${SITE_URL}/reset-password?token=${encodeURIComponent(token)}`;
+    const { sent } = await sendEmail(env, {
+      to: email,
+      subject: "Reset your HamzaOne password",
+      html: `<p>We received a request to reset your HamzaOne password.</p><p><a href="${resetLink}">Reset your password</a></p><p>This link expires in 15 minutes. If you didn't request this, you can ignore this email.</p>`,
+      text: `We received a request to reset your HamzaOne password. Reset it here: ${resetLink}\n\nThis link expires in 15 minutes. If you didn't request this, you can ignore this email.`,
+    });
+    if (!sent) {
+      console.log(`Password reset requested for ${email}. Reset token: ${token}`);
+    }
   }
 
   return Response.json(generic, { headers });

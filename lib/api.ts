@@ -133,6 +133,11 @@ export const api = {
       if (resource) sp.set("resource", resource);
       return apiFetch(`/api/admin?${sp.toString()}`);
     },
+    customPrintMaterials: {
+      get: async () => apiFetch("/api/admin/custom-print-materials"),
+      save: async (config: unknown) => apiFetch("/api/admin/custom-print-materials", { method: "PUT", body: JSON.stringify({ config }) }),
+      reset: async () => apiFetch("/api/admin/custom-print-materials", { method: "DELETE" }),
+    },
   },
   home: {
     list: async (section?: string) => {

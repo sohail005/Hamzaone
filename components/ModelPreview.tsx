@@ -20,10 +20,15 @@ function centerAndMeasure(object: THREE.Object3D): Dimensions {
   box.getSize(size);
   const center = new THREE.Vector3();
   box.getCenter(center);
-  object.position.sub(center);
 
   const maxDim = Math.max(size.x, size.y, size.z) || 1;
-  object.scale.setScalar(2.2 / maxDim);
+  const scale = 2.2 / maxDim;
+
+  // position isn't affected by the object's own scale, so the recentering
+  // offset has to be scaled down too — otherwise the object ends up
+  // translated by its full (pre-scale) size and lands outside the camera.
+  object.scale.setScalar(scale);
+  object.position.copy(center).multiplyScalar(-scale);
 
   return { x: size.x, y: size.y, z: size.z };
 }

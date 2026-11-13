@@ -43,6 +43,8 @@ export interface CloudflareEnv {
   GOOGLE_CLIENT_ID?: unknown;
   GOOGLE_CLIENT_SECRET?: unknown;
   ADMIN_EMAILS?: unknown;
+  RESEND_API_KEY?: unknown;
+  RESEND_FROM_EMAIL?: unknown;
 }
 
 export async function getWorkerEnv(): Promise<CloudflareEnv> {

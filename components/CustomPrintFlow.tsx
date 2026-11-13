@@ -40,15 +40,19 @@ export function CustomPrintFlow() {
   const [materials, setMaterials] = useState<Materials>({});
   const [materialsLoaded, setMaterialsLoaded] = useState(false);
 
-  const [material, setMaterial] = useState<"PLA" | "PETG" | "TPU">("PLA");
+  const [material, setMaterial] = useState("");
   const [color, setColor] = useState("");
   const [finish, setFinish] = useState("");
 
   useEffect(() => {
     api.customPrint.list("materials").then(({ materials }: { materials: Materials }) => {
       setMaterials(materials);
-      setColor(materials.PLA.colors[0]);
-      setFinish(materials.PLA.finishes[0]);
+      const firstKey = Object.keys(materials)[0];
+      if (firstKey) {
+        setMaterial(firstKey);
+        setColor(materials[firstKey].colors[0]);
+        setFinish(materials[firstKey].finishes[0]);
+      }
       setMaterialsLoaded(true);
     });
   }, []);
@@ -106,7 +110,7 @@ export function CustomPrintFlow() {
     if (Object.keys(e).length === 0) goto("review");
   }
 
-  function selectMaterial(m: "PLA" | "PETG" | "TPU") {
+  function selectMaterial(m: string) {
     if (m === material) return;
     setMaterial(m);
     setColor(materials[m].colors[0]);
@@ -201,48 +205,54 @@ export function CustomPrintFlow() {
         {step === "options" && (
           <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold">Material &amp; finish</h2>
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">Material</h3>
-              <div className="flex gap-2">
-                {(["PLA", "PETG", "TPU"] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => selectMaterial(m)}
-                    className={cx("rounded-full border px-4 py-2 text-sm font-medium", material === m ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">Colour</h3>
-              <div className="flex flex-wrap gap-2">
-                {materials[material].colors.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setColor(c)}
-                    className={cx("rounded-full border px-4 py-2 text-sm font-medium", color === c ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="mb-2 text-sm font-semibold">Finish</h3>
-              <div className="flex flex-wrap gap-2">
-                {materials[material].finishes.map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFinish(f)}
-                    className={cx("rounded-full border px-4 py-2 text-sm font-medium", finish === f ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {Object.keys(materials).length === 0 ? (
+              <p className="text-sm text-text-muted">No materials are available right now. Please check back later.</p>
+            ) : (
+              <>
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold">Material</h3>
+                  <div className="flex gap-2">
+                    {Object.keys(materials).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => selectMaterial(m)}
+                        className={cx("rounded-full border px-4 py-2 text-sm font-medium", material === m ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold">Colour</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {materials[material].colors.map((c) => (
+                      <button
+                        key={c}
+                        onClick={() => setColor(c)}
+                        className={cx("rounded-full border px-4 py-2 text-sm font-medium", color === c ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold">Finish</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {materials[material].finishes.map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => setFinish(f)}
+                        className={cx("rounded-full border px-4 py-2 text-sm font-medium", finish === f ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input")}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => goto("upload")}>Back</Button>
               <Button onClick={() => goto("contact")}>Continue</Button>
