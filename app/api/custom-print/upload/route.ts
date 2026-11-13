@@ -40,8 +40,13 @@ export async function POST(request: Request) {
   const baseName = slugify(originalName.replace(/\.[^.]+$/, "")) || "model";
   const key = `custom-print/${Date.now()}-${crypto.randomUUID()}-${baseName}.${ext}${contentEncoding === "gzip" ? ".gz" : ""}`;
 
+  // R2's put() requires a stream with a known length; the incoming request
+  // body doesn't expose one here, so buffer it (bounded by MAX_ORIGINAL_SIZE
+  // above, and smaller still once gzipped) before writing.
+  const bytes = await request.arrayBuffer();
+
   try {
-    await bucket.put(key, request.body, {
+    await bucket.put(key, bytes, {
       httpMetadata: {
         contentType: originalType,
         ...(contentEncoding === "gzip" ? { contentEncoding: "gzip" } : {}),
