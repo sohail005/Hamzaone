@@ -366,7 +366,7 @@ function PreviewStep({ file, onBack, onContinue }: { file: File | null; onBack: 
             : "Measuring dimensions…"
           : "Dimensions will be confirmed by our team during review."}
       </p>
-      <div className="flex gap-2">
+      <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={onBack}>Back</Button>
         <Button onClick={onContinue}>Continue</Button>
       </div>
