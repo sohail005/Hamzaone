@@ -1,6 +1,6 @@
 import type { KVStore } from "./kv";
 
-const ADMIN_RESOURCES = ["customers", "coupons", "payments", "production", "inventory", "custom-requests"] as const;
+const ADMIN_RESOURCES = ["customers", "coupons", "payments", "production", "inventory"] as const;
 
 export type AdminResource = (typeof ADMIN_RESOURCES)[number];
 

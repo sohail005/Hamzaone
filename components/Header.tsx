@@ -152,8 +152,8 @@ export function Header() {
             </button>
           </form>
 
-          <Link href="/custom-print" className="hidden h-11 items-center justify-center rounded-full bg-accent px-[18px] text-[15px] font-semibold text-text hover:bg-accent-hover md:flex">
-            Custom 3D Print
+          <Link href="/custom-creations" className="hidden h-11 items-center justify-center rounded-full bg-accent px-[18px] text-[15px] font-semibold text-text hover:bg-accent-hover md:flex">
+            Custom Creations
           </Link>
 
           <div className="flex gap-0.5">
@@ -233,8 +233,8 @@ export function Header() {
                   {c.name}
                 </Link>
               ))}
-              <Link onClick={() => setMenuOpen(false)} href="/custom-print" className="mt-2 flex items-center gap-2 rounded-chip bg-accent px-3 py-3 text-sm font-semibold text-text">
-                <Box className="h-4 w-4" /> Custom 3D Print
+              <Link onClick={() => setMenuOpen(false)} href="/custom-creations" className="mt-2 flex items-center gap-2 rounded-chip bg-accent px-3 py-3 text-sm font-semibold text-text">
+                <Box className="h-4 w-4" /> Custom Creations
               </Link>
               <Link onClick={() => setMenuOpen(false)} href="/track-order" className="rounded-chip px-3 py-3 text-sm hover:bg:bg">
                 Track order

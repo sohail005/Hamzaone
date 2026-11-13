@@ -24,8 +24,13 @@ binding = "NEXT_INC_CACHE_KV"
 id = "fd68976227464c7096cd7ad2edefaee5"
 
 [[r2_buckets]]
-binding = "CUSTOM_PRINT_FILES"
-bucket_name = "hamzaone-custom-print"
+binding = "CUSTOM_CREATIONS_FILES"
+bucket_name = "hamzaone-custom-creations"
+
+[[d1_databases]]
+binding = "CUSTOM_CREATIONS_DB"
+database_name = "hamzaone-custom-creations"
+database_id = "6dfb2a12-0ae2-4699-b94a-ff7efe96fb1f"
 
 [observability]
 enabled = true

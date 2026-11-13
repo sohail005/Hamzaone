@@ -2,23 +2,23 @@ export type AdminNotification = {
   id: string;
   label: string;
   href: string;
-  kind: "order" | "inventory" | "custom-request";
+  kind: "order" | "inventory" | "custom-creation";
 };
 
 type OrderLike = { id: string; paymentStatus: string };
 type InventoryLike = { slug: string; variant: string; low: boolean };
-type CustomRequestLike = { id: string; status: string };
+type CustomCreationLike = { id: string; status: string };
 
 export function buildAdminNotifications(data: {
   orders: OrderLike[];
   inventory: InventoryLike[];
-  customRequests: CustomRequestLike[];
+  customCreations: CustomCreationLike[];
 }): AdminNotification[] {
   const notifications: AdminNotification[] = [];
 
-  for (const r of data.customRequests) {
-    if (r.status !== "new") continue;
-    notifications.push({ id: `cr-${r.id}`, label: `New custom request ${r.id}`, href: `/admin/custom-requests/${r.id}`, kind: "custom-request" });
+  for (const r of data.customCreations) {
+    if (r.status !== "PENDING_REVIEW") continue;
+    notifications.push({ id: `cc-${r.id}`, label: `New custom creation request ${r.id}`, href: `/admin/custom-creations/${r.id}`, kind: "custom-creation" });
   }
 
   for (const i of data.inventory) {

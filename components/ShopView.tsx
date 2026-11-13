@@ -223,7 +223,7 @@ export function ShopView({
               <p className="text-sm text-text-muted">Try resetting your filters or search.</p>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={resetAll}>Reset filters</Button>
-                <a href="/custom-print"><Button>Request a custom print</Button></a>
+                <a href="/custom-creations"><Button>Request a custom creation</Button></a>
               </div>
             </div>
           ) : (

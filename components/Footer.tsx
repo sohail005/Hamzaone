@@ -25,7 +25,7 @@ export function Footer() {
         </div>
         <div className="flex flex-col gap-2.5">
           <strong className="text-sm text-white">Services</strong>
-          <Link href="/custom-print" className="text-sm text-[#C9CBD0] hover:text-white">Custom 3D printing</Link>
+          <Link href="/custom-creations" className="text-sm text-[#C9CBD0] hover:text-white">Custom Creations</Link>
           <Link href="/track-order" className="text-sm text-[#C9CBD0] hover:text-white">Track order</Link>
           <Link href="/account" className="text-sm text-[#C9CBD0] hover:text-white">My account</Link>
         </div>

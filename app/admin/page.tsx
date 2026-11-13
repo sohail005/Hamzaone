@@ -10,7 +10,7 @@ export default async function AdminOverviewPage() {
   const { products } = await api.products.list();
   const { production: productionCards } = await api.admin.list("production");
   const { inventory } = await api.admin.list("inventory");
-  const { "custom-requests": customRequests } = await api.admin.list("custom-requests");
+  const { requests: customCreations } = await api.customCreations.adminList();
 
   const stats = computeOrderStats(orders);
 
@@ -21,7 +21,7 @@ export default async function AdminOverviewPage() {
     { label: "Active prints", value: String((productionCards as Array<{ stage: string }>).filter((p) => p.stage !== "completed").length), href: "/admin/production" },
     { label: "Products", value: String(products.length), href: "/admin/products" },
     { label: "Low stock", value: String((inventory as Array<{ low: boolean }>).filter((i) => i.low).length), href: "/admin/inventory?tab=low" },
-    { label: "Custom requests", value: String(customRequests.length), href: "/admin/custom-requests" },
+    { label: "Custom Creations", value: String(customCreations.length), href: "/admin/custom-creations" },
     { label: "Avg. order value", value: formatINR(stats.avgOrderValue), href: "/admin/analytics" },
   ];
 
@@ -118,20 +118,20 @@ export default async function AdminOverviewPage() {
 
         <div className="rounded-card bg-surface p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">Custom requests</h2>
-            <Link href="/admin/custom-requests" className="text-xs font-semibold text-accent-text">Review custom requests</Link>
+            <h2 className="text-sm font-semibold">Custom Creations</h2>
+            <Link href="/admin/custom-creations" className="text-xs font-semibold text-accent-text">Review requests</Link>
           </div>
-          {customRequests.length > 0 ? (
+          {customCreations.length > 0 ? (
             <ul className="mt-3 flex flex-col gap-2 text-sm">
-              {customRequests.map((r: { id: string; status: string }) => (
+              {customCreations.map((r: { id: string; status: string }) => (
                 <li key={r.id} className="flex justify-between">
                   <span className="text-text-muted">{r.id}</span>
-                  <span className="font-medium capitalize">{r.status}</span>
+                  <span className="font-medium capitalize">{r.status.replace(/_/g, " ")}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm text-text-muted">No custom requests yet.</p>
+            <p className="mt-3 text-sm text-text-muted">No custom creation requests yet.</p>
           )}
         </div>
       </div>

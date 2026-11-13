@@ -40,14 +40,14 @@ export default async function HomePage() {
             Made Real.
           </h1>
           <p className="max-w-[520px] text-lg text-text-muted" style={{ fontSize: 19 }}>
-            Precise, beautifully finished objects for your home, desk and gifts. Or upload your own STL or 3MF and we print it for you.
+            Precise, beautifully finished objects for your home, desk and gifts. Or share a photo or sketch of your idea and we&apos;ll design and print it for you.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/shop">
               <Button size="lg">Shop the collection</Button>
             </Link>
-            <Link href="/custom-print">
-              <Button size="lg" variant="outline">Upload your 3D model</Button>
+            <Link href="/custom-creations">
+              <Button size="lg" variant="outline">Create Your Custom Request</Button>
             </Link>
           </div>
           <ul className="mt-2 flex flex-wrap gap-6 text-sm text-text-muted">
@@ -102,18 +102,18 @@ export default async function HomePage() {
       <section className="bg-dark text-bg">
         <div className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-20 sm:px-6" style={{ maxWidth: 1280 }}>
           <div className="flex flex-col gap-5" style={{ flex: "1 1 420px" }}>
-            <span className="eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-[#B9BBC1]">Custom 3D printing</span>
+            <span className="eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-[#B9BBC1]">Custom Creations</span>
             <h2 className="font-display font-bold text-white" style={{ fontSize: "clamp(36px,4vw,56px)", lineHeight: 1.05 }}>
-              Your Design.
+              Your Idea.
               <br />
-              Our Precision.
+              Our Creativity.
             </h2>
             <p className="max-w-[480px] text-lg text-[#C9CBD0]">
-              Upload an STL or 3MF file, pick material and finish, and get a reviewed quote from our print team. You pay only after you accept the quote.
+              Share reference photos or a sketch, pick material and colour, and get a reviewed quote from our print team. You pay only after you accept the quote.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/custom-print">
-                <Button size="lg">Upload Your 3D Model</Button>
+              <Link href="/custom-creations">
+                <Button size="lg">Create Your Custom Request</Button>
               </Link>
               <Link href="/faq">
                 <Button size="lg" variant="outline" className="border-[#5A5D63] text-white hover:bg-white/10">
@@ -121,7 +121,7 @@ export default async function HomePage() {
                 </Button>
               </Link>
             </div>
-            <p className="text-[13px] text-[#9EA1A8]">STL, 3MF · up to 100 MB · PLA, PETG, TPU</p>
+            <p className="text-[13px] text-[#9EA1A8]">JPG, PNG, WEBP · up to 8 images · PLA, PETG, TPU</p>
           </div>
           <ol className="grid list-none grid-cols-2 gap-4 p-0" style={{ flex: "1 1 420px" }}>
             {customSteps.map((s: { n: string; t: string; d: string }) => (

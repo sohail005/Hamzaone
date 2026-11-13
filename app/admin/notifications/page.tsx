@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { buildAdminNotifications, type AdminNotification } from "@/lib/notifications";
 
 const ICONS: Record<AdminNotification["kind"], typeof Package> = {
-  "custom-request": Package,
+  "custom-creation": Package,
   inventory: AlertTriangle,
   order: CreditCard,
 };
@@ -21,15 +21,15 @@ export default function AdminNotificationsPage() {
     Promise.all([
       api.orders.list(),
       api.admin.list("inventory"),
-      api.admin.list("custom-requests"),
+      api.customCreations.adminList(),
     ])
-      .then(([ordersRes, inventoryRes, customRequestsRes]) => {
+      .then(([ordersRes, inventoryRes, customCreationsRes]) => {
         if (!active) return;
         setNotifications(
           buildAdminNotifications({
             orders: ordersRes.orders,
             inventory: inventoryRes.inventory,
-            customRequests: customRequestsRes["custom-requests"],
+            customCreations: customCreationsRes.requests,
           }),
         );
         setLoaded(true);
@@ -54,7 +54,7 @@ export default function AdminNotificationsPage() {
             <Bell className="h-5 w-5" />
           </span>
           <p className="text-sm font-semibold">You&apos;re all caught up.</p>
-          <p className="text-sm text-text-muted">New custom requests, low-stock alerts and pending payments will show up here.</p>
+          <p className="text-sm text-text-muted">New custom creation requests, low-stock alerts and pending payments will show up here.</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-2 rounded-card bg-surface p-2 shadow-sm">

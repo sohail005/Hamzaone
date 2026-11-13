@@ -32,7 +32,8 @@ export interface CloudflareEnv {
   AUTH_KV?: unknown;
   ORDERS_KV?: unknown;
   DATA_KV?: unknown;
-  CUSTOM_PRINT_FILES?: unknown;
+  CUSTOM_CREATIONS_FILES?: unknown;
+  CUSTOM_CREATIONS_DB?: unknown;
   ALLOWED_ORIGINS?: unknown;
   RAZORPAY_KEY_ID?: unknown;
   RAZORPAY_KEY_SECRET?: unknown;
@@ -45,6 +46,9 @@ export interface CloudflareEnv {
   ADMIN_EMAILS?: unknown;
   RESEND_API_KEY?: unknown;
   RESEND_FROM_EMAIL?: unknown;
+  R2_ACCOUNT_ID?: unknown;
+  R2_ACCESS_KEY_ID?: unknown;
+  R2_SECRET_ACCESS_KEY?: unknown;
 }
 
 export async function getWorkerEnv(): Promise<CloudflareEnv> {
@@ -58,7 +62,7 @@ export function getKV(env: CloudflareEnv, binding: "AUTH_KV" | "ORDERS_KV" | "DA
   return isKVStore(store) ? store : null;
 }
 
-export function getR2(env: CloudflareEnv, binding: "CUSTOM_PRINT_FILES"): R2Bucket | null {
+export function getR2(env: CloudflareEnv, binding: "CUSTOM_CREATIONS_FILES"): R2Bucket | null {
   const bucket = env[binding];
   return isR2Bucket(bucket) ? bucket : null;
 }

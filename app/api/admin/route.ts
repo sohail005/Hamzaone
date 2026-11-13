@@ -29,16 +29,13 @@ export async function GET(request: Request) {
       payments: all.payments,
       production: all.production,
       inventory: all.inventory,
-      customRequests: all["custom-requests"],
     });
   }
 
-  const key = resource === "custom-requests" ? "custom-requests" : resource;
-  if (!isAdminResource(key)) {
+  if (!isAdminResource(resource)) {
     return Response.json({ error: "Unknown resource" }, { status: 400 });
   }
 
-  const value = await getAdminResource(kv, key);
-  const responseKey = key === "custom-requests" ? "custom-requests" : key;
-  return Response.json({ [responseKey]: value });
+  const value = await getAdminResource(kv, resource);
+  return Response.json({ [resource]: value });
 }

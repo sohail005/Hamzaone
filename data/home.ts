@@ -26,8 +26,8 @@ export const categoryShapes: Record<string, { shape: HomeCard["shape"]; color: s
 };
 
 export const customSteps = [
-  { n: "01", t: "Upload", d: "STL or 3MF, preview it in 3D." },
-  { n: "02", t: "Configure", d: "Material, colour, finish, quantity." },
+  { n: "01", t: "Share your idea", d: "Reference photos, sketches, and a description — no 3D file needed." },
+  { n: "02", t: "Design & review", d: "Our team models it and checks printability." },
   { n: "03", t: "Get a quote", d: "Reviewed by a person, usually within 1 business day." },
   { n: "04", t: "Pay and track", d: "Accept, pay, follow every production step." },
 ];
@@ -54,8 +54,8 @@ export const homeReviews = [
 
 export const homeFaqs = [
   { q: "What is the difference between production time and shipping time?", a: "Production time is how long we take to print, finish and quality check your item. Shipping time starts after dispatch. Both are shown separately on every product and at checkout, and shipping times are estimates from our courier partners." },
-  { q: "Which files can I upload for a custom print?", a: "STL and 3MF files up to 100 MB. If your model needs repair, our team will tell you in the quote before you pay anything." },
-  { q: "When do I pay for a custom print?", a: "Only after you review and accept the quote. Quotes stay valid for 7 days." },
+  { q: "Do I need a 3D model to request a custom creation?", a: "No. Share reference photos, a sketch, or just a description — our team handles the 3D modelling for you." },
+  { q: "When do I pay for a custom creation?", a: "Only after you review and accept the quote. Quotes stay valid until the expiry date shown on the quotation." },
   { q: "Can I return a personalised item?", a: "Personalised and custom items are made for you, so they can be returned only if they arrive damaged or defective. See the Return and Refund Policy." },
 ];
 

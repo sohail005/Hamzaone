@@ -6,7 +6,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://hamzaone.pages.de
 const STATIC_ROUTES = [
   "",
   "/shop",
-  "/custom-print",
+  "/custom-creations",
   "/about",
   "/contact",
   "/faq",

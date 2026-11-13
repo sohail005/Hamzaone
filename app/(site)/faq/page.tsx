@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { api } from "@/lib/api";
+import { CUSTOM_CREATION_FAQS } from "@/data/customCreations";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Answers about production, shipping and custom 3D print requests at HamzaOne.",
+  description: "Answers about production, shipping and custom creation requests at HamzaOne.",
 };
 
 export default async function FaqPage() {
-  const { faqs } = await api.customPrint.list("faqs");
+  const faqs = CUSTOM_CREATION_FAQS;
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6">

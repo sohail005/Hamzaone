@@ -14,7 +14,7 @@ const ITEMS = [
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/production", label: "Production Queue", icon: Factory },
-  { href: "/admin/custom-requests", label: "Custom Requests", icon: FileText },
+  { href: "/admin/custom-creations", label: "Custom Creations", icon: FileText },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/inventory", label: "Inventory", icon: Boxes },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },

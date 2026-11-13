@@ -87,10 +87,10 @@ export function CartView() {
     return (
       <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-bold">Your cart is empty</h1>
-        <p className="text-sm text-text-muted">Browse products or start a custom print to get going.</p>
+        <p className="text-sm text-text-muted">Browse products or start a custom creation to get going.</p>
         <div className="flex gap-3">
           <Link href="/shop"><Button>Shop products</Button></Link>
-          <Link href="/custom-print"><Button variant="outline">Start a custom print</Button></Link>
+          <Link href="/custom-creations"><Button variant="outline">Start a custom creation</Button></Link>
         </div>
       </div>
     );

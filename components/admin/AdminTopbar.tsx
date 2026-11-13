@@ -15,15 +15,15 @@ export function AdminTopbar() {
     Promise.all([
       api.orders.list(),
       api.admin.list("inventory"),
-      api.admin.list("custom-requests"),
+      api.customCreations.adminList(),
     ])
-      .then(([ordersRes, inventoryRes, customRequestsRes]) => {
+      .then(([ordersRes, inventoryRes, customCreationsRes]) => {
         if (!active) return;
         setNotifications(
           buildAdminNotifications({
             orders: ordersRes.orders,
             inventory: inventoryRes.inventory,
-            customRequests: customRequestsRes["custom-requests"],
+            customCreations: customCreationsRes.requests,
           }),
         );
       })

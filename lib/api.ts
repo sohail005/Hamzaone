@@ -142,11 +142,6 @@ export const api = {
       if (resource) sp.set("resource", resource);
       return apiFetch(`/api/admin?${sp.toString()}`);
     },
-    customPrintMaterials: {
-      get: async () => apiFetch("/api/admin/custom-print-materials"),
-      save: async (config: unknown) => apiFetch("/api/admin/custom-print-materials", { method: "PUT", body: JSON.stringify({ config }) }),
-      reset: async () => apiFetch("/api/admin/custom-print-materials", { method: "DELETE" }),
-    },
   },
   home: {
     list: async (section?: string) => {
@@ -155,28 +150,21 @@ export const api = {
       return apiFetch(`/api/home?${sp.toString()}`, undefined, "revalidate");
     },
   },
-  customPrint: {
-    list: async (section?: string) => {
-      const sp = new URLSearchParams();
-      if (section) sp.set("section", section);
-      return apiFetch(`/api/custom-print?${sp.toString()}`, undefined, "revalidate");
+  customCreations: {
+    create: async (body: unknown) => {
+      return apiFetch("/api/custom-creations", { method: "POST", body: JSON.stringify(body) });
     },
     upload: async (
       file: File,
       onProgress?: (pct: number) => void,
-    ): Promise<{ key: string; originalName: string; originalSize: number }> => {
-      const { gzipFile } = await import("./compressFile");
-      const { blob, compressed } = await gzipFile(file);
-
+    ): Promise<{ storageKey: string; originalFilename: string; mimeType: string; fileSize: number }> => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", `${API_BASE}/api/custom-print/upload`);
+        xhr.open("POST", `${API_BASE}/api/custom-creations/upload`);
         xhr.withCredentials = true;
         xhr.setRequestHeader("Content-Type", "application/octet-stream");
         xhr.setRequestHeader("X-Original-Name", encodeURIComponent(file.name));
         xhr.setRequestHeader("X-Original-Size", String(file.size));
-        xhr.setRequestHeader("X-Original-Type", file.type || "application/octet-stream");
-        xhr.setRequestHeader("X-Content-Encoding", compressed ? "gzip" : "identity");
 
         xhr.upload.onprogress = (e) => {
           if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
@@ -197,9 +185,39 @@ export const api = {
           }
         };
         xhr.onerror = () => reject(new Error("Upload failed due to a network error."));
-        xhr.send(blob);
+        xhr.send(file);
       });
     },
+    track: async (requestNumber: string, params: { email?: string; token?: string }) => {
+      const sp = new URLSearchParams();
+      if (params.email) sp.set("email", params.email);
+      if (params.token) sp.set("token", params.token);
+      return apiFetch(`/api/custom-creations/${encodeURIComponent(requestNumber)}?${sp.toString()}`);
+    },
+    quotation: {
+      get: async (secureToken: string) => apiFetch(`/api/custom-creations/quotation/${encodeURIComponent(secureToken)}`),
+      accept: async (secureToken: string) => apiFetch(`/api/custom-creations/quotation/${encodeURIComponent(secureToken)}/accept`, { method: "POST" }),
+      decline: async (secureToken: string) => apiFetch(`/api/custom-creations/quotation/${encodeURIComponent(secureToken)}/decline`, { method: "POST" }),
+      pay: async (secureToken: string) => apiFetch(`/api/custom-creations/quotation/${encodeURIComponent(secureToken)}/pay`, { method: "POST" }),
+    },
+    adminList: async (params?: { status?: string; search?: string; page?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.status) sp.set("status", params.status);
+      if (params?.search) sp.set("search", params.search);
+      if (params?.page) sp.set("page", String(params.page));
+      return apiFetch(`/api/admin/custom-creations?${sp.toString()}`);
+    },
+    adminGet: async (id: string) => apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}`),
+    adminUpdateStatus: async (id: string, status: string, note?: string) =>
+      apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}/status`, { method: "PATCH", body: JSON.stringify({ status, note }) }),
+    adminUpdateNotes: async (id: string, notes: string) =>
+      apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}/notes`, { method: "PATCH", body: JSON.stringify({ notes }) }),
+    adminCreateQuotation: async (id: string, body: unknown) =>
+      apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}/quotation`, { method: "POST", body: JSON.stringify(body) }),
+    adminSendQuotation: async (id: string, quotationId: string) =>
+      apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}/quotation`, { method: "PATCH", body: JSON.stringify({ quotationId, action: "send" }) }),
+    adminImageUrl: async (id: string, imageId: string) =>
+      apiFetch(`/api/admin/custom-creations/${encodeURIComponent(id)}/images/${encodeURIComponent(imageId)}/signed-url`),
   },
   addresses: {
     list: async () => {
