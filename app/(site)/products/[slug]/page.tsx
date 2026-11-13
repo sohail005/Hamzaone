@@ -1,20 +1,16 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { api } from "@/lib/api";
+import { fetchProduct } from "@/lib/server/catalog";
 import { ProductDetail } from "@/components/ProductDetail";
-import type { Product } from "@/data/products";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://hamzaone.pages.dev").trim().replace(/\/$/, "");
 
-async function getProduct(slug: string): Promise<Product | null> {
-  const { product } = await api.products.get(slug).catch(() => ({ product: null }));
-  return product ?? null;
-}
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await fetchProduct(slug);
   if (!product) return {};
 
   const title = product.name;
@@ -30,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await fetchProduct(slug);
   if (!product) notFound();
 
   const productJsonLd = {

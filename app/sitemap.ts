@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { api } from "@/lib/api";
+import { fetchProducts, fetchCategories } from "@/lib/server/catalog";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://hamzaone.pages.dev").trim().replace(/\/$/, "");
 
@@ -16,11 +16,10 @@ const STATIC_ROUTES = [
   "/shipping-policy",
 ];
 
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ products }, { categories }] = await Promise.all([
-    api.products.list().catch(() => ({ products: [] as Array<{ slug: string }> })),
-    api.categories.list().catch(() => ({ categories: [] as Array<{ slug: string }> })),
-  ]);
+  const [products, categories] = await Promise.all([fetchProducts(), fetchCategories()]);
 
   const staticEntries = STATIC_ROUTES.map((path) => ({
     url: `${SITE_URL}${path}`,

@@ -1,12 +1,14 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { api } from "@/lib/api";
+import { fetchCategory, fetchProducts, fetchCategories } from "@/lib/server/catalog";
 import { ShopView } from "@/components/ShopView";
+
+export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category } = await params;
-  const { category: cat } = await api.categories.get(category).catch(() => ({ category: null }));
+  const cat = await fetchCategory(category);
   if (!cat) return {};
   return {
     title: cat.name,
@@ -17,10 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
 
 export default async function CategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = await params;
-  const [{ category: cat }, { products }, { categories }] = await Promise.all([
-    api.categories.get(category),
-    api.products.list(),
-    api.categories.list(),
+  const [cat, products, categories] = await Promise.all([
+    fetchCategory(category),
+    fetchProducts(),
+    fetchCategories(),
   ]);
   if (!cat) notFound();
   return (

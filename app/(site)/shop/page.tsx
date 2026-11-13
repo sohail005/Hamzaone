@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { api } from "@/lib/api";
+import { fetchProducts, fetchCategories } from "@/lib/server/catalog";
 import { ShopView } from "@/components/ShopView";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
-  const [{ products }, { categories }] = await Promise.all([api.products.list(), api.categories.list()]);
+  const [products, categories] = await Promise.all([fetchProducts(), fetchCategories()]);
   return (
     <Suspense>
       <ShopView initialProducts={products} initialCategories={categories} />
