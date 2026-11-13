@@ -6,22 +6,43 @@ import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { Toggle } from "@/components/Toggle";
 
-type Category = { slug: string; name: string; description: string };
+type Category = { slug: string; name: string; description: string; enabled?: boolean };
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [visibility, setVisibility] = useState<Record<string, boolean>>({});
   const [newName, setNewName] = useState("");
-  const [created, setCreated] = useState<string[]>([]);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    api.categories.list().then(({ categories }: { categories: Category[] }) => {
+    api.categories.listAll().then(({ categories }: { categories: Category[] }) => {
       setCategories(categories);
-      setVisibility(Object.fromEntries(categories.map((c) => [c.slug, true])));
       setLoaded(true);
     });
   }, []);
+
+  async function toggleVisibility(category: Category) {
+    const nextEnabled = category.enabled === false;
+    setCategories((cs) => cs.map((c) => (c.slug === category.slug ? { ...c, enabled: nextEnabled } : c)));
+    try {
+      await api.categories.update(category.slug, { enabled: nextEnabled });
+    } catch {
+      setCategories((cs) => cs.map((c) => (c.slug === category.slug ? { ...c, enabled: category.enabled } : c)));
+    }
+  }
+
+  async function createCategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newName.trim() || creating) return;
+    setCreating(true);
+    try {
+      const { category } = await api.categories.create({ name: newName.trim() });
+      setCategories((cs) => [...cs, category]);
+      setNewName("");
+    } finally {
+      setCreating(false);
+    }
+  }
 
   if (!loaded) return null;
 
@@ -45,18 +66,11 @@ export default function AdminCategoriesPage() {
                 <td className="px-4 py-3 text-text-muted">{c.description}</td>
                 <td className="px-4 py-3 text-right">
                   <Toggle
-                    checked={!!visibility[c.slug]}
-                    onChange={() => setVisibility((v) => ({ ...v, [c.slug]: !v[c.slug] }))}
+                    checked={c.enabled !== false}
+                    onChange={() => toggleVisibility(c)}
                     label={`Toggle visibility for ${c.name}`}
                   />
                 </td>
-              </tr>
-            ))}
-            {created.map((name) => (
-              <tr key={name} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 font-medium">{name}</td>
-                <td className="px-4 py-3 text-text-muted">—</td>
-                <td className="px-4 py-3 text-right text-success-text">New</td>
               </tr>
             ))}
           </tbody>
@@ -65,15 +79,9 @@ export default function AdminCategoriesPage() {
 
       <div className="rounded-card bg-surface p-5 shadow-sm">
         <h2 className="mb-3 text-sm font-semibold">Create category</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (newName) { setCreated((c) => [...c, newName]); setNewName(""); }
-          }}
-          className="flex gap-3"
-        >
+        <form onSubmit={createCategory} className="flex gap-3">
           <Field id="new-category" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Category name" className="flex-1" />
-          <Button type="submit">Create</Button>
+          <Button type="submit" disabled={creating}>Create</Button>
         </form>
       </div>
     </div>

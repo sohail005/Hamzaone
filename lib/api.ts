@@ -107,8 +107,17 @@ export const api = {
     list: async () => {
       return apiFetch("/api/categories", undefined, "revalidate");
     },
+    listAll: async () => {
+      return apiFetch("/api/categories?all=true");
+    },
     get: async (slug: string) => {
       return apiFetch(`/api/categories?slug=${encodeURIComponent(slug)}`, undefined, "revalidate");
+    },
+    create: async (body: unknown) => {
+      return apiFetch("/api/categories", { method: "POST", body: JSON.stringify(body) });
+    },
+    update: async (slug: string, patch: unknown) => {
+      return apiFetch(`/api/categories?slug=${encodeURIComponent(slug)}`, { method: "PATCH", body: JSON.stringify(patch) });
     },
   },
   orders: {

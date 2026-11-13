@@ -2,6 +2,7 @@ export type Category = {
   slug: string;
   name: string;
   description: string;
+  enabled?: boolean;
 };
 
 export const categories: Category[] = [];

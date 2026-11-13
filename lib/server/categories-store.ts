@@ -19,11 +19,13 @@ async function ensureSeeded(kv: KVStore) {
   await kv.put(INDEX_KEY, JSON.stringify(seedCategories.map((c) => c.slug)));
 }
 
-export async function listCategories(kv: KVStore): Promise<Category[]> {
+export async function listCategories(kv: KVStore, opts?: { includeDisabled?: boolean }): Promise<Category[]> {
   await ensureSeeded(kv);
   const slugs = await readIndex(kv);
   const values = await Promise.all(slugs.map((slug) => kv.get(categoryKey(slug), { type: "json" })));
-  return values.filter((v): v is Category => !!v);
+  const categories = values.filter((v): v is Category => !!v);
+  if (opts?.includeDisabled) return categories;
+  return categories.filter((c) => c.enabled !== false);
 }
 
 export async function getCategoryBySlug(kv: KVStore, slug: string): Promise<Category | null> {
@@ -38,8 +40,16 @@ export async function createCategory(kv: KVStore, input: Omit<Category, "slug">)
   const slugs = await readIndex(kv);
   if (slugs.includes(slug)) slug = `${slug}-${Math.random().toString(36).slice(2, 7)}`;
 
-  const category: Category = { ...input, slug };
+  const category: Category = { enabled: true, ...input, slug };
   await kv.put(categoryKey(slug), JSON.stringify(category));
   await kv.put(INDEX_KEY, JSON.stringify([...slugs, slug]));
   return category;
+}
+
+export async function updateCategory(kv: KVStore, slug: string, patch: Partial<Omit<Category, "slug">>): Promise<Category | null> {
+  const existing = await getCategoryBySlug(kv, slug);
+  if (!existing) return null;
+  const updated: Category = { ...existing, ...patch, slug };
+  await kv.put(categoryKey(slug), JSON.stringify(updated));
+  return updated;
 }
