@@ -8,8 +8,9 @@ import { Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Box } from "lu
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { api } from "@/lib/api";
+import { assetUrl } from "@/lib/assets";
 
-type Category = { slug: string; name: string; description: string };
+type Category = { slug: string; name: string; description: string; imageKey?: string };
 type Product = { slug: string; name: string; category: string; price: number; availability: string; isNew?: boolean };
 
 export function Header() {
@@ -194,10 +195,18 @@ export function Header() {
                   key={c.slug}
                   href={`/shop/${c.slug}`}
                   onClick={() => setCatOpen(false)}
-                  className="flex flex-col gap-1 rounded-input p-3 hover:bg-bg"
+                  className="flex items-center gap-3 rounded-input p-3 hover:bg-bg"
                 >
-                  <strong className="text-text">{c.name}</strong>
-                  <span className="text-sm text-text-muted">{categoryCount(c.slug)} products</span>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-chip bg-art-tile">
+                    {c.imageKey ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={assetUrl(c.imageKey)} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </span>
+                  <span className="flex flex-col gap-1">
+                    <strong className="text-text">{c.name}</strong>
+                    <span className="text-sm text-text-muted">{categoryCount(c.slug)} products</span>
+                  </span>
                 </Link>
               ))}
             </div>
@@ -228,8 +237,14 @@ export function Header() {
                   key={c.slug}
                   onClick={() => setMenuOpen(false)}
                   href={`/shop/${c.slug}`}
-                  className="rounded-chip px-3 py-3 text-sm hover:bg:bg"
+                  className="flex items-center gap-3 rounded-chip px-3 py-3 text-sm hover:bg:bg"
                 >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-chip bg-art-tile">
+                    {c.imageKey ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={assetUrl(c.imageKey)} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </span>
                   {c.name}
                 </Link>
               ))}

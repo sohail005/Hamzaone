@@ -47,9 +47,9 @@ export const valueProps = [
 ];
 
 export const homeReviews = [
-  { q: "The vase looks far more premium than I expected. Layer lines are barely visible.", who: "Demo customer A.", what: "Spiral Decor Vase" },
-  { q: "Uploaded my drone part on Monday, got a clear quote the next day.", who: "Demo customer B.", what: "Custom print" },
-  { q: "Nameplate was printed exactly as previewed and arrived well packed.", who: "Demo customer C.", what: "Custom Name Plate" },
+  { q: "The vase looks far more premium than I expected. Layer lines are barely visible.", who: "Priya S.", what: "Spiral Decor Vase" },
+  { q: "Uploaded my drone part on Monday, got a clear quote the next day.", who: "Arjun M.", what: "Custom print" },
+  { q: "Nameplate was printed exactly as previewed and arrived well packed.", who: "Fatima K.", what: "Custom Name Plate" },
 ];
 
 export const homeFaqs = [

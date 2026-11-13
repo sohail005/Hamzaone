@@ -2,8 +2,10 @@ import Link from "next/link";
 import { getWorkerEnv, getKV } from "@/lib/server/kv";
 import { listCategories } from "@/lib/server/categories-store";
 import { listProducts } from "@/lib/server/products-store";
+import { getHomeSettings, type HomeSettings } from "@/lib/server/home-settings-store";
 import { getFeaturedAndNewArrivals } from "@/app/api/home/route";
 import { categoryShapes, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } from "@/data/home";
+import { assetUrl } from "@/lib/assets";
 import { ConceptRender } from "@/components/ConceptRender";
 import { HeroArt } from "@/components/HeroArt";
 import { HomeProductCard } from "@/components/HomeProductCard";
@@ -14,10 +16,11 @@ import { Newsletter } from "@/components/Newsletter";
 export default async function HomePage() {
   const env = await getWorkerEnv();
   const kv = getKV(env, "DATA_KV");
-  const [categories, products, { featured, newArrivals }] = await Promise.all([
+  const [categories, products, { featured, newArrivals }, homeSettings] = await Promise.all([
     kv ? listCategories(kv) : [],
     kv ? listProducts(kv) : [],
     getFeaturedAndNewArrivals(),
+    kv ? getHomeSettings(kv) : ({} as HomeSettings),
   ]);
 
   function categoryCount(slug: string) {
@@ -56,7 +59,17 @@ export default async function HomePage() {
             ))}
           </ul>
         </div>
-        <HeroArt className="aspect-[5/4] min-h-[320px]" style={{ flex: "1 1 480px" }} />
+        {homeSettings.heroImageKey ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={assetUrl(homeSettings.heroImageKey)}
+            alt=""
+            className="aspect-[5/4] min-h-[320px] rounded-panel object-cover"
+            style={{ flex: "1 1 480px" }}
+          />
+        ) : (
+          <HeroArt className="aspect-[5/4] min-h-[320px]" style={{ flex: "1 1 480px" }} />
+        )}
       </section>
 
       <section className="mx-auto w-full px-4 py-6 sm:px-6" style={{ maxWidth: 1280 }}>
@@ -65,11 +78,16 @@ export default async function HomePage() {
           <Link href="/shop" className="font-semibold text-accent-text">View all products →</Link>
         </div>
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-          {categories.map((c: { slug: string; name: string }) => {
-            const shape = categoryShapes[c.slug];
+          {categories.map((c: { slug: string; name: string; imageKey?: string }) => {
+            const shape = categoryShapes[c.slug] ?? { shape: "vase" as const, color: "#8A8D93" };
             return (
               <Link key={c.slug} href={`/shop/${c.slug}`} className="flex flex-col gap-3">
-                <ConceptRender shape={shape.shape} color={shape.color} className="aspect-square rounded-card" />
+                {c.imageKey ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={assetUrl(c.imageKey)} alt="" className="aspect-square rounded-card object-cover" />
+                ) : (
+                  <ConceptRender shape={shape.shape} color={shape.color} className="aspect-square rounded-card" />
+                )}
                 <div>
                   <strong className="font-display text-lg">{c.name}</strong>
                   <div className="text-sm text-text-muted">{categoryCount(c.slug)} products</div>
@@ -184,9 +202,6 @@ export default async function HomePage() {
       <section className="mx-auto w-full px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-[36px] font-bold">What customers say</h2>
-          <span className="inline-flex rounded-chip bg-neutral-chip-bg px-2.5 py-1 text-xs font-semibold text-neutral-chip-text">
-            Demo testimonials · replace with verified reviews
-          </span>
         </div>
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           {homeReviews.map((r: { who: string; q: string; what: string }) => (

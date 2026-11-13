@@ -142,6 +142,41 @@ export const api = {
       if (resource) sp.set("resource", resource);
       return apiFetch(`/api/admin?${sp.toString()}`);
     },
+    uploadAsset: async (file: File, folder: "categories" | "hero"): Promise<{ storageKey: string; mimeType: string }> => {
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${API_BASE}/api/admin/assets/upload?folder=${folder}`);
+        xhr.withCredentials = true;
+        xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        xhr.setRequestHeader("X-Original-Name", encodeURIComponent(file.name));
+        xhr.setRequestHeader("X-Original-Size", String(file.size));
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              reject(new Error("Could not parse upload response."));
+            }
+          } else {
+            try {
+              reject(new Error(JSON.parse(xhr.responseText)?.error ?? "Upload failed."));
+            } catch {
+              reject(new Error("Upload failed."));
+            }
+          }
+        };
+        xhr.onerror = () => reject(new Error("Upload failed due to a network error."));
+        xhr.send(file);
+      });
+    },
+  },
+  homeSettings: {
+    get: async (): Promise<{ settings: { heroImageKey?: string } }> => {
+      return apiFetch("/api/admin/home-settings");
+    },
+    update: async (patch: { heroImageKey?: string | null }) => {
+      return apiFetch("/api/admin/home-settings", { method: "PATCH", body: JSON.stringify(patch) });
+    },
   },
   home: {
     list: async (section?: string) => {

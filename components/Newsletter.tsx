@@ -6,6 +6,8 @@ import { Button } from "./Button";
 export function Newsletter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   return (
     <div className="flex flex-col items-center justify-between gap-8 rounded-sheet bg-art-tile p-8 sm:p-12 sm:flex-row">
@@ -19,9 +21,27 @@ export function Newsletter() {
         </p>
       ) : (
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            setSubscribed(true);
+            setError(null);
+            setSubmitting(true);
+            try {
+              const res = await fetch("/api/newsletter", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+              });
+              if (!res.ok) {
+                const data = await res.json().catch(() => null);
+                setError(data?.error ?? "Something went wrong. Try again.");
+                return;
+              }
+              setSubscribed(true);
+            } catch {
+              setError("Something went wrong. Try again.");
+            } finally {
+              setSubmitting(false);
+            }
           }}
           className="flex flex-wrap gap-2"
           style={{ flex: "1 1 360px" }}
@@ -37,9 +57,14 @@ export function Newsletter() {
             className="h-12 flex-1 rounded-input border border-border-input bg-surface px-3.5 text-base outline-none focus:border-text"
             style={{ flexBasis: 220 }}
           />
-          <Button type="submit" variant="secondary">
-            Subscribe
+          <Button type="submit" variant="secondary" disabled={submitting}>
+            {submitting ? "Subscribing…" : "Subscribe"}
           </Button>
+          {error ? (
+            <p role="alert" className="w-full text-sm text-error-text">
+              {error}
+            </p>
+          ) : null}
         </form>
       )}
     </div>

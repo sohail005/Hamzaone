@@ -3,6 +3,7 @@ export type Category = {
   name: string;
   description: string;
   enabled?: boolean;
+  imageKey?: string;
 };
 
 export const categories: Category[] = [];

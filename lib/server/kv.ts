@@ -17,15 +17,22 @@ function isKVStore(value: unknown): value is KVStore {
   );
 }
 
+export interface R2Object {
+  body: ReadableStream;
+  httpMetadata?: { contentType?: string };
+}
+
 export interface R2Bucket {
   put(key: string, value: ReadableStream | ArrayBuffer | Blob, options?: {
     httpMetadata?: { contentType?: string; contentEncoding?: string };
     customMetadata?: Record<string, string>;
   }): Promise<unknown>;
+  get(key: string): Promise<R2Object | null>;
+  delete(key: string): Promise<void>;
 }
 
 function isR2Bucket(value: unknown): value is R2Bucket {
-  return isRecord(value) && typeof value.put === "function";
+  return isRecord(value) && typeof value.put === "function" && typeof value.get === "function";
 }
 
 export interface CloudflareEnv {

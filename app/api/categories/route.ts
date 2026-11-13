@@ -86,9 +86,12 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "slug is required." }, { status: 400 });
   }
 
-  const patch = (await request.json().catch(() => null)) as Partial<Category> | null;
+  const patch = (await request.json().catch(() => null)) as (Partial<Category> & { imageKey?: string | null }) | null;
   if (!patch) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
+  }
+  if (patch.imageKey === null) {
+    patch.imageKey = undefined;
   }
 
   const category = await updateCategory(kv, slug, patch);

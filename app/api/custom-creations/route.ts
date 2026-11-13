@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   const deliveryCity = str(body.deliveryCity);
   const deliveryState = str(body.deliveryState);
   const deliveryPincode = str(body.deliveryPincode);
-  const projectName = str(body.projectName) || "Untitled Custom Creation";
+  const projectName = str(body.projectName) || "Your Custom Creation";
   const category = str(body.category);
   const description = str(body.description);
   const quantity = num(body.quantity) ?? 1;
