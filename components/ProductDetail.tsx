@@ -21,6 +21,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { formatINR, cx } from "@/lib/format";
+import { assetUrl } from "@/lib/assets";
 import { api } from "@/lib/api";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 import { lineChargeableWeightKg } from "@/lib/shipping";
@@ -144,6 +145,18 @@ export function ProductDetail({ product }: { product: Product }) {
               </button>
             ))}
           </div>
+          {product.videoKey && (
+            <div className="mt-5">
+              <h3 className="mb-2 text-sm font-semibold">Product video</h3>
+              <video
+                src={assetUrl(product.videoKey)}
+                controls
+                muted
+                playsInline
+                className="aspect-square w-full rounded-panel bg-black object-contain"
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-5">

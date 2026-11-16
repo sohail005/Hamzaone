@@ -82,7 +82,7 @@ export function AccountSideNav({ name, email, avatarUrl }: { name: string; email
         </p>
         <Link
           href="/shop"
-          className="mt-3 inline-flex items-center gap-1 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-text hover:bg-accent-hover"
+          className="mt-3 inline-flex items-center gap-1 rounded-full bg-accent px-4 py-2 text-xs font-semibold text-accent-contrast hover:bg-accent-hover"
         >
           Shop Now →
         </Link>

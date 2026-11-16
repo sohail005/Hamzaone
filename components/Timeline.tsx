@@ -10,7 +10,7 @@ export function Timeline({ steps, current }: { steps: string[]; current: number 
             <div
               className={cx(
                 "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold",
-                i < current ? "bg-success text-white" : i === current ? "bg-accent text-text" : "bg-neutral-chip-bg text-neutral-chip-text"
+                i < current ? "bg-success text-white" : i === current ? "bg-accent text-accent-contrast" : "bg-neutral-chip-bg text-neutral-chip-text"
               )}
             >
               {i < current ? <Check className="h-4 w-4" /> : i + 1}

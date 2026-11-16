@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { HomeCard } from "@/data/home";
-import { ConceptRender } from "./ConceptRender";
+import { ProductImage } from "./ProductImage";
 import { formatINR, cx } from "@/lib/format";
 import { useWishlist } from "@/store/wishlist";
 
@@ -28,7 +28,7 @@ export function HomeProductCard({ card, variant = "full" }: { card: HomeCard; va
   return (
     <div className="group relative flex flex-col gap-3">
       <Link href={`/products/${card.slug}`} className="relative block">
-        <ConceptRender shape={card.shape} color={card.color} className="aspect-square rounded-card" />
+        <ProductImage imageKey={card.imageKey} shape={card.shape} color={card.color} className="aspect-square rounded-card" />
         <span className={cx("absolute left-3 top-3 inline-flex rounded-chip px-2.5 py-1 text-xs font-semibold", badgeStyle[card.badge])}>
           {badgeLabel[card.badge]}
         </span>

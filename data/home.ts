@@ -15,6 +15,7 @@ export type HomeCard = {
   badge: HomeCardBadge;
   slug: string;
   availability: Availability;
+  imageKey?: string;
 };
 
 export const categoryShapes: Record<string, { shape: HomeCard["shape"]; color: string }> = {

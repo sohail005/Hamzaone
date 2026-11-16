@@ -105,8 +105,8 @@ function CouponsContent() {
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field id="value" label={form.type === "flat" ? "Discount value (₹)" : "Discount value (%)"} type="number" value={form.value} onChange={(e) => setForm({ ...form, value: Number(e.target.value) })} />
-            <Field id="minOrder" label="Minimum order (₹)" type="number" value={form.minOrder} onChange={(e) => setForm({ ...form, minOrder: Number(e.target.value) })} />
+            <Field id="value" label={form.type === "flat" ? "Discount value (₹)" : "Discount value (%)"} type="number" placeholder="0" value={form.value || ""} onChange={(e) => setForm({ ...form, value: Number(e.target.value) })} />
+            <Field id="minOrder" label="Minimum order (₹)" type="number" placeholder="0" value={form.minOrder || ""} onChange={(e) => setForm({ ...form, minOrder: Number(e.target.value) })} />
           </div>
           <Field id="expires" label="Expires on (optional)" type="date" value={form.expires} onChange={(e) => setForm({ ...form, expires: e.target.value })} />
           {error && <p className="text-sm text-error-text">{error}</p>}

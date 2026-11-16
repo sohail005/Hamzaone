@@ -145,7 +145,7 @@ export const api = {
       if (resource) sp.set("resource", resource);
       return apiFetch(`/api/admin?${sp.toString()}`);
     },
-    uploadAsset: async (file: File, folder: "categories" | "hero" | "custom-creation-categories"): Promise<{ storageKey: string; mimeType: string }> => {
+    uploadAsset: async (file: File, folder: "categories" | "hero" | "custom-creation-categories" | "products"): Promise<{ storageKey: string; mimeType: string }> => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", `${API_BASE}/api/admin/assets/upload?folder=${folder}`);
@@ -171,6 +171,14 @@ export const api = {
         xhr.onerror = () => reject(new Error("Upload failed due to a network error."));
         xhr.send(file);
       });
+    },
+  },
+  storeSettings: {
+    get: async (): Promise<{ settings: { storeName?: string; supportEmail?: string; accentColor?: string; standardShipping?: number; expressShipping?: number; freeShippingThreshold?: number } }> => {
+      return apiFetch("/api/admin/store-settings");
+    },
+    update: async (patch: Partial<{ storeName: string; supportEmail: string; accentColor: string; standardShipping: number; expressShipping: number; freeShippingThreshold: number }>) => {
+      return apiFetch("/api/admin/store-settings", { method: "PATCH", body: JSON.stringify(patch) });
     },
   },
   homeSettings: {

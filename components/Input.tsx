@@ -37,8 +37,8 @@ export const Field = forwardRef<HTMLInputElement, TextProps>(function Field(
             ? "border-2 border-error"
             : success
             ? "border-success"
-            : "border-border-input focus:border-accent",
-          "focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
+            : "border-border-input",
+          "focus-visible:outline-none",
           className
         )}
         {...rest}

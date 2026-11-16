@@ -9,6 +9,8 @@ import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
 import { api } from "@/lib/api";
 import { assetUrl } from "@/lib/assets";
+import { useShippingRates } from "@/lib/useShippingRates";
+import { formatINR } from "@/lib/format";
 
 type Category = { slug: string; name: string; description: string; imageKey?: string };
 type Product = { slug: string; name: string; category: string; price: number; availability: string; isNew?: boolean };
@@ -25,6 +27,7 @@ export function Header() {
   const [products, setProducts] = useState<Product[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const { freeShippingThreshold } = useShippingRates();
   const catTriggerRef = useRef<HTMLButtonElement>(null);
   const catPanelRef = useRef<HTMLDivElement>(null);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
@@ -98,7 +101,7 @@ export function Header() {
   return (
     <>
       <div className="bg-dark py-2 text-center text-[13px] text-bg">
-        Free standard shipping on orders above ₹1,499 · Every order printed in-house in India
+        Free standard shipping on orders above {formatINR(freeShippingThreshold)} · Every order printed in-house in India
       </div>
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
         <div className="relative mx-auto flex flex-wrap items-center gap-6 px-4 py-1 sm:px-6" style={{ maxWidth: 1280 }}>
@@ -153,7 +156,7 @@ export function Header() {
             </button>
           </form>
 
-          <Link href="/custom-creations" className="hidden h-11 items-center justify-center rounded-full bg-accent px-[18px] text-[15px] font-semibold text-text hover:bg-accent-hover md:flex">
+          <Link href="/custom-creations" className="hidden h-11 items-center justify-center rounded-full bg-accent px-[18px] text-[15px] font-semibold text-accent-contrast hover:bg-accent-hover md:flex">
             Custom Creations
           </Link>
 
@@ -174,7 +177,7 @@ export function Header() {
               className="relative flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5"
             >
               <ShoppingCart className="h-[22px] w-[22px]" strokeWidth={1.8} />
-              <span className="absolute right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-text">
+              <span className="absolute right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-contrast">
                 {cartCount}
               </span>
             </Link>
@@ -248,7 +251,7 @@ export function Header() {
                   {c.name}
                 </Link>
               ))}
-              <Link onClick={() => setMenuOpen(false)} href="/custom-creations" className="mt-2 flex items-center gap-2 rounded-chip bg-accent px-3 py-3 text-sm font-semibold text-text">
+              <Link onClick={() => setMenuOpen(false)} href="/custom-creations" className="mt-2 flex items-center gap-2 rounded-chip bg-accent px-3 py-3 text-sm font-semibold text-accent-contrast">
                 <Box className="h-4 w-4" /> Custom Creations
               </Link>
               <Link onClick={() => setMenuOpen(false)} href="/track-order" className="rounded-chip px-3 py-3 text-sm hover:bg:bg">

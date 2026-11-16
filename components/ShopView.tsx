@@ -132,7 +132,7 @@ export function ShopView({
   // when deciding which empty-state message to show.
   const hasActiveFilters = Boolean(avail || price || material || q || (category && !categorySlug));
   const activeChips = [
-    category && { key: "category", label: categories.find((c) => c.slug === category)?.name ?? category },
+    category && !categorySlug && { key: "category", label: categories.find((c) => c.slug === category)?.name ?? category },
     avail && { key: "avail", label: AVAILABILITY.find((a) => a.key === avail)?.label ?? avail },
     price && { key: "price", label: PRICE_BANDS.find((b) => b.key === price)?.label ?? price },
     material && { key: "material", label: material },

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { Product } from "@/data/products";
-import { ConceptRender } from "./ConceptRender";
+import { ProductImage } from "./ProductImage";
 import { AvailabilityChip } from "./StatusChip";
 import { PriceDisplay } from "./PriceDisplay";
 import { useWishlist } from "@/store/wishlist";
@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group relative flex flex-col gap-3">
       <Link href={`/products/${product.slug}`} className="relative block">
-        <ConceptRender shape={product.shape} color={product.colors[0].hex} className="aspect-square rounded-card" />
+        <ProductImage imageKey={product.imageKey} shape={product.shape} color={product.colors[0].hex} className="aspect-square rounded-card" />
         <AvailabilityChip status={product.availability} className="absolute left-3 top-3" />
         <button
           type="button"

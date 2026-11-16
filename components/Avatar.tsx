@@ -23,7 +23,7 @@ export function Avatar({ name, src, size = 40, className }: { name: string; src?
   }
   return (
     <div
-      className={cx("flex items-center justify-center rounded-full bg-accent text-sm font-semibold text-text", className)}
+      className={cx("flex items-center justify-center rounded-full bg-accent text-sm font-semibold text-accent-contrast", className)}
       style={{ width: size, height: size }}
       aria-hidden="true"
     >

@@ -48,6 +48,8 @@ export async function POST(request: Request) {
     colors: Array.isArray(body.colors) ? body.colors : [],
     description: typeof body.description === "string" ? body.description : "",
     shape: body.shape ?? "vase",
+    imageKey: typeof body.imageKey === "string" ? body.imageKey : undefined,
+    videoKey: typeof body.videoKey === "string" ? body.videoKey : undefined,
     isNew: body.isNew,
     largePrice: body.largePrice,
     unavailableCombo: body.unavailableCombo,

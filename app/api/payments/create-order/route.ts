@@ -6,6 +6,7 @@ import { getProductBySlug } from "@/lib/server/products-store";
 import { findValidCoupon } from "@/lib/server/admin-store";
 import { cartChargeableWeightKg, type ShippableLine } from "@/lib/shipping";
 import { checkServiceability, type NimbusPostEnvironment } from "@/lib/nimbuspost";
+import { getStoreSettings } from "@/lib/server/store-settings-store";
 
 type CheckoutLine = {
   productSlug: string;
@@ -217,7 +218,21 @@ export async function POST(request: Request) {
     console.error("NimbusPost shipping quote failed; falling back to flat-rate shipping.", error);
   }
 
-  const pricing = calculateCheckoutPricing(subtotal, shippingMethod as ShippingMethod, discount, appliedCouponCode, realShippingCost);
+  const { standardShipping, expressShipping, freeShippingThreshold } = await getStoreSettings(dataKV);
+  const fallbackRates =
+    standardShipping != null && expressShipping != null
+      ? { standard: standardShipping, express: expressShipping }
+      : undefined;
+
+  const pricing = calculateCheckoutPricing(
+    subtotal,
+    shippingMethod as ShippingMethod,
+    discount,
+    appliedCouponCode,
+    realShippingCost,
+    fallbackRates,
+    freeShippingThreshold,
+  );
 
   const totalPaise = pricing.total * 100;
   if (!Number.isSafeInteger(totalPaise) || totalPaise < 100 || totalPaise > 50_000_000) {

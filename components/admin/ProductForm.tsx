@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/data/products";
 import type { Category } from "@/data/categories";
 import { api } from "@/lib/api";
+import { assetUrl } from "@/lib/assets";
 import { Field, Textarea } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ConceptRender } from "@/components/ConceptRender";
@@ -22,11 +23,51 @@ export function ProductForm({ product }: { product?: Product }) {
     lengthCm: product?.lengthCm ?? 0,
     breadthCm: product?.breadthCm ?? 0,
     heightCm: product?.heightCm ?? 0,
+    imageKey: product?.imageKey,
+    videoKey: product?.videoKey,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const imageFileInput = useRef<HTMLInputElement | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+  const videoFileInput = useRef<HTMLInputElement | null>(null);
+
+  async function onImageFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setImageError(null);
+    setImageUploading(true);
+    try {
+      const { storageKey } = await api.admin.uploadAsset(file, "products");
+      setForm((f) => ({ ...f, imageKey: storageKey }));
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setImageUploading(false);
+    }
+  }
+
+  async function onVideoFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setVideoError(null);
+    setVideoUploading(true);
+    try {
+      const { storageKey } = await api.admin.uploadAsset(file, "products");
+      setForm((f) => ({ ...f, videoKey: storageKey }));
+    } catch (err) {
+      setVideoError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setVideoUploading(false);
+    }
+  }
 
   useEffect(() => {
     api.categories
@@ -116,8 +157,44 @@ export function ProductForm({ product }: { product?: Product }) {
         <div className="flex flex-col gap-4">
           <div className="rounded-card bg-surface p-5 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold">Images</h2>
-            <ConceptRender shape="vase" color="#C2693C" className="aspect-square rounded-chip" />
-            <p className="mt-2 text-xs text-text-muted">Concept render — no real uploads in this prototype.</p>
+            {form.imageKey ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={assetUrl(form.imageKey)} alt="" className="aspect-square w-full rounded-chip object-cover" />
+            ) : (
+              <ConceptRender shape="vase" color="#C2693C" className="aspect-square rounded-chip" />
+            )}
+            <div className="mt-3 flex gap-2">
+              <Button type="button" variant="outline" size="sm" disabled={imageUploading} onClick={() => imageFileInput.current?.click()}>
+                {imageUploading ? "Uploading…" : form.imageKey ? "Replace image" : "Upload image"}
+              </Button>
+              {form.imageKey && (
+                <Button type="button" variant="ghost" size="sm" disabled={imageUploading} onClick={() => setForm((f) => ({ ...f, imageKey: undefined }))}>
+                  Remove
+                </Button>
+              )}
+            </div>
+            <input ref={imageFileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onImageFileChosen} />
+            {imageError && <p className="mt-2 text-xs text-error-text">{imageError}</p>}
+            {!form.imageKey && <p className="mt-2 text-xs text-text-muted">No image uploaded yet — shown as a concept render until you add one.</p>}
+          </div>
+          <div className="rounded-card bg-surface p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold">Video (optional)</h2>
+            {form.videoKey && (
+              <video src={assetUrl(form.videoKey)} controls muted playsInline className="aspect-square w-full rounded-chip bg-black object-contain" />
+            )}
+            <div className="mt-3 flex gap-2">
+              <Button type="button" variant="outline" size="sm" disabled={videoUploading} onClick={() => videoFileInput.current?.click()}>
+                {videoUploading ? "Uploading…" : form.videoKey ? "Replace video" : "Upload video"}
+              </Button>
+              {form.videoKey && (
+                <Button type="button" variant="ghost" size="sm" disabled={videoUploading} onClick={() => setForm((f) => ({ ...f, videoKey: undefined }))}>
+                  Remove
+                </Button>
+              )}
+            </div>
+            <input ref={videoFileInput} type="file" accept="video/mp4,video/webm" className="hidden" onChange={onVideoFileChosen} />
+            {videoError && <p className="mt-2 text-xs text-error-text">{videoError}</p>}
+            <p className="mt-2 text-xs text-text-muted">A short MP4/WEBM clip (max 50 MB), shown on the product page. Skip this if you don&apos;t have one.</p>
           </div>
           <div className="flex flex-col gap-2 rounded-card bg-surface p-5 shadow-sm">
             <Button variant="outline" onClick={() => setPreview(true)}>Preview</Button>

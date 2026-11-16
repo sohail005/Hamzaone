@@ -31,6 +31,7 @@ function toHomeCard(product: Product, index: number): HomeCard {
     color: product.colors[0]?.hex ?? "#8C8F96",
     badge,
     availability: product.availability,
+    imageKey: product.imageKey,
   };
 }
 

@@ -27,7 +27,7 @@ export function Stepper({ steps, current, onStepClick, orientation = "horizontal
                   aria-label={`${s.label}${active ? " (current step)" : done ? " (completed)" : ""}`}
                   className={cx(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                    active ? "bg-accent text-text" : done ? "bg-success text-white" : "bg-neutral-chip-bg text-neutral-chip-text",
+                    active ? "bg-accent text-accent-contrast" : done ? "bg-success text-white" : "bg-neutral-chip-bg text-neutral-chip-text",
                   )}
                 >
                   {done ? <Check className="h-4 w-4" /> : i + 1}
@@ -58,7 +58,7 @@ export function Stepper({ steps, current, onStepClick, orientation = "horizontal
               aria-label={`${s.label}${active ? " (current step)" : done ? " (completed)" : ""}`}
               className={cx(
                 "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold",
-                active ? "bg-accent text-text" : done ? "bg-success text-white" : "bg-neutral-chip-bg text-neutral-chip-text"
+                active ? "bg-accent text-accent-contrast" : done ? "bg-success text-white" : "bg-neutral-chip-bg text-neutral-chip-text"
               )}
             >
               {done ? <Check className="h-4 w-4" /> : i + 1}

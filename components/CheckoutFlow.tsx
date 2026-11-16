@@ -13,6 +13,7 @@ import { Stepper } from "./Stepper";
 import { RazorpayModal } from "./RazorpayModal";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 import { calculateCheckoutPricing, type ShippingMethod } from "@/lib/checkout-pricing";
+import { useShippingRates } from "@/lib/useShippingRates";
 import { cartChargeableWeightKg } from "@/lib/shipping";
 
 const STEPS = [
@@ -158,9 +159,10 @@ export function CheckoutFlow() {
       ? delivery.result.expressShippingCost
       : delivery.result.standardShippingCost
     : undefined;
+  const { rates: shippingRates, freeShippingThreshold } = useShippingRates();
   const pricing = useMemo(
-    () => calculateCheckoutPricing(subtotal, shippingMethod, activeCouponDiscount, activeCouponCode, realShippingCost),
-    [activeCouponCode, activeCouponDiscount, realShippingCost, shippingMethod, subtotal],
+    () => calculateCheckoutPricing(subtotal, shippingMethod, activeCouponDiscount, activeCouponCode, realShippingCost, shippingRates, freeShippingThreshold),
+    [activeCouponCode, activeCouponDiscount, realShippingCost, shippingMethod, subtotal, shippingRates, freeShippingThreshold],
   );
   const { discount, shipping, total } = pricing;
 
@@ -346,13 +348,13 @@ export function CheckoutFlow() {
                 {
                   key: "standard",
                   label: "Standard shipping",
-                  price: calculateCheckoutPricing(subtotal, "standard", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.standardShippingCost : undefined).shipping,
+                  price: calculateCheckoutPricing(subtotal, "standard", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.standardShippingCost : undefined, shippingRates, freeShippingThreshold).shipping,
                   eta: "3–6 business days after dispatch (estimate)",
                 },
                 {
                   key: "express",
                   label: "Express shipping",
-                  price: calculateCheckoutPricing(subtotal, "express", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.expressShippingCost : undefined).shipping,
+                  price: calculateCheckoutPricing(subtotal, "express", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.expressShippingCost : undefined, shippingRates, freeShippingThreshold).shipping,
                   eta: "1–3 business days after dispatch (estimate)",
                 },
               ].map((opt) => (

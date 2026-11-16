@@ -29,7 +29,7 @@ export default async function AdminOverviewPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Overview</h1>
-        <Link href="/admin/products/new" className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-text hover:bg-accent-hover">
+        <Link href="/admin/products/new" className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast hover:bg-accent-hover">
           Add product
         </Link>
       </div>

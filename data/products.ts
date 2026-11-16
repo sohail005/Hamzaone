@@ -15,6 +15,8 @@ export type Product = {
   material: string;
   colors: ColorOption[];
   description: string;
+  imageKey?: string;
+  videoKey?: string;
   shape: "vase" | "planter" | "lamp" | "coaster" | "stand" | "organizer" | "cup" | "riser" | "plate" | "keychain" | "bookmark" | "tag" | "dragon" | "elephant" | "ganesha" | "octopus" | "hook" | "lid" | "gear" | "pull" | "part";
   unavailableCombo?: { color: string; size: string };
   isNew?: boolean;

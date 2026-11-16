@@ -3,8 +3,8 @@ export type ShippingMethod = "standard" | "express";
 // Flat-rate fallback, used only when a real NimbusPost quote isn't available
 // yet (no delivery address/pincode entered, or NimbusPost is unreachable) —
 // see lib/nimbuspost.ts#checkServiceability for the real per-route cost.
-const FALLBACK_SHIPPING: Record<ShippingMethod, number> = { standard: 79, express: 149 };
-const FREE_STANDARD_SHIPPING_THRESHOLD = 1499;
+export const FALLBACK_SHIPPING: Record<ShippingMethod, number> = { standard: 79, express: 149 };
+export const DEFAULT_FREE_SHIPPING_THRESHOLD = 1499;
 
 // Coupon validity (does it exist, is it enabled, has it expired, is the minimum
 // order met) is resolved against admin-managed coupons in KV — see
@@ -19,16 +19,18 @@ export function calculateCheckoutPricing(
   discount = 0,
   couponCode: string | null = null,
   realShippingCost?: number,
+  fallbackRates: Record<ShippingMethod, number> = FALLBACK_SHIPPING,
+  freeShippingThreshold: number = DEFAULT_FREE_SHIPPING_THRESHOLD,
 ) {
   const safeDiscount = Math.max(0, Math.min(discount, subtotal));
   const discountedSubtotal = Math.max(0, subtotal - safeDiscount);
 
-  const freeStandardShipping = shippingMethod === "standard" && discountedSubtotal >= FREE_STANDARD_SHIPPING_THRESHOLD;
+  const freeStandardShipping = shippingMethod === "standard" && discountedSubtotal >= freeShippingThreshold;
   const shipping = freeStandardShipping
     ? 0
     : realShippingCost !== undefined
       ? Math.max(0, Math.round(realShippingCost))
-      : FALLBACK_SHIPPING[shippingMethod];
+      : fallbackRates[shippingMethod];
 
   return {
     subtotal,

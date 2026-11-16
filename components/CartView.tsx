@@ -9,11 +9,12 @@ import { useToast } from "@/store/toast";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Input";
-import { ConceptRender } from "@/components/ConceptRender";
+import { ProductImage } from "@/components/ProductImage";
 import type { Product } from "@/data/products";
 import { api } from "@/lib/api";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { calculateCheckoutPricing } from "@/lib/checkout-pricing";
+import { useShippingRates } from "@/lib/useShippingRates";
 
 export function CartView() {
   const { lines, couponCode, couponDiscount, removeLine, setQty, addLine, setCoupon } = useCart(
@@ -35,9 +36,10 @@ export function CartView() {
   const [productCache, setProductCache] = useState<Record<string, Product>>({});
 
   const hasOOS = useMemo(() => lines.some((l) => l.availability === "out-of-stock"), [lines]);
+  const { rates: shippingRates, freeShippingThreshold } = useShippingRates();
   const pricing = useMemo(
-    () => calculateCheckoutPricing(subtotal, "standard", couponDiscount, couponCode),
-    [couponCode, couponDiscount, subtotal],
+    () => calculateCheckoutPricing(subtotal, "standard", couponDiscount, couponCode, undefined, shippingRates, freeShippingThreshold),
+    [couponCode, couponDiscount, subtotal, shippingRates, freeShippingThreshold],
   );
 
   // Re-validate an already-applied coupon when the cart total changes (e.g. a
@@ -152,7 +154,7 @@ export function CartView() {
             return (
               <li key={l.id} className={`flex gap-4 rounded-card bg-surface p-4 shadow-sm ${isOOS ? "opacity-60" : ""}`}>
                 <Link href={`/products/${l.slug}`} className="shrink-0">
-                  <ConceptRender shape={product?.shape ?? "vase"} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
+                  <ProductImage imageKey={product?.imageKey} shape={product?.shape ?? "vase"} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
                 </Link>
                 <div className="flex flex-1 flex-col gap-1">
                   <Link href={`/products/${l.slug}`} className="text-sm font-semibold hover:text-accent-text">{l.name}</Link>

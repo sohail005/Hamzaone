@@ -14,6 +14,7 @@ module.exports = {
         accent: 'var(--accent)',
         'accent-hover': 'var(--accent-hover)',
         'accent-text': 'var(--accent-text)',
+        'accent-contrast': 'var(--accent-contrast)',
         dark: 'var(--dark)',
         border: 'var(--border)',
         'border-input': 'var(--border-input)',
