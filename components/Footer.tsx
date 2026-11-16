@@ -1,7 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import { SUPPORT_EMAIL, whatsAppLink } from "@/data/site";
 
 export function Footer() {
+  const waLink = whatsAppLink("Hi HamzaOne, I have a question.");
+
   return (
     <footer className="bg-dark text-bg">
       <div className="mx-auto grid grid-cols-2 gap-8 px-4 py-16 sm:px-6 sm:grid-cols-3 md:grid-cols-5" style={{ maxWidth: 1280 }}>
@@ -34,6 +37,10 @@ export function Footer() {
           <Link href="/about" className="text-sm text-[#C9CBD0] hover:text-white">About</Link>
           <Link href="/contact" className="text-sm text-[#C9CBD0] hover:text-white">Contact</Link>
           <Link href="/faq" className="text-sm text-[#C9CBD0] hover:text-white">FAQ</Link>
+          <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-[#C9CBD0] hover:text-white">{SUPPORT_EMAIL}</a>
+          {waLink && (
+            <a href={waLink} target="_blank" rel="noopener noreferrer" className="text-sm text-[#C9CBD0] hover:text-white">WhatsApp us</a>
+          )}
         </div>
         <div className="flex flex-col gap-2.5">
           <strong className="text-sm text-white">Policies</strong>

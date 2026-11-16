@@ -3,7 +3,7 @@ import { type KVStore } from "./kv";
 const SETTINGS_KEY = "settings:home";
 
 export type HomeSettings = {
-  heroImageKey?: string;
+  heroImageKeys?: string[];
 };
 
 export async function getHomeSettings(kv: KVStore): Promise<HomeSettings> {

@@ -25,13 +25,13 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Settings storage is not configured." }, { status: 503 });
   }
 
-  const patch = (await request.json().catch(() => null)) as { heroImageKey?: string | null } | null;
-  if (!patch) {
+  const patch = (await request.json().catch(() => null)) as { heroImageKeys?: string[] } | null;
+  if (!patch || !Array.isArray(patch.heroImageKeys)) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const settings = await updateHomeSettings(kv, {
-    heroImageKey: patch.heroImageKey === null ? undefined : patch.heroImageKey,
+    heroImageKeys: patch.heroImageKeys.filter((key): key is string => typeof key === "string" && key.length > 0),
   });
   return Response.json({ settings });
 }

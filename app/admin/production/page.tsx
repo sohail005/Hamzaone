@@ -29,15 +29,18 @@ export default function AdminProductionPage() {
 
   if (!loaded) return null;
 
-  function move(id: string, dir: 1 | -1) {
-    setCards((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        const idx = STAGES.findIndex((s) => s.key === c.stage);
-        const nextIdx = Math.min(STAGES.length - 1, Math.max(0, idx + dir));
-        return { ...c, stage: STAGES[nextIdx].key };
-      })
-    );
+  async function move(id: string, dir: 1 | -1) {
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+    const idx = STAGES.findIndex((s) => s.key === card.stage);
+    const nextStage = STAGES[Math.min(STAGES.length - 1, Math.max(0, idx + dir))].key;
+    const prevStage = card.stage;
+    setCards((prev) => prev.map((c) => (c.id === id ? { ...c, stage: nextStage } : c)));
+    try {
+      await api.production.updateStage(id, nextStage);
+    } catch {
+      setCards((prev) => prev.map((c) => (c.id === id ? { ...c, stage: prevStage } : c)));
+    }
   }
 
   const visible = priorityFilter === "all" ? cards : cards.filter((c) => c.priority === "high");

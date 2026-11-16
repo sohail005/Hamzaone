@@ -8,6 +8,8 @@ export type DeliveryEstimate = {
   maxDays?: number;
   cod: boolean;
   message: string;
+  standardShippingCost?: number;
+  expressShippingCost?: number;
 };
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -18,12 +20,14 @@ export function useDeliveryEstimate() {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
 
-  const check = useCallback(async (pincode: string) => {
+  const check = useCallback(async (pincode: string, weightKg?: number) => {
     const id = ++requestId.current;
     setStatus("loading");
     setError(null);
     try {
-      const res = await fetch(`/api/delivery-estimate?pincode=${encodeURIComponent(pincode)}`);
+      const sp = new URLSearchParams({ pincode });
+      if (weightKg && weightKg > 0) sp.set("weightKg", String(weightKg));
+      const res = await fetch(`/api/delivery-estimate?${sp.toString()}`);
       const data = await res.json();
       if (id !== requestId.current) return; // a newer check superseded this one
       if (!res.ok) {

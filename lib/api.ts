@@ -135,6 +135,9 @@ export const api = {
     create: async (body: unknown) => {
       return apiFetch("/api/orders", { method: "POST", body: JSON.stringify(body) });
     },
+    update: async (id: string, patch: { status?: string; trackingNumber?: string | null; carrier?: string | null }) => {
+      return apiFetch(`/api/orders/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(patch) });
+    },
   },
   admin: {
     list: async (resource?: string) => {
@@ -142,7 +145,7 @@ export const api = {
       if (resource) sp.set("resource", resource);
       return apiFetch(`/api/admin?${sp.toString()}`);
     },
-    uploadAsset: async (file: File, folder: "categories" | "hero"): Promise<{ storageKey: string; mimeType: string }> => {
+    uploadAsset: async (file: File, folder: "categories" | "hero" | "custom-creation-categories"): Promise<{ storageKey: string; mimeType: string }> => {
       return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", `${API_BASE}/api/admin/assets/upload?folder=${folder}`);
@@ -171,11 +174,57 @@ export const api = {
     },
   },
   homeSettings: {
-    get: async (): Promise<{ settings: { heroImageKey?: string } }> => {
+    get: async (): Promise<{ settings: { heroImageKeys?: string[] } }> => {
       return apiFetch("/api/admin/home-settings");
     },
-    update: async (patch: { heroImageKey?: string | null }) => {
+    update: async (patch: { heroImageKeys: string[] }) => {
       return apiFetch("/api/admin/home-settings", { method: "PATCH", body: JSON.stringify(patch) });
+    },
+  },
+  coupons: {
+    // Throws (apiFetch) with the server's error message (e.g. "Invalid coupon
+    // code.") on an invalid/expired/under-minimum coupon.
+    validate: async (code: string, subtotal: number): Promise<{ valid: true; couponCode: string; discount: number }> => {
+      return apiFetch("/api/coupons/validate", { method: "POST", body: JSON.stringify({ code, subtotal }) });
+    },
+    create: async (body: { code: string; type: "flat" | "percent"; value: number; minOrder: number; expires?: string }) => {
+      return apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(body) });
+    },
+    update: async (code: string, patch: Partial<{ type: "flat" | "percent"; value: number; minOrder: number; expires: string; enabled: boolean }>) => {
+      return apiFetch("/api/admin/coupons", { method: "PATCH", body: JSON.stringify({ code, ...patch }) });
+    },
+  },
+  reviews: {
+    list: async (productSlug?: string) => {
+      const sp = new URLSearchParams();
+      if (productSlug) sp.set("productSlug", productSlug);
+      return apiFetch(`/api/reviews?${sp.toString()}`, undefined, "revalidate");
+    },
+    create: async (body: { orderId: string; email: string; productSlug: string; rating: number; quote: string }) => {
+      return apiFetch("/api/reviews", { method: "POST", body: JSON.stringify(body) });
+    },
+    adminList: async () => apiFetch("/api/admin/reviews"),
+    adminSetApproved: async (id: string, approved: boolean) => {
+      return apiFetch("/api/admin/reviews", { method: "PATCH", body: JSON.stringify({ id, approved }) });
+    },
+    adminDelete: async (id: string) => apiFetch(`/api/admin/reviews?id=${encodeURIComponent(id)}`, { method: "DELETE" }),
+  },
+  inventory: {
+    adjustStock: async (slug: string, variant: string, stock: number) => {
+      return apiFetch("/api/admin/inventory", { method: "PATCH", body: JSON.stringify({ slug, variant, stock }) });
+    },
+  },
+  production: {
+    updateStage: async (id: string, stage: string) => {
+      return apiFetch("/api/admin/production", { method: "PATCH", body: JSON.stringify({ id, stage }) });
+    },
+  },
+  customCreationCategories: {
+    get: async (): Promise<{ overrides: Record<string, { imageKey?: string; enabled?: boolean }> }> => {
+      return apiFetch("/api/admin/custom-creation-categories");
+    },
+    update: async (slug: string, patch: { imageKey?: string | null; enabled?: boolean }) => {
+      return apiFetch("/api/admin/custom-creation-categories", { method: "PATCH", body: JSON.stringify({ slug, ...patch }) });
     },
   },
   home: {

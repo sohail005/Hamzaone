@@ -3,43 +3,60 @@ import { calculateCheckoutPricing } from "@/lib/checkout-pricing";
 
 describe("calculateCheckoutPricing", () => {
   it("charges standard shipping below the free-shipping threshold", () => {
-    const result = calculateCheckoutPricing(500, "standard", null);
+    const result = calculateCheckoutPricing(500, "standard");
     expect(result.shipping).toBe(79);
     expect(result.total).toBe(579);
   });
 
   it("gives free standard shipping at or above the threshold", () => {
-    const result = calculateCheckoutPricing(1499, "standard", null);
+    const result = calculateCheckoutPricing(1499, "standard");
     expect(result.shipping).toBe(0);
     expect(result.total).toBe(1499);
   });
 
   it("always charges express shipping regardless of subtotal", () => {
-    const result = calculateCheckoutPricing(5000, "express", null);
+    const result = calculateCheckoutPricing(5000, "express");
     expect(result.shipping).toBe(149);
   });
 
-  it("applies the first-order coupon when the minimum is met", () => {
-    const result = calculateCheckoutPricing(1000, "standard", "first100");
+  it("applies a resolved discount and echoes the coupon code", () => {
+    const result = calculateCheckoutPricing(1000, "standard", 100, "FIRST100");
     expect(result.discount).toBe(100);
     expect(result.couponCode).toBe("FIRST100");
-    expect(result.couponError).toBeNull();
+    expect(result.total).toBe(900 + result.shipping);
   });
 
-  it("rejects the first-order coupon below the minimum order", () => {
-    const result = calculateCheckoutPricing(500, "standard", "FIRST100");
+  it("drops the coupon code when there is no discount", () => {
+    const result = calculateCheckoutPricing(1000, "standard", 0, "FIRST100");
     expect(result.discount).toBe(0);
-    expect(result.couponError).toMatch(/minimum order/i);
+    expect(result.couponCode).toBeNull();
   });
 
-  it("rejects unknown coupon codes", () => {
-    const result = calculateCheckoutPricing(2000, "standard", "NOTREAL");
-    expect(result.discount).toBe(0);
-    expect(result.couponError).toBe("Invalid coupon code.");
-  });
-
-  it("never lets the discounted subtotal go negative", () => {
-    const result = calculateCheckoutPricing(50, "standard", null);
+  it("never lets the discount exceed the subtotal", () => {
+    const result = calculateCheckoutPricing(50, "standard", 100, "BIG");
+    expect(result.discount).toBe(50);
     expect(result.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it("ignores a negative discount", () => {
+    const result = calculateCheckoutPricing(500, "standard", -50, "BAD");
+    expect(result.discount).toBe(0);
+    expect(result.couponCode).toBeNull();
+  });
+
+  it("uses a real courier-quoted shipping cost when provided", () => {
+    const result = calculateCheckoutPricing(500, "standard", 0, null, 62.95);
+    expect(result.shipping).toBe(63);
+    expect(result.total).toBe(563);
+  });
+
+  it("still gives free standard shipping above the threshold even with a real quote", () => {
+    const result = calculateCheckoutPricing(2000, "standard", 0, null, 110.86);
+    expect(result.shipping).toBe(0);
+  });
+
+  it("never lets a real shipping quote go negative", () => {
+    const result = calculateCheckoutPricing(500, "standard", 0, null, -5);
+    expect(result.shipping).toBe(0);
   });
 });

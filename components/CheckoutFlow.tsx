@@ -13,6 +13,7 @@ import { Stepper } from "./Stepper";
 import { RazorpayModal } from "./RazorpayModal";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
 import { calculateCheckoutPricing, type ShippingMethod } from "@/lib/checkout-pricing";
+import { cartChargeableWeightKg } from "@/lib/shipping";
 
 const STEPS = [
   { key: "contact", label: "Contact" },
@@ -30,6 +31,7 @@ export function CheckoutFlow() {
 
   const { lines } = useCart();
   const couponCode = useCart((state) => state.couponCode);
+  const couponDiscount = useCart((state) => state.couponDiscount);
   const [buyNowProduct, setBuyNowProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -66,12 +68,17 @@ export function CheckoutFlow() {
         price: buyNowProduct.price,
         qty: 1,
         availability: buyNowProduct.availability,
+        weightKg: buyNowProduct.weightKg,
+        lengthCm: buyNowProduct.lengthCm,
+        breadthCm: buyNowProduct.breadthCm,
+        heightCm: buyNowProduct.heightCm,
       }];
     }
     return lines;
   }, [buyNowProduct, lines]);
 
   const { subtotal } = cartTotals(effectiveLines);
+  const chargeableWeightKg = useMemo(() => cartChargeableWeightKg(effectiveLines), [effectiveLines]);
 
   const [contact, setContact] = useState({ name: "", email: "", phone: "" });
   const [address, setAddress] = useState<{
@@ -145,15 +152,21 @@ export function CheckoutFlow() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const activeCouponCode = buyNowProduct ? null : couponCode;
+  const activeCouponDiscount = buyNowProduct ? 0 : couponDiscount;
+  const realShippingCost = delivery.result?.serviceable
+    ? shippingMethod === "express"
+      ? delivery.result.expressShippingCost
+      : delivery.result.standardShippingCost
+    : undefined;
   const pricing = useMemo(
-    () => calculateCheckoutPricing(subtotal, shippingMethod, activeCouponCode),
-    [activeCouponCode, shippingMethod, subtotal],
+    () => calculateCheckoutPricing(subtotal, shippingMethod, activeCouponDiscount, activeCouponCode, realShippingCost),
+    [activeCouponCode, activeCouponDiscount, realShippingCost, shippingMethod, subtotal],
   );
   const { discount, shipping, total } = pricing;
 
   useEffect(() => {
     if (!/^\d{6}$/.test(address.pin)) return;
-    const timeout = setTimeout(() => delivery.check(address.pin), 400);
+    const timeout = setTimeout(() => delivery.check(address.pin, chargeableWeightKg), 400);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address.pin]);
@@ -330,8 +343,18 @@ export function CheckoutFlow() {
           {step === "shipping" && (
             <div className="flex flex-col gap-4">
               {[
-                { key: "standard", label: "Standard shipping", price: subtotal >= 1499 ? 0 : 79, eta: "3–6 business days after dispatch (estimate)" },
-                { key: "express", label: "Express shipping", price: 149, eta: "1–3 business days after dispatch (estimate)" },
+                {
+                  key: "standard",
+                  label: "Standard shipping",
+                  price: calculateCheckoutPricing(subtotal, "standard", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.standardShippingCost : undefined).shipping,
+                  eta: "3–6 business days after dispatch (estimate)",
+                },
+                {
+                  key: "express",
+                  label: "Express shipping",
+                  price: calculateCheckoutPricing(subtotal, "express", activeCouponDiscount, activeCouponCode, delivery.result?.serviceable ? delivery.result.expressShippingCost : undefined).shipping,
+                  eta: "1–3 business days after dispatch (estimate)",
+                },
               ].map((opt) => (
                 <label key={opt.key} className={`flex items-center justify-between rounded-card border p-4 ${shippingMethod === opt.key ? "border-accent" : "border-border"}`}>
                   <div className="flex items-center gap-3">
@@ -378,7 +401,7 @@ export function CheckoutFlow() {
                 <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5" />
                 I agree to the <Link href="/terms" className="underline">terms and conditions</Link>.
               </label>
-              <Button disabled={!terms || Boolean(pricing.couponError)} size="lg" onClick={() => setModalOpen(true)}>
+              <Button disabled={!terms} size="lg" onClick={() => setModalOpen(true)}>
                 Pay {formatINR(total)} securely
               </Button>
             </div>
@@ -400,7 +423,6 @@ export function CheckoutFlow() {
             {discount > 0 && <div className="flex justify-between text-success-text"><span>Coupon {activeCouponCode}</span><span>−{formatINR(discount)}</span></div>}
             <div className="flex justify-between"><span className="text-text-muted">Shipping</span><span>{shipping === 0 ? "Free" : formatINR(shipping)}</span></div>
             <div className="flex justify-between text-base font-bold"><span>Total</span><span>{formatINR(total)}</span></div>
-            {pricing.couponError && <p role="alert" className="text-sm text-error-text">{pricing.couponError}</p>}
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { getR2, getWorkerEnv, slugify } from "@/lib/server/kv";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
-const ALLOWED_FOLDERS = new Set(["categories", "hero"]);
+const ALLOWED_FOLDERS = new Set(["categories", "hero", "custom-creation-categories"]);
 
 function detectMimeType(bytes: Uint8Array): string | null {
   if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg";

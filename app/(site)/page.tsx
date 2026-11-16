@@ -4,10 +4,12 @@ import { listCategories } from "@/lib/server/categories-store";
 import { listProducts } from "@/lib/server/products-store";
 import { getHomeSettings, type HomeSettings } from "@/lib/server/home-settings-store";
 import { getFeaturedAndNewArrivals } from "@/app/api/home/route";
-import { categoryShapes, customSteps, howItWorks, valueProps, homeReviews, homeFaqs, heroChecklist } from "@/data/home";
+import { categoryShapes, customSteps, howItWorks, valueProps, homeFaqs, heroChecklist } from "@/data/home";
+import { listApprovedReviews } from "@/lib/server/reviews-store";
 import { assetUrl } from "@/lib/assets";
 import { ConceptRender } from "@/components/ConceptRender";
 import { HeroArt } from "@/components/HeroArt";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { HomeProductCard } from "@/components/HomeProductCard";
 import { Button } from "@/components/Button";
 import { FaqAccordion } from "@/components/FaqAccordion";
@@ -16,11 +18,12 @@ import { Newsletter } from "@/components/Newsletter";
 export default async function HomePage() {
   const env = await getWorkerEnv();
   const kv = getKV(env, "DATA_KV");
-  const [categories, products, { featured, newArrivals }, homeSettings] = await Promise.all([
+  const [categories, products, { featured, newArrivals }, homeSettings, homeReviews] = await Promise.all([
     kv ? listCategories(kv) : [],
     kv ? listProducts(kv) : [],
     getFeaturedAndNewArrivals(),
     kv ? getHomeSettings(kv) : ({} as HomeSettings),
+    kv ? listApprovedReviews(kv) : [],
   ]);
 
   function categoryCount(slug: string) {
@@ -59,12 +62,10 @@ export default async function HomePage() {
             ))}
           </ul>
         </div>
-        {homeSettings.heroImageKey ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={assetUrl(homeSettings.heroImageKey)}
-            alt=""
-            className="aspect-[5/4] min-h-[320px] rounded-panel object-cover"
+        {homeSettings.heroImageKeys && homeSettings.heroImageKeys.length > 0 ? (
+          <HeroCarousel
+            imageKeys={homeSettings.heroImageKeys}
+            className="aspect-[5/4] min-h-[320px]"
             style={{ flex: "1 1 480px" }}
           />
         ) : (
@@ -83,8 +84,10 @@ export default async function HomePage() {
             return (
               <Link key={c.slug} href={`/shop/${c.slug}`} className="flex flex-col gap-3">
                 {c.imageKey ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={assetUrl(c.imageKey)} alt="" className="aspect-square rounded-card object-cover" />
+                  <div className="aspect-video overflow-hidden rounded-card bg-art-tile">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={assetUrl(c.imageKey)} alt="" className="h-full w-full object-contain" />
+                  </div>
                 ) : (
                   <ConceptRender shape={shape.shape} color={shape.color} className="aspect-square rounded-card" />
                 )}
@@ -199,20 +202,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="text-[36px] font-bold">What customers say</h2>
-        </div>
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {homeReviews.map((r: { who: string; q: string; what: string }) => (
-            <figure key={r.who} className="m-0 flex flex-col gap-4 rounded-card border border-border bg-surface p-6">
-              <div aria-label="5 out of 5" className="text-accent-text" style={{ letterSpacing: 2 }}>★★★★★</div>
-              <blockquote className="m-0 text-lg">&ldquo;{r.q}&rdquo;</blockquote>
-              <figcaption className="text-sm text-text-muted">{r.who} · {r.what}</figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
+      {homeReviews.length > 0 && (
+        <section className="mx-auto w-full px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-[36px] font-bold">What customers say</h2>
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {homeReviews.slice(0, 3).map((r) => (
+              <figure key={r.id} className="m-0 flex flex-col gap-4 rounded-card border border-border bg-surface p-6">
+                <div aria-label={`${r.rating} out of 5`} className="text-accent-text" style={{ letterSpacing: 2 }}>
+                  {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                </div>
+                <blockquote className="m-0 text-lg">&ldquo;{r.quote}&rdquo;</blockquote>
+                <figcaption className="text-sm text-text-muted">{r.customerName} · {r.productName}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mx-auto flex w-full flex-wrap gap-12 px-4 py-9 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-col gap-3" style={{ flex: "1 1 300px" }}>

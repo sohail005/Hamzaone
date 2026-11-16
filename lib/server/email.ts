@@ -5,7 +5,7 @@ export interface EmailEnv {
 
 export async function sendEmail(
   env: EmailEnv,
-  { to, subject, html, text }: { to: string; subject: string; html: string; text: string },
+  { to, subject, html, text, replyTo }: { to: string; subject: string; html: string; text: string; replyTo?: string },
 ): Promise<{ sent: boolean }> {
   const apiKey = typeof env.RESEND_API_KEY === "string" ? env.RESEND_API_KEY : "";
   const from = typeof env.RESEND_FROM_EMAIL === "string" && env.RESEND_FROM_EMAIL ? env.RESEND_FROM_EMAIL : "HamzaOne <onboarding@resend.dev>";
@@ -21,7 +21,7 @@ export async function sendEmail(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to, subject, html, text }),
+    body: JSON.stringify({ from, to, subject, html, text, ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
 
   if (!res.ok) {

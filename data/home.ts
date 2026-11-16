@@ -46,12 +46,6 @@ export const valueProps = [
   { n: "04", t: "Real support", d: "Talk to the people who print your order on WhatsApp or email." },
 ];
 
-export const homeReviews = [
-  { q: "The vase looks far more premium than I expected. Layer lines are barely visible.", who: "Priya S.", what: "Spiral Decor Vase" },
-  { q: "Uploaded my drone part on Monday, got a clear quote the next day.", who: "Arjun M.", what: "Custom print" },
-  { q: "Nameplate was printed exactly as previewed and arrived well packed.", who: "Fatima K.", what: "Custom Name Plate" },
-];
-
 export const homeFaqs = [
   { q: "What is the difference between production time and shipping time?", a: "Production time is how long we take to print, finish and quality check your item. Shipping time starts after dispatch. Both are shown separately on every product and at checkout, and shipping times are estimates from our courier partners." },
   { q: "Do I need a 3D model to request a custom creation?", a: "No. Share reference photos, a sketch, or just a description — our team handles the 3D modelling for you." },

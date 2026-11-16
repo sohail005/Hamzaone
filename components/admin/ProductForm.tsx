@@ -18,6 +18,10 @@ export function ProductForm({ product }: { product?: Product }) {
     price: product?.price ?? 0,
     material: product?.material ?? "PLA",
     description: product?.description ?? "",
+    weightKg: product?.weightKg ?? 0,
+    lengthCm: product?.lengthCm ?? 0,
+    breadthCm: product?.breadthCm ?? 0,
+    heightCm: product?.heightCm ?? 0,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState(false);
@@ -97,6 +101,15 @@ export function ProductForm({ product }: { product?: Product }) {
               <option>PETG</option>
               <option>TPU</option>
             </select>
+          </div>
+
+          <h2 className="mt-2 text-sm font-semibold">Shipping dimensions</h2>
+          <p className="-mt-3 text-xs text-text-muted">Packed weight and size, used for courier delivery estimates.</p>
+          <div className="grid grid-cols-2 gap-4">
+            <Field id="weightKg" label="Weight (kg)" type="number" step="0.01" value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: Number(e.target.value) })} />
+            <Field id="lengthCm" label="Length (cm)" type="number" value={form.lengthCm} onChange={(e) => setForm({ ...form, lengthCm: Number(e.target.value) })} />
+            <Field id="breadthCm" label="Breadth (cm)" type="number" value={form.breadthCm} onChange={(e) => setForm({ ...form, breadthCm: Number(e.target.value) })} />
+            <Field id="heightCm" label="Height (cm)" type="number" value={form.heightCm} onChange={(e) => setForm({ ...form, heightCm: Number(e.target.value) })} />
           </div>
         </div>
 

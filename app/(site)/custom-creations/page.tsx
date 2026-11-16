@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConceptRender } from "@/components/ConceptRender";
 import { HeroArt } from "@/components/HeroArt";
+import { HeroCarousel } from "@/components/HeroCarousel";
 import { Button } from "@/components/Button";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { getWorkerEnv, getKV } from "@/lib/server/kv";
+import { getHomeSettings, type HomeSettings } from "@/lib/server/home-settings-store";
+import { getCustomCreationCategoryOverrides, type CustomCreationCategoryOverrides } from "@/lib/server/custom-creation-categories-store";
+import { assetUrl } from "@/lib/assets";
 import {
   CUSTOM_CREATION_CATEGORIES,
   CUSTOM_CREATION_FAQS,
@@ -17,7 +22,13 @@ export const metadata: Metadata = {
     "Bring your ideas to life with HamzaOne custom 3D printing services. Share reference images, request personalized products, and receive a custom quotation.",
 };
 
-export default function CustomCreationsPage() {
+export default async function CustomCreationsPage() {
+  const env = await getWorkerEnv();
+  const kv = getKV(env, "DATA_KV");
+  const homeSettings = kv ? await getHomeSettings(kv) : ({} as HomeSettings);
+  const categoryOverrides: CustomCreationCategoryOverrides = kv ? await getCustomCreationCategoryOverrides(kv) : {};
+  const visibleCategories = CUSTOM_CREATION_CATEGORIES.filter((c) => categoryOverrides[c.slug]?.enabled !== false);
+
   return (
     <main className="flex flex-col">
       <section className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
@@ -38,18 +49,34 @@ export default function CustomCreationsPage() {
             </Link>
           </div>
         </div>
-        <HeroArt className="aspect-[5/4] min-h-[320px]" style={{ flex: "1 1 480px" }} />
+        {homeSettings.heroImageKeys && homeSettings.heroImageKeys.length > 0 ? (
+          <HeroCarousel
+            imageKeys={homeSettings.heroImageKeys}
+            className="aspect-[5/4] min-h-[320px]"
+            style={{ flex: "1 1 480px" }}
+          />
+        ) : (
+          <HeroArt className="aspect-[5/4] min-h-[320px]" style={{ flex: "1 1 480px" }} />
+        )}
       </section>
 
       <section className="mx-auto w-full px-4 py-9 sm:px-6" style={{ maxWidth: 1280 }}>
         <h2 className="text-[32px] font-bold">What can we create for you?</h2>
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
-          {CUSTOM_CREATION_CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/custom-creations/request?category=${c.slug}`} className="flex flex-col gap-3">
-              <ConceptRender shape={c.shape} className="aspect-square rounded-card" />
-              <strong className="font-display text-base">{c.name}</strong>
-            </Link>
-          ))}
+          {visibleCategories.map((c) => {
+            const imageKey = categoryOverrides[c.slug]?.imageKey;
+            return (
+              <Link key={c.slug} href={`/custom-creations/request?category=${c.slug}`} className="flex flex-col gap-3">
+                {imageKey ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={assetUrl(imageKey)} alt="" className="aspect-square rounded-card object-cover" />
+                ) : (
+                  <ConceptRender shape={c.shape} className="aspect-square rounded-card" />
+                )}
+                <strong className="font-display text-base">{c.name}</strong>
+              </Link>
+            );
+          })}
         </div>
       </section>
 

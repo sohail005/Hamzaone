@@ -13,18 +13,23 @@ export type CartLine = {
   qty: number;
   engraving?: string;
   availability: "available" | "made-to-order" | "low-stock" | "out-of-stock";
+  weightKg?: number;
+  lengthCm?: number;
+  breadthCm?: number;
+  heightCm?: number;
 };
 
 type CartState = {
   lines: CartLine[];
   couponCode: string | null;
+  couponDiscount: number;
   drawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
   addLine: (line: Omit<CartLine, "id">) => void;
   removeLine: (id: string) => void;
   setQty: (id: string, qty: number) => void;
-  setCouponCode: (code: string | null) => void;
+  setCoupon: (code: string | null, discount: number) => void;
   clear: () => void;
 };
 
@@ -37,6 +42,7 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       lines: [],
       couponCode: null,
+      couponDiscount: 0,
       drawerOpen: false,
       openDrawer: () => set({ drawerOpen: true }),
       closeDrawer: () => set({ drawerOpen: false }),
@@ -54,16 +60,16 @@ export const useCart = create<CartState>()(
       removeLine: (id) =>
         set((state) => {
           const lines = state.lines.filter((line) => line.id !== id);
-          return lines.length === 0 ? { lines, couponCode: null } : { lines };
+          return lines.length === 0 ? { lines, couponCode: null, couponDiscount: 0 } : { lines };
         }),
       setQty: (id, qty) =>
         set({ lines: get().lines.map((l) => (l.id === id ? { ...l, qty } : l)) }),
-      setCouponCode: (couponCode) => set({ couponCode }),
-      clear: () => set({ lines: [], couponCode: null }),
+      setCoupon: (couponCode, couponDiscount) => set({ couponCode, couponDiscount }),
+      clear: () => set({ lines: [], couponCode: null, couponDiscount: 0 }),
     }),
     {
       name: "hamzaone-cart",
-      partialize: (state) => ({ lines: state.lines, couponCode: state.couponCode }),
+      partialize: (state) => ({ lines: state.lines, couponCode: state.couponCode, couponDiscount: state.couponDiscount }),
       skipHydration: true,
     },
   ),

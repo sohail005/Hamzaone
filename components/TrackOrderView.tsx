@@ -15,6 +15,8 @@ type TrackableOrder = {
   status: string;
   createdAt: string;
   updatedAt: string;
+  trackingNumber?: string;
+  carrier?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -48,6 +50,8 @@ function parseTrackableOrder(value: unknown): TrackableOrder | null {
     status: value.status,
     createdAt: value.createdAt,
     updatedAt: value.updatedAt,
+    trackingNumber: typeof value.trackingNumber === "string" ? value.trackingNumber : undefined,
+    carrier: typeof value.carrier === "string" ? value.carrier : undefined,
   };
 }
 
@@ -139,6 +143,12 @@ function TrackOrderContent() {
               </li>
             ))}
           </ul>
+          {order.trackingNumber && (
+            <p className="mt-4 border-t border-border pt-4 text-sm">
+              {order.carrier ? `${order.carrier} tracking number: ` : "Tracking number: "}
+              <span className="font-semibold">{order.trackingNumber}</span>
+            </p>
+          )}
           <p className="mt-4 flex justify-between border-t border-border pt-4 font-semibold">
             <span>Total</span><span>{formatINR(order.total)}</span>
           </p>

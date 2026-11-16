@@ -3,6 +3,9 @@ import { getKV, getWorkerEnv, isRecord } from "@/lib/server/kv";
 import { getRazorpayCredentials, jsonError, readJson } from "@/lib/server/payments";
 import { createStoredOrder, type StoredOrder, type StoredOrderItem } from "@/lib/server/orders-store";
 import { getProductBySlug } from "@/lib/server/products-store";
+import { findValidCoupon } from "@/lib/server/admin-store";
+import { cartChargeableWeightKg, type ShippableLine } from "@/lib/shipping";
+import { checkServiceability, type NimbusPostEnvironment } from "@/lib/nimbuspost";
 
 type CheckoutLine = {
   productSlug: string;
@@ -144,6 +147,7 @@ export async function POST(request: Request) {
   let subtotal = 0;
   const itemSummary: string[] = [];
   const orderItems: StoredOrderItem[] = [];
+  const shippableLines: ShippableLine[] = [];
   for (const line of lines) {
     const product = await getProductBySlug(dataKV, line.productSlug);
     if (!product || product.availability === "out-of-stock") {
@@ -178,10 +182,42 @@ export async function POST(request: Request) {
       ...(line.engraving ? { engraving: line.engraving } : {}),
     });
     itemSummary.push(`${product.name} x${line.qty}`);
+    shippableLines.push({
+      qty: line.qty,
+      weightKg: product.weightKg,
+      lengthCm: product.lengthCm,
+      breadthCm: product.breadthCm,
+      heightCm: product.heightCm,
+    });
   }
 
-  const pricing = calculateCheckoutPricing(subtotal, shippingMethod as ShippingMethod, couponCode);
-  if (pricing.couponError) return jsonError(pricing.couponError, 400);
+  let discount = 0;
+  let appliedCouponCode: string | null = null;
+  if (couponCode) {
+    const { coupon, error } = await findValidCoupon(dataKV, couponCode, subtotal);
+    if (error) return jsonError(error, 400);
+    if (coupon) {
+      discount = coupon.type === "flat" ? coupon.value : Math.round(subtotal * (coupon.value / 100));
+      appliedCouponCode = coupon.code;
+    }
+  }
+
+  // Real courier-quoted shipping cost for this order's actual chargeable
+  // weight and delivery pincode, replacing the flat ₹79/₹149 guess. NimbusPost
+  // being unreachable/unconfigured must not block checkout — fall back to the
+  // flat rate (calculateCheckoutPricing's default) rather than failing the order.
+  let realShippingCost: number | undefined;
+  try {
+    const chargeableWeightKg = cartChargeableWeightKg(shippableLines);
+    const serviceability = await checkServiceability(address.pin, env as NimbusPostEnvironment, chargeableWeightKg);
+    if (serviceability.serviceable) {
+      realShippingCost = shippingMethod === "express" ? serviceability.expressShippingCost : serviceability.standardShippingCost;
+    }
+  } catch (error) {
+    console.error("NimbusPost shipping quote failed; falling back to flat-rate shipping.", error);
+  }
+
+  const pricing = calculateCheckoutPricing(subtotal, shippingMethod as ShippingMethod, discount, appliedCouponCode, realShippingCost);
 
   const totalPaise = pricing.total * 100;
   if (!Number.isSafeInteger(totalPaise) || totalPaise < 100 || totalPaise > 50_000_000) {

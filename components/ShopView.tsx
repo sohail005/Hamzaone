@@ -127,6 +127,10 @@ export function ShopView({
 
   const visibleCount = Math.min(page * 12, filtered.length);
   const visible = filtered.slice(0, visibleCount);
+  // `category` is also set by the /shop/[categorySlug] route itself, not just
+  // by a filter the shopper picked — don't count that as an "active filter"
+  // when deciding which empty-state message to show.
+  const hasActiveFilters = Boolean(avail || price || material || q || (category && !categorySlug));
   const activeChips = [
     category && { key: "category", label: categories.find((c) => c.slug === category)?.name ?? category },
     avail && { key: "avail", label: AVAILABILITY.find((a) => a.key === avail)?.label ?? avail },
@@ -151,7 +155,7 @@ export function ShopView({
           ...(categorySlug ? [{ label: catName ?? categorySlug }] : []),
         ]}
       />
-      <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+      <div className="mt-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-bold">{catName}</h1>
           <p className="text-sm text-text-muted">{filtered.length} products</p>
@@ -219,10 +223,10 @@ export function ShopView({
             </div>
           ) : visible.length === 0 ? (
             <div className="flex flex-col items-center gap-4 rounded-card bg-surface py-16 text-center">
-              <p className="text-lg font-semibold">No products match these filters</p>
-              <p className="text-sm text-text-muted">Try resetting your filters or search.</p>
+              <p className="text-lg font-semibold">{hasActiveFilters ? "No products match these filters" : "No products here yet"}</p>
+              <p className="text-sm text-text-muted">{hasActiveFilters ? "Try resetting your filters or search." : "Check back soon, or request a custom creation."}</p>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={resetAll}>Reset filters</Button>
+                {hasActiveFilters && <Button variant="outline" onClick={resetAll}>Reset filters</Button>}
                 <a href="/custom-creations"><Button>Request a custom creation</Button></a>
               </div>
             </div>

@@ -51,6 +51,10 @@ export async function POST(request: Request) {
     isNew: body.isNew,
     largePrice: body.largePrice,
     unavailableCombo: body.unavailableCombo,
+    weightKg: typeof body.weightKg === "number" && body.weightKg > 0 ? body.weightKg : undefined,
+    lengthCm: typeof body.lengthCm === "number" && body.lengthCm > 0 ? body.lengthCm : undefined,
+    breadthCm: typeof body.breadthCm === "number" && body.breadthCm > 0 ? body.breadthCm : undefined,
+    heightCm: typeof body.heightCm === "number" && body.heightCm > 0 ? body.heightCm : undefined,
   });
 
   return Response.json({ product }, { status: 201 });

@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import { formatINR } from "@/lib/format";
 import { Button } from "@/components/Button";
 import { Timeline } from "@/components/Timeline";
+import { ReviewForm } from "@/components/ReviewForm";
 import { getCurrentUser } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { readStoredOrder, type StoredOrder } from "@/lib/server/orders-store";
+import { hasReviewForOrderItem } from "@/lib/server/reviews-store";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!owns && user.role !== "admin") notFound();
 
   const current = order.status === "canceled" ? -1 : STATUS_STEPS.indexOf(order.status);
+
+  const dataKv = getKV(env, "DATA_KV");
+  const reviewableItems = Array.from(new Map(order.items.map((item) => [item.productSlug, item])).values());
+  const reviewStatuses = order.status === "delivered" && dataKv
+    ? await Promise.all(reviewableItems.map((item) => hasReviewForOrderItem(dataKv, order.id, item.productSlug)))
+    : [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,9 +67,33 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
+      {order.status === "delivered" && (
+        <div className="rounded-card bg-surface p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold">Rate your items</h2>
+          <div className="flex flex-col gap-3">
+            {reviewableItems.map((item, i) => (
+              <ReviewForm
+                key={item.productSlug}
+                orderId={order.id}
+                email={order.customer.email}
+                productSlug={item.productSlug}
+                productName={item.name}
+                alreadyReviewed={reviewStatuses[i]}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-card bg-surface p-5 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold">Shipping address</h2>
         <p className="text-sm text-text-muted">{order.address.name}, {order.address.line1}{order.address.line2 ? `, ${order.address.line2}` : ""}, {order.address.city}, {order.address.state} {order.address.pin}</p>
+        {order.trackingNumber && (
+          <p className="mt-3 border-t border-border pt-3 text-sm">
+            {order.carrier ? `${order.carrier} tracking number: ` : "Tracking number: "}
+            <span className="font-semibold">{order.trackingNumber}</span>
+          </p>
+        )}
       </div>
 
       <div className="flex gap-3">

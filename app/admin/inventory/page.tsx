@@ -17,6 +17,7 @@ function InventoryContent() {
   const [adjusting, setAdjusting] = useState<number | null>(null);
   const [newStock, setNewStock] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api.admin.list("inventory").then(({ inventory }: { inventory: InventoryItem[] }) => {
@@ -35,15 +36,24 @@ function InventoryContent() {
     setError(null);
   }
 
-  function saveAdjust() {
+  async function saveAdjust() {
     if (adjusting === null) return;
     const item = items[adjusting];
     if (newStock < item.reserved) {
       setError(`Stock cannot go below ${item.reserved} reserved units.`);
       return;
     }
-    setItems((prev) => prev.map((it, i) => (i === adjusting ? { ...it, stock: newStock, low: newStock < 10 } : it)));
-    setAdjusting(null);
+    setSaving(true);
+    setError(null);
+    try {
+      const { inventory } = await api.inventory.adjustStock(item.slug, item.variant, newStock);
+      setItems(inventory);
+      setAdjusting(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not adjust stock.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -101,8 +111,8 @@ function InventoryContent() {
             />
             {error && <p className="mt-2 text-sm text-error-text">{error}</p>}
             <div className="mt-4 flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setAdjusting(null)}>Cancel</Button>
-              <Button onClick={saveAdjust}>Save</Button>
+              <Button variant="outline" onClick={() => setAdjusting(null)} disabled={saving}>Cancel</Button>
+              <Button onClick={saveAdjust} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
             </div>
           </div>
         </div>

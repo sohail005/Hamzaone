@@ -2,7 +2,6 @@ import {
   customSteps,
   howItWorks,
   valueProps,
-  homeReviews,
   homeFaqs,
   heroChecklist,
   categoryShapes,
@@ -10,6 +9,7 @@ import {
 } from "@/data/home";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { listProducts } from "@/lib/server/products-store";
+import { listApprovedReviews } from "@/lib/server/reviews-store";
 import type { Product } from "@/data/products";
 
 function toHomeCard(product: Product, index: number): HomeCard {
@@ -51,12 +51,20 @@ export async function getFeaturedAndNewArrivals() {
   return { featured, newArrivals };
 }
 
+async function getHomeReviews() {
+  const env = await getWorkerEnv();
+  const kv = getKV(env, "DATA_KV");
+  if (!kv) return [];
+  return listApprovedReviews(kv);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const section = searchParams.get("section");
 
   const headers = { "Cache-Control": "no-store" };
   const { featured, newArrivals } = await getFeaturedAndNewArrivals();
+  const homeReviews = await getHomeReviews();
 
   const sections: Record<string, unknown> = {
     featured,

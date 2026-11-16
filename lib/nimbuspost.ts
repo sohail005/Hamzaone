@@ -27,6 +27,11 @@ export type ServiceabilityResult = {
   minDays?: number;
   maxDays?: number;
   cod: boolean;
+  // Cheapest courier's total charge (freight + COD) for this weight/route —
+  // the real number to bill, not a flat-rate guess.
+  standardShippingCost?: number;
+  // Cheapest charge among couriers tied for the fastest edd.
+  expressShippingCost?: number;
 };
 
 type CachedToken = { token: string; expiresAt: number };
@@ -94,6 +99,7 @@ async function getToken(env: NimbusPostEnvironment): Promise<string> {
 type Courier = {
   edd?: string; // "DD-MM-YYYY"
   cod_charges?: number;
+  total_charges?: number;
 };
 
 function parseEddDays(edd: string): number | null {
@@ -159,10 +165,21 @@ export async function checkServiceability(
   const days = couriers.map(courierDays).filter((d): d is number => d !== null);
   const cod = couriers.some((c) => (c.cod_charges ?? 0) > 0);
 
+  const priced = couriers.filter((c): c is Courier & { total_charges: number } => typeof c.total_charges === "number");
+  const standardShippingCost = priced.length ? Math.round(Math.min(...priced.map((c) => c.total_charges))) : undefined;
+
+  const minDay = days.length ? Math.min(...days) : undefined;
+  const fastestPriced = minDay !== undefined ? priced.filter((c) => courierDays(c) === minDay) : [];
+  const expressShippingCost = fastestPriced.length
+    ? Math.round(Math.min(...fastestPriced.map((c) => c.total_charges)))
+    : standardShippingCost;
+
   return {
     serviceable: true,
     minDays: days.length ? Math.min(...days) : undefined,
     maxDays: days.length ? Math.max(...days) : undefined,
     cod,
+    standardShippingCost,
+    expressShippingCost,
   };
 }

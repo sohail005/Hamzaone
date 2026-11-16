@@ -37,7 +37,11 @@ export type StoredOrder = {
   createdAt: string;
   updatedAt: string;
   paidAt?: string;
+  trackingNumber?: string;
+  carrier?: string;
 };
+
+export const ORDER_STATUSES = ["awaiting_payment", "confirmed", "processing", "shipped", "delivered", "canceled"] as const;
 
 export type TrackableOrder = {
   id: string;
@@ -48,6 +52,8 @@ export type TrackableOrder = {
   status: StoredOrder["status"];
   createdAt: string;
   updatedAt: string;
+  trackingNumber?: string;
+  carrier?: string;
 };
 
 function isStoredOrderItem(value: unknown): value is StoredOrderItem {
@@ -97,7 +103,9 @@ export function isStoredOrder(value: unknown): value is StoredOrder {
       value.status === "canceled") &&
     typeof value.createdAt === "string" &&
     typeof value.updatedAt === "string" &&
-    (value.paidAt === undefined || typeof value.paidAt === "string")
+    (value.paidAt === undefined || typeof value.paidAt === "string") &&
+    (value.trackingNumber === undefined || typeof value.trackingNumber === "string") &&
+    (value.carrier === undefined || typeof value.carrier === "string")
   );
 }
 
@@ -155,5 +163,7 @@ export function toTrackableOrder(order: StoredOrder): TrackableOrder {
     status: order.status,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
+    trackingNumber: order.trackingNumber,
+    carrier: order.carrier,
   };
 }

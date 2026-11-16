@@ -16,27 +16,51 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { calculateCheckoutPricing } from "@/lib/checkout-pricing";
 
 export function CartView() {
-  const { lines, couponCode, removeLine, setQty, addLine, setCouponCode } = useCart(
+  const { lines, couponCode, couponDiscount, removeLine, setQty, addLine, setCoupon } = useCart(
     useShallow((state) => ({
       lines: state.lines,
       couponCode: state.couponCode,
+      couponDiscount: state.couponDiscount,
       removeLine: state.removeLine,
       setQty: state.setQty,
       addLine: state.addLine,
-      setCouponCode: state.setCouponCode,
+      setCoupon: state.setCoupon,
     })),
   );
   const toggleWishlist = useWishlist((state) => state.toggle);
   const push = useToast((s) => s.push);
   const { subtotal } = useMemo(() => cartTotals(lines), [lines]);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
   const [productCache, setProductCache] = useState<Record<string, Product>>({});
 
   const hasOOS = useMemo(() => lines.some((l) => l.availability === "out-of-stock"), [lines]);
   const pricing = useMemo(
-    () => calculateCheckoutPricing(subtotal, "standard", couponCode),
-    [couponCode, subtotal],
+    () => calculateCheckoutPricing(subtotal, "standard", couponDiscount, couponCode),
+    [couponCode, couponDiscount, subtotal],
   );
+
+  // Re-validate an already-applied coupon when the cart total changes (e.g. a
+  // minimum-order coupon can fall below threshold after removing an item).
+  useEffect(() => {
+    if (!couponCode) return;
+    let active = true;
+    api.coupons
+      .validate(couponCode, subtotal)
+      .then(({ couponCode: code, discount }) => {
+        if (active) setCoupon(code, discount);
+      })
+      .catch((err: unknown) => {
+        if (!active) return;
+        setCoupon(null, 0);
+        setCouponError(err instanceof Error ? err.message : "Could not apply this coupon.");
+      });
+    return () => {
+      active = false;
+    };
+    // Re-run only when subtotal changes, not when couponCode/setCoupon identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
 
   useEffect(() => {
     const uncached = [...new Set(lines.map((line) => line.slug))].filter((slug) => !productCache[slug]);
@@ -55,12 +79,25 @@ export function CartView() {
       });
   }, [lines, productCache]);
 
-  function applyCoupon(e: React.FormEvent<HTMLFormElement>) {
+  async function applyCoupon(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const code = String(new FormData(e.currentTarget).get("coupon") ?? "").trim().toUpperCase();
-    const result = calculateCheckoutPricing(subtotal, "standard", code);
-    setCouponCode(result.couponError ? null : result.couponCode);
-    setCouponError(result.couponError);
+    if (!code) {
+      setCoupon(null, 0);
+      setCouponError(null);
+      return;
+    }
+    setCouponChecking(true);
+    setCouponError(null);
+    try {
+      const result = await api.coupons.validate(code, subtotal);
+      setCoupon(result.couponCode, result.discount);
+    } catch (err) {
+      setCoupon(null, 0);
+      setCouponError(err instanceof Error ? err.message : "Could not apply this coupon.");
+    } finally {
+      setCouponChecking(false);
+    }
   }
 
   const { discount, shipping, total } = pricing;
@@ -71,7 +108,7 @@ export function CartView() {
     removeLine(id);
     push(`Removed ${line.name}`, {
       label: "Undo",
-      onClick: () => addLine({ slug: line.slug, name: line.name, color: line.color, size: line.size, price: line.price, qty: line.qty, engraving: line.engraving, availability: line.availability }),
+      onClick: () => addLine(line),
     });
   }
 
@@ -142,9 +179,9 @@ export function CartView() {
             <h3 className="mb-2 text-sm font-semibold">Coupon code</h3>
             <div className="flex gap-2">
               <div className="min-w-0 flex-1">
-                <Field id="coupon" name="coupon" key={couponCode ?? "none"} defaultValue={couponCode ?? ""} placeholder="FIRST100" error={couponError ?? pricing.couponError ?? undefined} />
+                <Field id="coupon" name="coupon" key={couponCode ?? "none"} defaultValue={couponCode ?? ""} placeholder="Coupon code" error={couponError ?? undefined} />
               </div>
-              <Button type="submit" variant="outline" className="shrink-0">Apply</Button>
+              <Button type="submit" variant="outline" className="shrink-0" disabled={couponChecking}>{couponChecking ? "Checking…" : "Apply"}</Button>
             </div>
             {couponCode && discount > 0 && <p className="mt-2 text-sm text-success-text">Coupon {couponCode} applied — {formatINR(discount)} off.</p>}
           </form>

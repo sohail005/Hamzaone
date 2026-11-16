@@ -23,6 +23,7 @@ import { useWishlist } from "@/store/wishlist";
 import { formatINR, cx } from "@/lib/format";
 import { api } from "@/lib/api";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
+import { lineChargeableWeightKg } from "@/lib/shipping";
 
 const VIEWS = ["Front", "Side", "Top", "Scale with hand"];
 
@@ -84,6 +85,10 @@ export function ProductDetail({ product }: { product: Product }) {
       qty,
       engraving: engrave && engraveText ? engraveText : undefined,
       availability: product.availability,
+      weightKg: product.weightKg,
+      lengthCm: product.lengthCm,
+      breadthCm: product.breadthCm,
+      heightCm: product.heightCm,
     });
     openDrawer();
   }
@@ -98,7 +103,14 @@ export function ProductDetail({ product }: { product: Product }) {
     e.preventDefault();
     if (/^\d{6}$/.test(pin)) {
       setPinError(null);
-      delivery.check(pin);
+      const weightKg = lineChargeableWeightKg({
+        qty,
+        weightKg: product.weightKg,
+        lengthCm: product.lengthCm,
+        breadthCm: product.breadthCm,
+        heightCm: product.heightCm,
+      });
+      delivery.check(pin, weightKg);
     } else {
       setPinError("Enter a valid 6-digit PIN code.");
     }

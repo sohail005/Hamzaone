@@ -18,6 +18,12 @@ export type Product = {
   shape: "vase" | "planter" | "lamp" | "coaster" | "stand" | "organizer" | "cup" | "riser" | "plate" | "keychain" | "bookmark" | "tag" | "dragon" | "elephant" | "ganesha" | "octopus" | "hook" | "lid" | "gear" | "pull" | "part";
   unavailableCombo?: { color: string; size: string };
   isNew?: boolean;
+  // Packed-for-shipping dimensions, used for courier delivery estimates (see
+  // lib/nimbuspost.ts) and any future shipment-booking integration.
+  weightKg?: number;
+  lengthCm?: number;
+  breadthCm?: number;
+  heightCm?: number;
 };
 
 export const COLORS: Record<string, ColorOption> = {

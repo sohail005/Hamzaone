@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, FolderTree, ShoppingBag, Factory, FileText,
-  Users, Boxes, Ticket, CreditCard, BarChart3, Settings, ChevronsLeft, ChevronsRight, ExternalLink,
+  Users, Boxes, Ticket, CreditCard, BarChart3, Settings, ChevronsLeft, ChevronsRight, ExternalLink, Star,
 } from "lucide-react";
 import { cx } from "@/lib/format";
 
@@ -18,6 +18,7 @@ const ITEMS = [
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/inventory", label: "Inventory", icon: Boxes },
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },
+  { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/admin/settings", label: "Settings", icon: Settings },
