@@ -48,6 +48,12 @@ export interface CloudflareEnv {
   NIMBUSPOST_EMAIL?: unknown;
   NIMBUSPOST_PASSWORD?: unknown;
   NIMBUSPOST_PICKUP_PINCODE?: unknown;
+  NIMBUSPOST_PICKUP_WAREHOUSE_NAME?: unknown;
+  NIMBUSPOST_PICKUP_NAME?: unknown;
+  NIMBUSPOST_PICKUP_ADDRESS?: unknown;
+  NIMBUSPOST_PICKUP_CITY?: unknown;
+  NIMBUSPOST_PICKUP_STATE?: unknown;
+  NIMBUSPOST_PICKUP_PHONE?: unknown;
   GOOGLE_CLIENT_ID?: unknown;
   GOOGLE_CLIENT_SECRET?: unknown;
   ADMIN_EMAILS?: unknown;

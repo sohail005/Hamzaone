@@ -33,6 +33,8 @@ export type StoredCoupon = {
   minOrder: number;
   enabled: boolean;
   expires?: string;
+  maxUses?: number;
+  usedCount: number;
 };
 
 function isStoredCoupon(value: unknown): value is StoredCoupon {
@@ -44,24 +46,30 @@ function isStoredCoupon(value: unknown): value is StoredCoupon {
     typeof c.value === "number" &&
     typeof c.minOrder === "number" &&
     typeof c.enabled === "boolean" &&
-    (c.expires === undefined || typeof c.expires === "string")
+    (c.expires === undefined || typeof c.expires === "string") &&
+    (c.maxUses === undefined || typeof c.maxUses === "number") &&
+    (c.usedCount === undefined || typeof c.usedCount === "number")
   );
+}
+
+function normalizeCoupon(coupon: StoredCoupon): StoredCoupon {
+  return { ...coupon, usedCount: coupon.usedCount ?? 0 };
 }
 
 export async function listCoupons(kv: KVStore): Promise<StoredCoupon[]> {
   const value = await readResource<unknown[]>(kv, "coupons");
-  return Array.isArray(value) ? value.filter(isStoredCoupon) : [];
+  return Array.isArray(value) ? value.filter(isStoredCoupon).map(normalizeCoupon) : [];
 }
 
 export async function createCoupon(
   kv: KVStore,
-  input: { code: string; type: "flat" | "percent"; value: number; minOrder: number; expires?: string },
+  input: { code: string; type: "flat" | "percent"; value: number; minOrder: number; expires?: string; maxUses?: number },
 ): Promise<StoredCoupon[]> {
   const coupons = await listCoupons(kv);
   const code = input.code.trim().toUpperCase();
   if (!code) throw new Error("A coupon code is required.");
   if (coupons.some((c) => c.code === code)) throw new Error("A coupon with this code already exists.");
-  const next: StoredCoupon[] = [...coupons, { ...input, code, enabled: true }];
+  const next: StoredCoupon[] = [...coupons, { ...input, code, enabled: true, usedCount: 0 }];
   await kv.put(resourceKey("coupons"), JSON.stringify(next));
   return next;
 }
@@ -93,10 +101,23 @@ export async function findValidCoupon(
   if (coupon.expires && new Date(coupon.expires) < new Date()) {
     return { coupon: null, error: "This coupon has expired." };
   }
+  if (coupon.maxUses !== undefined && coupon.usedCount >= coupon.maxUses) {
+    return { coupon: null, error: `${coupon.code} has reached its usage limit.` };
+  }
   if (subtotal < coupon.minOrder) {
     return { coupon: null, error: `${coupon.code} requires a minimum order of ₹${coupon.minOrder}.` };
   }
   return { coupon, error: null };
+}
+
+// Called once a coupon's order is actually paid (never at order-creation time,
+// since a pending/abandoned order must not permanently consume a limited-use code).
+export async function incrementCouponUsage(kv: KVStore, codeInput: string): Promise<void> {
+  const code = codeInput.trim().toUpperCase();
+  const coupons = await listCoupons(kv);
+  if (!coupons.some((c) => c.code === code)) return;
+  const next = coupons.map((c) => (c.code === code ? { ...c, usedCount: c.usedCount + 1 } : c));
+  await kv.put(resourceKey("coupons"), JSON.stringify(next));
 }
 
 export type StoredInventoryItem = { slug: string; variant: string; stock: number; reserved: number; low: boolean };
@@ -131,6 +152,33 @@ export async function adjustInventoryStock(
   const next = items.map((i) => (i === item ? { ...i, stock, low: stock < 10 } : i));
   await kv.put(resourceKey("inventory"), JSON.stringify(next));
   return next;
+}
+
+export function inventoryVariantKey(color: string, size: string) {
+  return `${color} / ${size}`;
+}
+
+// Runs once per order, when payment is confirmed. A missing row is created on
+// the fly (going negative flags it in the "low stock" view) rather than
+// silently skipped, since the inventory feature has no separate seeding step.
+export async function recordOrderInventoryUsage(
+  kv: KVStore,
+  lines: Array<{ slug: string; color: string; size: string; qty: number }>,
+): Promise<void> {
+  if (lines.length === 0) return;
+  const items = await listInventory(kv);
+  const next = [...items];
+  for (const line of lines) {
+    const variant = inventoryVariantKey(line.color, line.size);
+    const idx = next.findIndex((i) => i.slug === line.slug && i.variant === variant);
+    if (idx === -1) {
+      next.push({ slug: line.slug, variant, stock: -line.qty, reserved: 0, low: true });
+    } else {
+      const stock = next[idx].stock - line.qty;
+      next[idx] = { ...next[idx], stock, low: stock < 10 };
+    }
+  }
+  await kv.put(resourceKey("inventory"), JSON.stringify(next));
 }
 
 export type StoredProductionCard = { id: string; label: string; stage: string; priority: string };

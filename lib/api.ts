@@ -138,6 +138,9 @@ export const api = {
     update: async (id: string, patch: { status?: string; trackingNumber?: string | null; carrier?: string | null }) => {
       return apiFetch(`/api/orders/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(patch) });
     },
+    recheckPayment: async (id: string) => {
+      return apiFetch(`/api/admin/orders/${encodeURIComponent(id)}/recheck-payment`, { method: "POST" });
+    },
   },
   admin: {
     list: async (resource?: string) => {
@@ -195,10 +198,10 @@ export const api = {
     validate: async (code: string, subtotal: number): Promise<{ valid: true; couponCode: string; discount: number }> => {
       return apiFetch("/api/coupons/validate", { method: "POST", body: JSON.stringify({ code, subtotal }) });
     },
-    create: async (body: { code: string; type: "flat" | "percent"; value: number; minOrder: number; expires?: string }) => {
+    create: async (body: { code: string; type: "flat" | "percent"; value: number; minOrder: number; expires?: string; maxUses?: number }) => {
       return apiFetch("/api/admin/coupons", { method: "POST", body: JSON.stringify(body) });
     },
-    update: async (code: string, patch: Partial<{ type: "flat" | "percent"; value: number; minOrder: number; expires: string; enabled: boolean }>) => {
+    update: async (code: string, patch: Partial<{ type: "flat" | "percent"; value: number; minOrder: number; expires: string; enabled: boolean; maxUses: number }>) => {
       return apiFetch("/api/admin/coupons", { method: "PATCH", body: JSON.stringify({ code, ...patch }) });
     },
   },

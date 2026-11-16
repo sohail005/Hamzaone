@@ -4,6 +4,7 @@ import { createStoredOrder, readOrderByRazorpayId, updateStoredOrder, type Store
 import { getD1 } from "@/lib/server/d1";
 import { getRequestByRazorpayOrderId, linkOrder, listImages, markPaid } from "@/lib/server/custom-creations-store";
 import { notifyAdminPaymentReceived, sendPaymentConfirmedEmail } from "@/lib/server/email-templates/custom-creations";
+import { fulfillPaidOrder } from "@/lib/server/order-fulfillment";
 
 function hexToBytes(hex: string) {
   const bytes = new Uint8Array(hex.length / 2);
@@ -53,26 +54,57 @@ export async function POST(request: Request) {
   if (!isRecord(payload) || typeof payload.event !== "string") {
     return jsonError("Invalid Razorpay webhook event.", 400);
   }
-  if (payload.event !== "payment.captured") {
+  const relevantEvents = ["payment.captured", "payment.failed", "refund.created", "refund.processed"];
+  if (!relevantEvents.includes(payload.event)) {
     return Response.json({ received: true });
   }
 
   const details = isRecord(payload.payload) ? payload.payload : null;
   const paymentEntity =
     details && isRecord(details.payment) && isRecord(details.payment.entity) ? details.payment.entity : null;
+  if (!paymentEntity || typeof paymentEntity.id !== "string" || typeof paymentEntity.order_id !== "string") {
+    return jsonError("Invalid Razorpay payment event.", 400);
+  }
+
+  const ordersKV = getKV(env, "ORDERS_KV");
+  if (!ordersKV) return jsonError("Order storage is not configured. Bind the ORDERS_KV namespace.", 503);
+
+  if (payload.event === "refund.created" || payload.event === "refund.processed") {
+    const order = await readOrderByRazorpayId(ordersKV, paymentEntity.order_id);
+    if (!order) return jsonError("The refund does not match a saved store order.", 404);
+    if (order.paymentStatus !== "refunded") {
+      await updateStoredOrder(ordersKV, {
+        ...order,
+        paymentStatus: "refunded",
+        status: "canceled",
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    return Response.json({ received: true });
+  }
+
+  if (payload.event === "payment.failed") {
+    if (paymentEntity.status !== "failed") return jsonError("Invalid Razorpay payment event.", 400);
+    const order = await readOrderByRazorpayId(ordersKV, paymentEntity.order_id);
+    if (!order) return jsonError("The payment does not match a saved store order.", 404);
+    if (order.paymentStatus === "pending") {
+      await updateStoredOrder(ordersKV, {
+        ...order,
+        razorpayPaymentId: paymentEntity.id,
+        paymentStatus: "failed",
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    return Response.json({ received: true });
+  }
+
   if (
-    !paymentEntity ||
-    typeof paymentEntity.id !== "string" ||
-    typeof paymentEntity.order_id !== "string" ||
     typeof paymentEntity.amount !== "number" ||
     paymentEntity.currency !== "INR" ||
     paymentEntity.status !== "captured"
   ) {
     return jsonError("Invalid Razorpay payment event.", 400);
   }
-
-  const ordersKV = getKV(env, "ORDERS_KV");
-  if (!ordersKV) return jsonError("Order storage is not configured. Bind the ORDERS_KV namespace.", 503);
 
   const db = getD1(env);
   if (db) {
@@ -143,15 +175,7 @@ export async function POST(request: Request) {
       return Response.json({ received: true });
     }
 
-    const now = new Date().toISOString();
-    await updateStoredOrder(ordersKV, {
-      ...order,
-      razorpayPaymentId: paymentEntity.id,
-      paymentStatus: "paid",
-      status: "confirmed",
-      paidAt: now,
-      updatedAt: now,
-    });
+    await fulfillPaidOrder(env, ordersKV, getKV(env, "DATA_KV"), order, paymentEntity.id);
     return Response.json({ received: true });
   } catch (error) {
     console.error("Could not persist the Razorpay webhook event.", error);

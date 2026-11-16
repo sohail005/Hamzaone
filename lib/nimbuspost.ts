@@ -1,11 +1,18 @@
 const BASE_URL = "https://api.nimbuspost.com/v1/";
 const AUTH_URL = `${BASE_URL}users/login`;
 const SERVICEABILITY_URL = `${BASE_URL}courier/serviceability`;
+const SHIPMENTS_URL = `${BASE_URL}shipments`;
 
 export type NimbusPostEnvironment = {
   NIMBUSPOST_EMAIL?: string;
   NIMBUSPOST_PASSWORD?: string;
   NIMBUSPOST_PICKUP_PINCODE?: string;
+  NIMBUSPOST_PICKUP_WAREHOUSE_NAME?: string;
+  NIMBUSPOST_PICKUP_NAME?: string;
+  NIMBUSPOST_PICKUP_ADDRESS?: string;
+  NIMBUSPOST_PICKUP_CITY?: string;
+  NIMBUSPOST_PICKUP_STATE?: string;
+  NIMBUSPOST_PICKUP_PHONE?: string;
 };
 
 export class NimbusPostNotConfiguredError extends Error {
@@ -181,5 +188,132 @@ export async function checkServiceability(
     cod,
     standardShippingCost,
     expressShippingCost,
+  };
+}
+
+export type ShipmentConsignee = {
+  name: string;
+  address: string;
+  address2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  phone: string;
+};
+
+export type ShipmentItem = {
+  name: string;
+  qty: number;
+  price: number;
+  sku?: string;
+};
+
+export type CreateShipmentInput = {
+  // NimbusPost caps this at 20 characters — callers must pre-truncate their
+  // own order id.
+  orderNumber: string;
+  paymentType: "prepaid" | "cod";
+  orderAmount: number;
+  shippingCharges?: number;
+  discount?: number;
+  packageWeightGrams: number;
+  consignee: ShipmentConsignee;
+  items: ShipmentItem[];
+};
+
+export type ShipmentResult = {
+  nimbusOrderId: number;
+  shipmentId: number;
+  awbNumber: string;
+  courierName: string;
+  status: string;
+  labelUrl?: string;
+};
+
+function requirePickupWarehouse(env: NimbusPostEnvironment) {
+  return {
+    warehouse_name: requireEnv("NIMBUSPOST_PICKUP_WAREHOUSE_NAME", env),
+    name: requireEnv("NIMBUSPOST_PICKUP_NAME", env),
+    address: requireEnv("NIMBUSPOST_PICKUP_ADDRESS", env),
+    city: requireEnv("NIMBUSPOST_PICKUP_CITY", env),
+    state: requireEnv("NIMBUSPOST_PICKUP_STATE", env),
+    pincode: requireEnv("NIMBUSPOST_PICKUP_PINCODE", env),
+    phone: requireEnv("NIMBUSPOST_PICKUP_PHONE", env),
+  };
+}
+
+async function callCreateShipment(payload: unknown, token: string) {
+  return fetch(SHIPMENTS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}
+
+// Books a courier (AWB) for a paid order in one call — the NimbusPost
+// "Create Shipment" endpoint (POST /v1/shipments) — using the same
+// login-and-cache bearer token as checkServiceability.
+export async function createShipment(input: CreateShipmentInput, env: NimbusPostEnvironment): Promise<ShipmentResult> {
+  const pickup = requirePickupWarehouse(env);
+  const payload = {
+    order_number: input.orderNumber,
+    payment_type: input.paymentType,
+    order_amount: input.orderAmount,
+    shipping_charges: input.shippingCharges ?? 0,
+    discount: input.discount ?? 0,
+    package_weight: Math.max(1, Math.round(input.packageWeightGrams)),
+    consignee: {
+      name: input.consignee.name,
+      address: input.consignee.address,
+      ...(input.consignee.address2 ? { address_2: input.consignee.address2 } : {}),
+      city: input.consignee.city,
+      state: input.consignee.state,
+      pincode: input.consignee.pincode,
+      phone: input.consignee.phone,
+    },
+    pickup,
+    order_items: input.items.map((item) => ({
+      name: item.name,
+      qty: String(item.qty),
+      price: String(item.price),
+      ...(item.sku ? { sku: item.sku } : {}),
+    })),
+  };
+
+  let token = await getToken(env);
+  let res = await callCreateShipment(payload, token);
+
+  if (res.status === 401) {
+    cachedToken = null;
+    token = await login(env);
+    res = await callCreateShipment(payload, token);
+  }
+
+  const data = (await res.json().catch(() => null)) as
+    | { status?: boolean; message?: string; data?: Record<string, unknown> }
+    | null;
+
+  if (!res.ok || !data?.status || !data.data) {
+    throw new NimbusPostApiError(data?.message || `NimbusPost shipment creation failed (${res.status}).`);
+  }
+
+  const result = data.data;
+  if (
+    typeof result.order_id !== "number" ||
+    typeof result.shipment_id !== "number" ||
+    typeof result.awb_number !== "string" ||
+    typeof result.courier_name !== "string" ||
+    typeof result.status !== "string"
+  ) {
+    throw new NimbusPostApiError("NimbusPost shipment creation response was missing required fields.");
+  }
+
+  return {
+    nimbusOrderId: result.order_id,
+    shipmentId: result.shipment_id,
+    awbNumber: result.awb_number,
+    courierName: result.courier_name,
+    status: result.status,
+    ...(typeof result.label === "string" ? { labelUrl: result.label } : {}),
   };
 }

@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     value?: number;
     minOrder?: number;
     expires?: string;
+    maxUses?: number;
   } | null;
 
   if (
@@ -29,7 +30,8 @@ export async function POST(request: Request) {
     typeof body.code !== "string" ||
     (body.type !== "flat" && body.type !== "percent") ||
     typeof body.value !== "number" ||
-    typeof body.minOrder !== "number"
+    typeof body.minOrder !== "number" ||
+    (body.maxUses !== undefined && (typeof body.maxUses !== "number" || body.maxUses < 1))
   ) {
     return Response.json({ error: "Invalid coupon." }, { status: 400 });
   }
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       value: body.value,
       minOrder: body.minOrder,
       expires: body.expires,
+      maxUses: body.maxUses,
     });
     return Response.json({ coupons });
   } catch (err) {
@@ -63,6 +66,7 @@ export async function PATCH(request: Request) {
     minOrder?: number;
     expires?: string;
     enabled?: boolean;
+    maxUses?: number;
   } | null;
 
   if (!body || typeof body.code !== "string") {

@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { OrderStatusEditor } from "@/components/admin/OrderStatusEditor";
+import { RecheckPaymentButton } from "@/components/admin/RecheckPaymentButton";
 import type { StoredOrder } from "@/lib/server/orders-store";
 
 export const dynamic = "force-dynamic";
@@ -64,12 +65,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </div>
         </div>
 
-        <OrderStatusEditor
-          orderId={order.id}
-          initialStatus={order.status}
-          initialTrackingNumber={order.trackingNumber}
-          initialCarrier={order.carrier}
-        />
+        <div className="flex flex-col gap-6">
+          {order.paymentStatus !== "paid" && <RecheckPaymentButton orderId={order.id} />}
+          <OrderStatusEditor
+            orderId={order.id}
+            initialStatus={order.status}
+            initialTrackingNumber={order.trackingNumber}
+            initialCarrier={order.carrier}
+          />
+        </div>
       </div>
     </div>
   );

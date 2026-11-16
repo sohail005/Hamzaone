@@ -7,7 +7,7 @@ import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { Toggle } from "@/components/Toggle";
 
-type Coupon = { code: string; type: "flat" | "percent"; value: number; minOrder: number; enabled: boolean; expires?: string };
+type Coupon = { code: string; type: "flat" | "percent"; value: number; minOrder: number; enabled: boolean; expires?: string; maxUses?: number; usedCount: number };
 
 function CouponsContent() {
   const router = useRouter();
@@ -17,7 +17,7 @@ function CouponsContent() {
 
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [form, setForm] = useState({ code: "", type: "flat" as "flat" | "percent", value: 0, minOrder: 0, expires: "" });
+  const [form, setForm] = useState({ code: "", type: "flat" as "flat" | "percent", value: 0, minOrder: 0, expires: "", maxUses: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,13 +34,13 @@ function CouponsContent() {
 
   function startEdit(code: string) {
     const c = coupons.find((x) => x.code === code);
-    if (c) setForm({ code: c.code, type: c.type, value: c.value, minOrder: c.minOrder, expires: c.expires ?? "" });
+    if (c) setForm({ code: c.code, type: c.type, value: c.value, minOrder: c.minOrder, expires: c.expires ?? "", maxUses: c.maxUses?.toString() ?? "" });
     setError(null);
     router.push(`/admin/coupons?edit=${code}`);
   }
 
   function startNew() {
-    setForm({ code: "", type: "flat", value: 0, minOrder: 0, expires: "" });
+    setForm({ code: "", type: "flat", value: 0, minOrder: 0, expires: "", maxUses: "" });
     setError(null);
     router.push("/admin/coupons?new=1");
   }
@@ -60,6 +60,7 @@ function CouponsContent() {
     setSaving(true);
     setError(null);
     try {
+      const maxUses = form.maxUses.trim() ? Number(form.maxUses) : undefined;
       if (isNew) {
         const { coupons: next } = await api.coupons.create({
           code: form.code,
@@ -67,6 +68,7 @@ function CouponsContent() {
           value: form.value,
           minOrder: form.minOrder,
           expires: form.expires || undefined,
+          maxUses,
         });
         setCoupons(next);
       } else if (editingCoupon) {
@@ -75,6 +77,7 @@ function CouponsContent() {
           value: form.value,
           minOrder: form.minOrder,
           expires: form.expires || undefined,
+          maxUses,
         });
         setCoupons(next);
       }
@@ -108,7 +111,13 @@ function CouponsContent() {
             <Field id="value" label={form.type === "flat" ? "Discount value (₹)" : "Discount value (%)"} type="number" placeholder="0" value={form.value || ""} onChange={(e) => setForm({ ...form, value: Number(e.target.value) })} />
             <Field id="minOrder" label="Minimum order (₹)" type="number" placeholder="0" value={form.minOrder || ""} onChange={(e) => setForm({ ...form, minOrder: Number(e.target.value) })} />
           </div>
-          <Field id="expires" label="Expires on (optional)" type="date" value={form.expires} onChange={(e) => setForm({ ...form, expires: e.target.value })} />
+          <div className="grid grid-cols-2 gap-4">
+            <Field id="expires" label="Expires on (optional)" type="date" value={form.expires} onChange={(e) => setForm({ ...form, expires: e.target.value })} />
+            <Field id="maxUses" label="Max total uses (optional)" type="number" placeholder="Unlimited" value={form.maxUses} onChange={(e) => setForm({ ...form, maxUses: e.target.value })} />
+          </div>
+          {editingCoupon && (
+            <p className="text-sm text-text-muted">Used {editingCoupon.usedCount} time{editingCoupon.usedCount === 1 ? "" : "s"} so far.</p>
+          )}
           {error && <p className="text-sm text-error-text">{error}</p>}
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={() => router.push("/admin/coupons")}>Cancel</Button>
@@ -131,7 +140,7 @@ function CouponsContent() {
       <div className="overflow-x-auto rounded-card bg-surface shadow-sm">
         <table className="w-full min-w-[600px] text-sm">
           <thead className="border-b border-border text-left text-text-muted">
-            <tr><th className="px-4 py-3">Code</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3">Min order</th><th className="px-4 py-3">Enabled</th><th className="px-4 py-3 text-right">Action</th></tr>
+            <tr><th className="px-4 py-3">Code</th><th className="px-4 py-3">Discount</th><th className="px-4 py-3">Min order</th><th className="px-4 py-3">Uses</th><th className="px-4 py-3">Enabled</th><th className="px-4 py-3 text-right">Action</th></tr>
           </thead>
           <tbody>
             {coupons.map((c) => (
@@ -139,6 +148,7 @@ function CouponsContent() {
                 <td className="px-4 py-3 font-medium">{c.code}</td>
                 <td className="px-4 py-3">{c.type === "flat" ? `₹${c.value}` : `${c.value}%`}</td>
                 <td className="px-4 py-3">₹{c.minOrder}</td>
+                <td className="px-4 py-3">{c.usedCount}{c.maxUses ? ` / ${c.maxUses}` : ""}</td>
                 <td className="px-4 py-3">
                   <Toggle checked={c.enabled} onChange={() => toggleEnabled(c)} label={`Toggle ${c.code} enabled`} />
                 </td>

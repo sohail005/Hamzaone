@@ -1,6 +1,7 @@
 import { getKV, getWorkerEnv, isRecord } from "@/lib/server/kv";
 import { getRazorpayCredentials, jsonError, readJson } from "@/lib/server/payments";
 import { readStoredOrder, updateStoredOrder } from "@/lib/server/orders-store";
+import { fulfillPaidOrder } from "@/lib/server/order-fulfillment";
 
 function hexToBytes(hex: string) {
   const bytes = new Uint8Array(hex.length / 2);
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
     return jsonError("Order storage is not configured. Bind the ORDERS_KV namespace.", 503);
   }
   const kv = ordersKV;
+  const dataKV = getKV(env, "DATA_KV");
 
   const credentials = getRazorpayCredentials(env);
   if (!credentials.ok) return jsonError(credentials.error, 503);
@@ -108,15 +110,7 @@ export async function POST(request: Request) {
     }
 
     async function markPaid() {
-      const now = new Date().toISOString();
-      await updateStoredOrder(kv, {
-        ...matchedOrder,
-        razorpayPaymentId: verifiedPaymentId,
-        paymentStatus: "paid",
-        status: "confirmed",
-        paidAt: now,
-        updatedAt: now,
-      });
+      await fulfillPaidOrder(env, kv, dataKV, matchedOrder, verifiedPaymentId);
       return Response.json({ status: "success", orderId: matchedOrder.id });
     }
 

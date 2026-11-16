@@ -32,7 +32,7 @@ export type StoredOrder = {
   shipping: number;
   total: number;
   currency: "INR";
-  paymentStatus: "pending" | "paid" | "failed";
+  paymentStatus: "pending" | "paid" | "failed" | "refunded";
   status: "awaiting_payment" | "confirmed" | "processing" | "shipped" | "delivered" | "canceled";
   createdAt: string;
   updatedAt: string;
@@ -94,7 +94,10 @@ export function isStoredOrder(value: unknown): value is StoredOrder {
     typeof value.shipping === "number" &&
     typeof value.total === "number" &&
     value.currency === "INR" &&
-    (value.paymentStatus === "pending" || value.paymentStatus === "paid" || value.paymentStatus === "failed") &&
+    (value.paymentStatus === "pending" ||
+      value.paymentStatus === "paid" ||
+      value.paymentStatus === "failed" ||
+      value.paymentStatus === "refunded") &&
     (value.status === "awaiting_payment" ||
       value.status === "confirmed" ||
       value.status === "processing" ||
@@ -117,8 +120,36 @@ function razorpayOrderKey(razorpayOrderId: string) {
   return `razorpay-order:${razorpayOrderId}`;
 }
 
-function orderIndexKey() {
+// Legacy flat index: a single unbounded array of every order id ever created.
+// New orders no longer grow this key — they're appended to a per-month bucket
+// instead — but it's kept around (read-only) so orders written before this
+// change remain discoverable without a migration script.
+function legacyOrderIndexKey() {
   return "orders:index";
+}
+
+function monthBucketKey(month: string) {
+  return `orders:index:month:${month}`;
+}
+
+function monthsIndexKey() {
+  return "orders:index:months";
+}
+
+function monthOf(order: StoredOrder) {
+  return order.createdAt.slice(0, 7);
+}
+
+async function allOrderIds(kv: KVStore): Promise<string[]> {
+  const months = await kv.get(monthsIndexKey(), { type: "json" });
+  const monthList = Array.isArray(months) ? (months as string[]) : [];
+  const buckets = await Promise.all(monthList.map((month) => kv.get(monthBucketKey(month), { type: "json" })));
+  const bucketedIds = buckets.flatMap((bucket) => (Array.isArray(bucket) ? (bucket as string[]) : []));
+
+  const legacy = await kv.get(legacyOrderIndexKey(), { type: "json" });
+  const legacyIds = Array.isArray(legacy) ? (legacy as string[]) : [];
+
+  return Array.from(new Set([...bucketedIds, ...legacyIds]));
 }
 
 export async function readStoredOrder(kv: KVStore, id: string) {
@@ -134,9 +165,17 @@ export async function readOrderByRazorpayId(kv: KVStore, razorpayOrderId: string
 export async function createStoredOrder(kv: KVStore, order: StoredOrder) {
   await kv.put(orderKey(order.id), JSON.stringify(order));
   await kv.put(razorpayOrderKey(order.razorpayOrderId), JSON.stringify(order.id));
-  const index = await kv.get(orderIndexKey(), { type: "json" });
-  const ids = Array.isArray(index) ? (index as string[]) : [];
-  await kv.put(orderIndexKey(), JSON.stringify([...ids, order.id]));
+
+  const month = monthOf(order);
+  const bucket = await kv.get(monthBucketKey(month), { type: "json" });
+  const bucketIds = Array.isArray(bucket) ? (bucket as string[]) : [];
+  await kv.put(monthBucketKey(month), JSON.stringify([...bucketIds, order.id]));
+
+  const months = await kv.get(monthsIndexKey(), { type: "json" });
+  const monthList = Array.isArray(months) ? (months as string[]) : [];
+  if (!monthList.includes(month)) {
+    await kv.put(monthsIndexKey(), JSON.stringify([month, ...monthList]));
+  }
 }
 
 export async function updateStoredOrder(kv: KVStore, order: StoredOrder) {
@@ -144,8 +183,7 @@ export async function updateStoredOrder(kv: KVStore, order: StoredOrder) {
 }
 
 export async function listStoredOrders(kv: KVStore, filter?: { status?: string; paymentStatus?: string }) {
-  const index = await kv.get(orderIndexKey(), { type: "json" });
-  const ids = Array.isArray(index) ? (index as string[]) : [];
+  const ids = await allOrderIds(kv);
   const values = await Promise.all(ids.map((id) => readStoredOrder(kv, id)));
   let result = values.filter((v): v is StoredOrder => !!v);
   if (filter?.status) result = result.filter((o) => o.status === filter.status);

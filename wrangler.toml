@@ -36,7 +36,13 @@ database_id = "6dfb2a12-0ae2-4699-b94a-ff7efe96fb1f"
 enabled = true
 
 [vars]
-ADMIN_EMAILS = "sohail345patel@gmail.com"
+ADMIN_EMAILS = "admin@hamzaone.store"
 API_BASE = "https://hamzaone.store/"
 NEXT_PUBLIC_API_URL = "https://hamzaone.store/"
 NIMBUSPOST_PICKUP_PINCODE = "500064"
+NIMBUSPOST_PICKUP_WAREHOUSE_NAME = "kishanbagh hamzaone"
+NIMBUSPOST_PICKUP_NAME = "hamzaone"
+NIMBUSPOST_PICKUP_ADDRESS = ""
+NIMBUSPOST_PICKUP_CITY = ""
+NIMBUSPOST_PICKUP_STATE = ""
+NIMBUSPOST_PICKUP_PHONE = ""
