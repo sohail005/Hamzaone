@@ -3,16 +3,32 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import { assetUrl } from "@/lib/assets";
 import { formatINR } from "@/lib/format";
 import { AvailabilityChip } from "@/components/StatusChip";
 import { Button } from "@/components/Button";
+import { Toggle } from "@/components/Toggle";
+import { ConceptRender } from "@/components/ConceptRender";
+import type { Product as CatalogProduct } from "@/data/products";
 
-type Product = { slug: string; name: string; category: string; price: number; availability: string };
+type Product = {
+  slug: string;
+  name: string;
+  category: string;
+  price: number;
+  availability: string;
+  imageKeys?: string[];
+  shape: CatalogProduct["shape"];
+  colors: CatalogProduct["colors"];
+  published?: boolean;
+};
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState<Product | null>(null);
+  const [previewIndex, setPreviewIndex] = useState(0);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,6 +40,16 @@ export default function AdminProductsPage() {
   }, []);
 
   if (!loaded) return null;
+
+  async function togglePublished(product: Product) {
+    const nextPublished = !(product.published !== false);
+    setProducts((p) => p.map((x) => (x.slug === product.slug ? { ...x, published: nextPublished } : x)));
+    try {
+      await api.products.update(product.slug, { published: nextPublished });
+    } catch {
+      setProducts((p) => p.map((x) => (x.slug === product.slug ? { ...x, published: product.published } : x)));
+    }
+  }
 
   async function confirmDelete() {
     if (!deleting) return;
@@ -54,20 +80,35 @@ export default function AdminProductsPage() {
         <table className="w-full min-w-[700px] text-sm">
           <thead className="border-b border-border text-left text-text-muted">
             <tr>
+              <th className="px-4 py-3"></th>
               <th className="px-4 py-3">Product</th>
               <th className="px-4 py-3">Category</th>
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Published</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => (
               <tr key={p.slug} className="border-b border-border last:border-0">
+                <td className="px-4 py-3">
+                  <button type="button" onClick={() => { setPreviewing(p); setPreviewIndex(0); }} className="block cursor-zoom-in">
+                    {p.imageKeys?.[0] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={assetUrl(p.imageKeys[0])} alt="" className="h-12 w-12 rounded-chip object-cover" />
+                    ) : (
+                      <ConceptRender shape={p.shape} color={p.colors[0]?.hex} className="h-12 w-12 rounded-chip" />
+                    )}
+                  </button>
+                </td>
                 <td className="px-4 py-3 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-text-muted">{p.category}</td>
                 <td className="px-4 py-3">{formatINR(p.price)}</td>
                 <td className="px-4 py-3"><AvailabilityChip status={(p.availability as unknown as "available")} /></td>
+                <td className="px-4 py-3">
+                  <Toggle checked={p.published !== false} onChange={() => togglePublished(p)} label={`Toggle ${p.name} published`} />
+                </td>
                 <td className="px-4 py-3 text-right">
                   <Link href={`/admin/products/${p.slug}/edit`} className="mr-3 text-xs font-semibold text-accent-text">Edit</Link>
                   <button onClick={() => setDeleting(p.slug)} className="text-xs font-semibold text-error-text">Delete</button>
@@ -77,6 +118,36 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+
+      {previewing && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setPreviewing(null)} />
+          <div role="dialog" aria-modal="true" className="relative w-full max-w-md rounded-panel bg-surface p-4 shadow-lg">
+            {previewing.imageKeys?.[previewIndex] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={assetUrl(previewing.imageKeys[previewIndex])} alt={previewing.name} className="aspect-square w-full rounded-chip object-cover" />
+            ) : (
+              <ConceptRender shape={previewing.shape} color={previewing.colors[0]?.hex} className="aspect-square w-full rounded-chip" />
+            )}
+            {(previewing.imageKeys?.length ?? 0) > 1 && (
+              <div className="mt-2 flex gap-2 overflow-x-auto">
+                {previewing.imageKeys!.map((key, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={assetUrl(key)}
+                    alt=""
+                    onClick={() => setPreviewIndex(i)}
+                    className={`h-12 w-12 shrink-0 cursor-pointer rounded-chip object-cover ${i === previewIndex ? "ring-2 ring-accent" : "opacity-70"}`}
+                  />
+                ))}
+              </div>
+            )}
+            <p className="mt-3 text-center text-sm font-semibold">{previewing.name}</p>
+            <Button className="mt-4 w-full" variant="outline" onClick={() => setPreviewing(null)}>Close</Button>
+          </div>
+        </div>
+      )}
 
       {deleting && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

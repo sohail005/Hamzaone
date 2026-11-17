@@ -24,5 +24,7 @@ export async function fetchProducts(filter?: { category?: string; featured?: boo
 
 export async function fetchProduct(slug: string) {
   const kv = await getDataKV();
-  return kv ? getProductBySlug(kv, slug) : null;
+  if (!kv) return null;
+  const product = await getProductBySlug(kv, slug);
+  return product && product.published !== false ? product : null;
 }

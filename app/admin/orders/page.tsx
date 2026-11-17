@@ -6,10 +6,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { formatINR, cx } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
+import { ORDER_STATUS_LABELS } from "@/lib/orderStatus";
 
-type Order = { id: string; customer: string; total: number; status: string; paymentStatus: string; items: Array<{ name: string }>; placedAt: string };
+type Order = { id: string; customer: { name: string; email: string; phone: string }; total: number; status: string; paymentStatus: string; items: Array<{ name: string }>; createdAt: string };
 
-const FILTERS = ["all", "printing", "shipped", "delivered", "pending", "canceled"];
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "processing", label: "Preparing" },
+  { key: "shipped", label: "Shipped" },
+  { key: "in_transit", label: "In Transit" },
+  { key: "delivered", label: "Delivered" },
+  { key: "pending", label: "Pending" },
+  { key: "canceled", label: "Canceled" },
+];
 
 function OrdersContent() {
   const router = useRouter();
@@ -39,11 +48,11 @@ function OrdersContent() {
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
           <button
-            key={f}
-            onClick={() => router.push(f === "all" ? "/admin/orders" : `/admin/orders?status=${f}`)}
-            className={cx("rounded-full border px-4 py-1.5 text-sm font-medium capitalize", status === f ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input text-text-muted")}
+            key={f.key}
+            onClick={() => router.push(f.key === "all" ? "/admin/orders" : `/admin/orders?status=${f.key}`)}
+            className={cx("rounded-full border px-4 py-1.5 text-sm font-medium", status === f.key ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input text-text-muted")}
           >
-            {f}
+            {f.label}
           </button>
         ))}
       </div>
@@ -63,10 +72,10 @@ function OrdersContent() {
             {filtered.map((o) => (
               <tr key={o.id} className="border-b border-border last:border-0">
                 <td className="px-4 py-3"><Link href={`/admin/orders/${o.id}`} className="font-medium text-accent-text">{o.id}</Link></td>
-                <td className="px-4 py-3">{o.customer}</td>
+                <td className="px-4 py-3">{o.customer.name}</td>
                 <td className="px-4 py-3">{formatINR(o.total)}</td>
                 <td className="px-4 py-3"><StatusChip tone={o.paymentStatus === "paid" ? "success" : o.paymentStatus === "pending" ? "warning" : "error"}>{o.paymentStatus}</StatusChip></td>
-                <td className="px-4 py-3 capitalize">{o.status}</td>
+                <td className="px-4 py-3">{ORDER_STATUS_LABELS[o.status as keyof typeof ORDER_STATUS_LABELS] ?? o.status}</td>
               </tr>
             ))}
           </tbody>

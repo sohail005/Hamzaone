@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { readStoredOrder, type StoredOrder } from "@/lib/server/orders-store";
 import { hasReviewForOrderItem } from "@/lib/server/reviews-store";
+import { ORDER_STATUS_LABELS } from "@/lib/orderStatus";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ const STATUS_STEPS: StoredOrder["status"][] = [
   "confirmed",
   "processing",
   "shipped",
+  "in_transit",
   "delivered",
 ];
 
@@ -46,7 +48,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       <h1 className="text-2xl font-bold">{order.id}</h1>
 
       <div className="rounded-card bg-surface p-5 shadow-sm">
-        <Timeline steps={["Awaiting Payment", "Confirmed", "Processing", "Shipped", "Delivered"]} current={current} />
+        <Timeline steps={STATUS_STEPS.map((s) => ORDER_STATUS_LABELS[s])} current={current} />
       </div>
 
       <div className="rounded-card bg-surface p-5 shadow-sm">

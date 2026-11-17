@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Product } from "@/data/products";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { colorNameToHex, type Product } from "@/data/products";
 import type { Category } from "@/data/categories";
 import { api } from "@/lib/api";
 import { assetUrl } from "@/lib/assets";
@@ -17,14 +18,16 @@ export function ProductForm({ product }: { product?: Product }) {
     name: product?.name ?? "",
     category: product?.category ?? "",
     price: product?.price ?? 0,
+    stock: product?.stock !== undefined ? String(product.stock) : "",
     material: product?.material ?? "PLA",
     description: product?.description ?? "",
     weightKg: product?.weightKg ?? 0,
     lengthCm: product?.lengthCm ?? 0,
     breadthCm: product?.breadthCm ?? 0,
     heightCm: product?.heightCm ?? 0,
-    imageKey: product?.imageKey,
+    imageKeys: product?.imageKeys ?? [],
     videoKey: product?.videoKey,
+    colors: product?.colors ?? [],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState(false);
@@ -36,21 +39,37 @@ export function ProductForm({ product }: { product?: Product }) {
   const [videoUploading, setVideoUploading] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoFileInput = useRef<HTMLInputElement | null>(null);
+  const [newColorName, setNewColorName] = useState("");
+  const [newColorError, setNewColorError] = useState<string | null>(null);
 
-  async function onImageFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  async function onImageFilesChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file) return;
+    if (files.length === 0) return;
     setImageError(null);
     setImageUploading(true);
     try {
-      const { storageKey } = await api.admin.uploadAsset(file, "products");
-      setForm((f) => ({ ...f, imageKey: storageKey }));
+      const storageKeys = await Promise.all(files.map((file) => api.admin.uploadAsset(file, "products").then((r) => r.storageKey)));
+      setForm((f) => ({ ...f, imageKeys: [...f.imageKeys, ...storageKeys] }));
     } catch (err) {
       setImageError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setImageUploading(false);
     }
+  }
+
+  function removeImage(index: number) {
+    setForm((f) => ({ ...f, imageKeys: f.imageKeys.filter((_, i) => i !== index) }));
+  }
+
+  function moveImage(index: number, direction: -1 | 1) {
+    setForm((f) => {
+      const target = index + direction;
+      if (target < 0 || target >= f.imageKeys.length) return f;
+      const imageKeys = [...f.imageKeys];
+      [imageKeys[index], imageKeys[target]] = [imageKeys[target], imageKeys[index]];
+      return { ...f, imageKeys };
+    });
   }
 
   async function onVideoFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
@@ -87,19 +106,48 @@ export function ProductForm({ product }: { product?: Product }) {
     setTimeout(() => setSaved(null), 2500);
   }
 
+  function isHexLike(value: string) {
+    const trimmed = value.trim();
+    const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(withHash);
+  }
+
+  function addColor() {
+    const name = newColorName.trim();
+    if (!name) return;
+    if (isHexLike(name)) {
+      setNewColorError("Enter a descriptive colour name, e.g. Cream — not a hex code.");
+      return;
+    }
+    setNewColorError(null);
+    setForm((f) => {
+      if (f.colors.some((c) => c.name.toLowerCase() === name.toLowerCase())) return f;
+      return { ...f, colors: [...f.colors, { name, hex: colorNameToHex(name) }] };
+    });
+    setNewColorName("");
+  }
+
+  function removeColor(name: string) {
+    setForm((f) => ({ ...f, colors: f.colors.filter((c) => c.name !== name) }));
+  }
+
   async function publish() {
     const e: Record<string, string> = {};
     if (!form.name) e.name = "Name is required.";
     if (!form.price || form.price <= 0) e.price = "Price must be greater than 0.";
+    if (form.colors.length === 0) e.colors = "Select at least one colour.";
     setErrors(e);
     if (Object.keys(e).length > 0) return;
+
+    const stock = form.stock.trim() === "" ? undefined : Math.max(0, Number(form.stock));
+    const payload = { ...form, stock };
 
     setSaving(true);
     try {
       if (product) {
-        await api.products.update(product.slug, form);
+        await api.products.update(product.slug, payload);
       } else {
-        await api.products.create({ ...form, availability: "available", colors: [], shape: "vase" });
+        await api.products.create({ ...payload, availability: "available", shape: "vase" });
       }
       router.push("/admin/products?published=1");
     } catch (error) {
@@ -129,6 +177,16 @@ export function ProductForm({ product }: { product?: Product }) {
             </select>
           </div>
           <Field id="price" label="Price (₹)" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} error={errors.price} />
+          <Field
+            id="stock"
+            label="Available stock"
+            type="number"
+            min={0}
+            value={form.stock}
+            onChange={(e) => setForm({ ...form, stock: e.target.value })}
+            placeholder="Leave blank to not track stock"
+            hint="Decreases automatically as paid orders come in. The product goes out of stock at 0."
+          />
 
           <h2 className="mt-2 text-sm font-semibold">Manufacturing</h2>
           <div>
@@ -144,6 +202,44 @@ export function ProductForm({ product }: { product?: Product }) {
             </select>
           </div>
 
+          <div>
+            <label className="text-sm font-semibold">Colours</label>
+            {form.colors.length > 0 && (
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {form.colors.map((color) => (
+                  <span
+                    key={color.name}
+                    className="flex h-10 items-center gap-2 rounded-full border border-border-input pl-3 pr-2 text-sm"
+                  >
+                    <span className="h-4 w-4 rounded-full border border-black/10" style={{ backgroundColor: color.hex }} />
+                    {color.name}
+                    <button type="button" aria-label={`Remove ${color.name}`} onClick={() => removeColor(color.name)} className="text-text-muted">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="text"
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addColor();
+                  }
+                }}
+                placeholder="Colour name, e.g. Terracotta"
+                className="h-10 flex-1 rounded-input border border-border-input bg-surface px-3 text-sm"
+              />
+              <Button type="button" variant="outline" size="sm" disabled={!newColorName.trim()} onClick={addColor}>Add</Button>
+            </div>
+            {newColorError && <p className="mt-1.5 text-xs text-error-text">{newColorError}</p>}
+            {errors.colors && <p className="mt-1.5 text-xs text-error-text">{errors.colors}</p>}
+          </div>
+
           <h2 className="mt-2 text-sm font-semibold">Shipping dimensions</h2>
           <p className="-mt-3 text-xs text-text-muted">Packed weight and size, used for courier delivery estimates.</p>
           <div className="grid grid-cols-2 gap-4">
@@ -157,25 +253,44 @@ export function ProductForm({ product }: { product?: Product }) {
         <div className="flex flex-col gap-4">
           <div className="rounded-card bg-surface p-5 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold">Images</h2>
-            {form.imageKey ? (
+            {form.imageKeys[0] ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={assetUrl(form.imageKey)} alt="" className="aspect-square w-full rounded-chip object-cover" />
+              <img src={assetUrl(form.imageKeys[0])} alt="" className="aspect-square w-full rounded-chip object-cover" />
             ) : (
               <ConceptRender shape="vase" color="#C2693C" className="aspect-square rounded-chip" />
             )}
+            {form.imageKeys.length > 0 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {form.imageKeys.map((key, i) => (
+                  <div key={i} className="group relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={assetUrl(key)} alt="" className="aspect-square w-full rounded-chip object-cover" />
+                    {i === 0 && (
+                      <span className="absolute left-1 top-1 rounded-full bg-dark/80 px-1.5 py-0.5 text-[10px] font-semibold text-white">Primary</span>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-black/50 py-0.5 opacity-0 group-hover:opacity-100">
+                      <button type="button" aria-label="Move left" disabled={i === 0} onClick={() => moveImage(i, -1)} className="text-white disabled:opacity-30">
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button type="button" aria-label="Remove image" onClick={() => removeImage(i)} className="text-white">
+                        <X className="h-4 w-4" />
+                      </button>
+                      <button type="button" aria-label="Move right" disabled={i === form.imageKeys.length - 1} onClick={() => moveImage(i, 1)} className="text-white disabled:opacity-30">
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="mt-3 flex gap-2">
               <Button type="button" variant="outline" size="sm" disabled={imageUploading} onClick={() => imageFileInput.current?.click()}>
-                {imageUploading ? "Uploading…" : form.imageKey ? "Replace image" : "Upload image"}
+                {imageUploading ? "Uploading…" : "Add images"}
               </Button>
-              {form.imageKey && (
-                <Button type="button" variant="ghost" size="sm" disabled={imageUploading} onClick={() => setForm((f) => ({ ...f, imageKey: undefined }))}>
-                  Remove
-                </Button>
-              )}
             </div>
-            <input ref={imageFileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onImageFileChosen} />
+            <input ref={imageFileInput} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" onChange={onImageFilesChosen} />
             {imageError && <p className="mt-2 text-xs text-error-text">{imageError}</p>}
-            {!form.imageKey && <p className="mt-2 text-xs text-text-muted">No image uploaded yet — shown as a concept render until you add one.</p>}
+            {form.imageKeys.length === 0 && <p className="mt-2 text-xs text-text-muted">No images uploaded yet — shown as a concept render until you add one.</p>}
           </div>
           <div className="rounded-card bg-surface p-5 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold">Video (optional)</h2>

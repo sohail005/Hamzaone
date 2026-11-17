@@ -51,7 +51,7 @@ function authHeaders(env: SkyfleetEnvironment): Record<string, string> {
   };
 }
 
-type RateQuote = { carrierId?: string; courier?: string; totalCharge?: number; codCharge?: number; eddDays?: number };
+type RateQuote = { carrierId?: string; courier?: string; totalCharge?: number; codCharge?: number; eddDays?: number; serviceType?: string | null };
 type ApiEnvelope<T> = { success?: boolean; message?: string; errors?: unknown; data?: T };
 
 // Pincode/route combinations Skyfleet just doesn't serve are a normal
@@ -104,8 +104,28 @@ export async function checkServiceability(
     return { serviceable: false, cod: false };
   }
 
-  const charges = quotes.map((q) => q.totalCharge).filter((v): v is number => typeof v === "number");
+  const quotesWithCharge = quotes.filter((q): q is RateQuote & { totalCharge: number } => typeof q.totalCharge === "number");
   const days = quotes.map((q) => q.eddDays).filter((v): v is number => typeof v === "number");
+
+  // Skyfleet quotes each courier's own service tier via `serviceType`
+  // ("SURFACE", "AIR", or null for a handful of couriers that don't report
+  // one) — that's the real standard/express split, not eddDays (couriers
+  // within the same tier vary in speed too). Express is the cheapest AIR
+  // quote; standard is the cheapest non-AIR quote. If a route has no AIR
+  // couriers at all, there's nothing to charge a premium for, so both fall
+  // back to the single cheapest charge overall.
+  const airCharges = quotesWithCharge.filter((q) => q.serviceType === "AIR").map((q) => q.totalCharge);
+  const surfaceCharges = quotesWithCharge.filter((q) => q.serviceType !== "AIR").map((q) => q.totalCharge);
+  let standardShippingCost: number | undefined;
+  let expressShippingCost: number | undefined;
+  if (airCharges.length > 0 && surfaceCharges.length > 0) {
+    expressShippingCost = Math.round(Math.min(...airCharges));
+    standardShippingCost = Math.round(Math.min(...surfaceCharges));
+  } else if (quotesWithCharge.length > 0) {
+    const cheapest = Math.round(Math.min(...quotesWithCharge.map((q) => q.totalCharge)));
+    standardShippingCost = cheapest;
+    expressShippingCost = cheapest;
+  }
 
   return {
     serviceable: true,
@@ -115,8 +135,8 @@ export async function checkServiceability(
     // supports), so codCharge in the response is always 0 and doesn't signal
     // real COD availability — hardcoded false rather than a misleading guess.
     cod: false,
-    standardShippingCost: charges.length ? Math.round(Math.min(...charges)) : undefined,
-    expressShippingCost: charges.length ? Math.round(Math.min(...charges)) : undefined,
+    standardShippingCost,
+    expressShippingCost,
   };
 }
 

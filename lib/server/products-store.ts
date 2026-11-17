@@ -19,11 +19,15 @@ async function ensureSeeded(kv: KVStore) {
   await kv.put(INDEX_KEY, JSON.stringify(seedProducts.map((p) => p.slug)));
 }
 
-export async function listProducts(kv: KVStore, filter?: { category?: string; featured?: boolean }): Promise<Product[]> {
+export async function listProducts(
+  kv: KVStore,
+  filter?: { category?: string; featured?: boolean; includeUnpublished?: boolean },
+): Promise<Product[]> {
   await ensureSeeded(kv);
   const slugs = await readIndex(kv);
   const values = await Promise.all(slugs.map((slug) => kv.get(productKey(slug), { type: "json" })));
   let result = values.filter((v): v is Product => !!v);
+  if (!filter?.includeUnpublished) result = result.filter((p) => p.published !== false);
   if (filter?.category) result = result.filter((p) => p.category === filter.category);
   if (filter?.featured) result = result.filter((p) => p.isNew === true || p.availability === "low-stock");
   return result;
@@ -53,6 +57,15 @@ export async function updateProduct(kv: KVStore, slug: string, patch: Partial<Om
   const updated: Product = { ...existing, ...patch, slug };
   await kv.put(productKey(slug), JSON.stringify(updated));
   return updated;
+}
+
+// Called once per paid order line. Only products with tracked stock are
+// touched; untracked products (stock === undefined) are left alone.
+export async function decrementStock(kv: KVStore, slug: string, qty: number): Promise<void> {
+  const existing = await getProductBySlug(kv, slug);
+  if (!existing || existing.stock === undefined) return;
+  const updated: Product = { ...existing, stock: Math.max(0, existing.stock - qty) };
+  await kv.put(productKey(slug), JSON.stringify(updated));
 }
 
 export async function deleteProduct(kv: KVStore, slug: string): Promise<boolean> {

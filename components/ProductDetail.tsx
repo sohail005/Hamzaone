@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { ChevronDown, Heart } from "lucide-react";
+import { ChevronDown, Heart, Play } from "lucide-react";
 import type { Product } from "@/data/products";
 import type { Category } from "@/data/categories";
 
@@ -20,7 +20,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { useShallow } from "zustand/react/shallow";
 import { useCart } from "@/store/cart";
 import { useWishlist } from "@/store/wishlist";
-import { formatINR, cx } from "@/lib/format";
+import { cx } from "@/lib/format";
 import { assetUrl } from "@/lib/assets";
 import { api } from "@/lib/api";
 import { useDeliveryEstimate } from "@/lib/useDeliveryEstimate";
@@ -37,8 +37,9 @@ export function ProductDetail({ product }: { product: Product }) {
   const wished = useWishlist((state) => state.slugs.includes(product.slug));
   const toggle = useWishlist((state) => state.toggle);
   const [view, setView] = useState(0);
-  const [engrave, setEngrave] = useState(false);
-  const [engraveText, setEngraveText] = useState("");
+  const hasImages = (product.imageKeys?.length ?? 0) > 0;
+  const hasVideo = !!product.videoKey;
+  const [activeMedia, setActiveMedia] = useState<number | "video">(hasImages ? 0 : "video");
   const [qty, setQty] = useState(1);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
@@ -52,26 +53,19 @@ export function ProductDetail({ product }: { product: Product }) {
     api.categories.get(product.category).then(({ category }: { category: Category }) => setCategory(category));
   }, [product.category]);
 
-  const color = params.get("color") ?? product.colors[0].name;
-  const size = params.get("size") ?? "Small";
+  const colorParam = params.get("color");
+  const color = product.colors.some((c) => c.name === colorParam) ? colorParam! : product.colors[0].name;
+  const size = "Small";
 
-  const isOOS = product.availability === "out-of-stock";
+  const isOOS = product.availability === "out-of-stock" || (product.stock !== undefined && product.stock <= 0);
   const isUnavailableCombo =
     product.unavailableCombo && product.unavailableCombo.color === color && product.unavailableCombo.size === size;
 
-  const price = size === "Large" && product.largePrice ? product.largePrice : product.price;
+  const price = product.price;
 
-  const engravingError = useMemo(() => {
-    if (!engrave || !engraveText) return null;
-    if (engraveText.length < 1 || engraveText.length > 12) return "Must be 1–12 characters.";
-    if (!/^[a-zA-Z0-9 &.\-]+$/.test(engraveText)) return "Only letters, numbers, spaces, & . - are allowed.";
-    return null;
-  }, [engrave, engraveText]);
-
-  function setVariant(next: { color?: string; size?: string }) {
+  function setVariant(next: { color?: string }) {
     const sp = new URLSearchParams(params.toString());
     if (next.color) sp.set("color", next.color);
-    if (next.size) sp.set("size", next.size);
     router.replace(`/products/${product.slug}?${sp.toString()}`);
   }
 
@@ -84,7 +78,6 @@ export function ProductDetail({ product }: { product: Product }) {
       size,
       price,
       qty,
-      engraving: engrave && engraveText ? engraveText : undefined,
       availability: product.availability,
       weightKg: product.weightKg,
       lengthCm: product.lengthCm,
@@ -130,42 +123,74 @@ export function ProductDetail({ product }: { product: Product }) {
 
       <div className="mt-5 grid grid-cols-1 gap-10 md:grid-cols-2">
         <div className="md:sticky md:top-24 md:self-start">
-          <Product3DViewer shape={product.shape} color={product.colors.find((c) => c.name === color)?.hex} view={view} className="aspect-square rounded-panel" />
-          <div className="mt-3 flex gap-2">
-            {VIEWS.map((v, i) => (
-              <button
-                key={v}
-                onClick={() => setView(i)}
-                className={cx(
-                  "rounded-chip border px-3 py-2 text-xs font-medium",
-                  view === i ? "border-accent text-accent-text" : "border-border text-text-muted"
-                )}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
-          {product.videoKey && (
-            <div className="mt-5">
-              <h3 className="mb-2 text-sm font-semibold">Product video</h3>
-              <video
-                src={assetUrl(product.videoKey)}
-                controls
-                muted
-                playsInline
-                className="aspect-square w-full rounded-panel bg-black object-contain"
-              />
+          {activeMedia === "video" && hasVideo ? (
+            <video
+              src={assetUrl(product.videoKey!)}
+              controls
+              muted
+              playsInline
+              className="aspect-square w-full rounded-panel bg-black object-contain"
+            />
+          ) : hasImages ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={assetUrl(product.imageKeys![activeMedia as number])} alt={product.name} className="aspect-square w-full rounded-panel object-cover" />
+          ) : (
+            <Product3DViewer shape={product.shape} color={product.colors.find((c) => c.name === color)?.hex} view={view} className="aspect-square rounded-panel" />
+          )}
+
+          {hasImages || hasVideo ? (
+            <div className="mt-3 flex gap-2 overflow-x-auto">
+              {product.imageKeys?.map((key, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={assetUrl(key)}
+                  alt=""
+                  onClick={() => setActiveMedia(i)}
+                  className={cx(
+                    "h-16 w-16 shrink-0 cursor-pointer rounded-chip object-cover border-2",
+                    activeMedia === i ? "border-accent" : "border-transparent"
+                  )}
+                />
+              ))}
+              {hasVideo && (
+                <button
+                  aria-label="Play product video"
+                  onClick={() => setActiveMedia("video")}
+                  className={cx(
+                    "relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-chip border-2 bg-black",
+                    activeMedia === "video" ? "border-accent" : "border-transparent"
+                  )}
+                >
+                  <video src={assetUrl(product.videoKey!)} muted playsInline preload="metadata" className="h-full w-full object-cover opacity-70" />
+                  <Play className="absolute h-5 w-5 fill-white text-white" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="mt-3 flex gap-2">
+              {VIEWS.map((v, i) => (
+                <button
+                  key={v}
+                  onClick={() => setView(i)}
+                  className={cx(
+                    "rounded-chip border px-3 py-2 text-xs font-medium",
+                    view === i ? "border-accent text-accent-text" : "border-border text-text-muted"
+                  )}
+                >
+                  {v}
+                </button>
+              ))}
             </div>
           )}
         </div>
 
         <div className="flex flex-col gap-5">
           <div>
-            <AvailabilityChip status={product.availability} />
+            <AvailabilityChip status={isOOS ? "out-of-stock" : product.availability} />
             <h1 className="mt-2 text-[28px] font-bold leading-tight">{product.name}</h1>
             <PriceDisplay amount={price} size="lg" showGst className="mt-2" />
           </div>
-          <p className="text-sm text-text-muted">{product.description}</p>
 
           {!isOOS && (
             <>
@@ -177,58 +202,20 @@ export function ProductDetail({ product }: { product: Product }) {
                       key={c.name}
                       aria-label={c.name}
                       onClick={() => setVariant({ color: c.name })}
-                      className={cx(
-                        "h-10 w-10 rounded-full border-2",
-                        color === c.name ? "border-accent" : "border-transparent"
-                      )}
-                      style={{ backgroundColor: c.hex }}
-                    />
+                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                    >
+                      <span className="h-8 w-8 rounded-full" style={{ backgroundColor: c.hex }} />
+                    </button>
                   ))}
                 </div>
                 <p className="mt-1 text-xs text-text-muted">{color}</p>
               </div>
 
-              <div>
-                <h3 className="mb-2 text-sm font-semibold">Size</h3>
-                <div className="flex gap-2">
-                  {["Small", "Large"].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setVariant({ size: s })}
-                      className={cx(
-                        "rounded-full border px-4 py-2 text-sm font-medium",
-                        size === s ? "border-accent bg-mto-chip-bg text-accent-text" : "border-border-input"
-                      )}
-                    >
-                      {s} — {formatINR(s === "Large" && product.largePrice ? product.largePrice : product.price)}
-                    </button>
-                  ))}
-                </div>
-                {isUnavailableCombo && (
-                  <p className="mt-2 text-sm text-error-text">
-                    {color} is not available in {size}. Please choose a different colour or size.
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-semibold">
-                  <input type="checkbox" checked={engrave} onChange={(e) => setEngrave(e.target.checked)} />
-                  Add engraving (+₹99)
-                </label>
-                {engrave && (
-                  <div className="mt-2">
-                    <Field
-                      id="engrave"
-                      value={engraveText}
-                      onChange={(e) => setEngraveText(e.target.value)}
-                      placeholder="e.g. Riya"
-                      error={engravingError ?? undefined}
-                      hint={!engravingError ? "1–12 characters: letters, numbers, spaces, & . -" : undefined}
-                    />
-                  </div>
-                )}
-              </div>
+              {isUnavailableCombo && (
+                <p className="text-sm text-error-text">
+                  {color} is currently unavailable. Please choose a different colour.
+                </p>
+              )}
 
               <div className="flex items-center gap-3">
                 <h3 className="text-sm font-semibold">Quantity</h3>
@@ -237,22 +224,6 @@ export function ProductDetail({ product }: { product: Product }) {
                   <span className="w-8 text-center text-sm">{qty}</span>
                   <button className="px-3 py-1.5" onClick={() => setQty((q) => Math.min(10, q + 1))}>+</button>
                 </div>
-              </div>
-
-              <div className="hidden gap-3 md:flex">
-                <Button className="flex-1" disabled={!!isUnavailableCombo || !!engravingError} onClick={addToCart}>
-                  Add to cart
-                </Button>
-                <Button variant="secondary" className="flex-1" disabled={!!isUnavailableCombo || !!engravingError} onClick={buyNow}>
-                  Buy now
-                </Button>
-                <button
-                  aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-                  onClick={() => toggle(product.slug)}
-                  className="flex h-12 w-12 items-center justify-center rounded-full border border-border-input"
-                >
-                  <Heart className={cx("h-5 w-5", wished ? "fill-accent text-accent" : "text-text")} />
-                </button>
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -273,7 +244,7 @@ export function ProductDetail({ product }: { product: Product }) {
                   id="pin"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
-                  placeholder="Check delivery — enter PIN code"
+                  placeholder="Enter PIN code"
                   maxLength={6}
                   className="flex-1"
                 />
@@ -290,6 +261,22 @@ export function ProductDetail({ product }: { product: Product }) {
               {delivery.status === "error" && delivery.error && (
                 <p className="text-sm text-text-muted">{delivery.error}</p>
               )}
+
+              <div className="hidden gap-3 md:flex">
+                <Button className="flex-1" disabled={!!isUnavailableCombo} onClick={addToCart}>
+                  Add to cart
+                </Button>
+                <Button variant="secondary" className="flex-1" disabled={!!isUnavailableCombo} onClick={buyNow}>
+                  Buy now
+                </Button>
+                <button
+                  aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+                  onClick={() => toggle(product.slug)}
+                  className="flex h-12 w-12 items-center justify-center rounded-full border border-border-input"
+                >
+                  <Heart className={cx("h-5 w-5", wished ? "fill-accent text-accent" : "text-text")} />
+                </button>
+              </div>
             </>
           )}
 
@@ -313,6 +300,8 @@ export function ProductDetail({ product }: { product: Product }) {
             </div>
           )}
 
+          <p className="text-sm text-text-muted">{product.description}</p>
+
           <div className="rounded-card border border-border">
             <button onClick={() => setSpecsOpen((s) => !s)} className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold">
               Specifications <ChevronDown className={cx("h-4 w-4 transition-transform", specsOpen && "rotate-180")} />
@@ -335,7 +324,7 @@ export function ProductDetail({ product }: { product: Product }) {
             <span className="w-8 text-center text-sm">{qty}</span>
             <button className="px-3 py-1.5" onClick={() => setQty((q) => Math.min(10, q + 1))}>+</button>
           </div>
-          <Button className="flex-1" disabled={!!isUnavailableCombo || !!engravingError} onClick={addToCart}>
+          <Button className="flex-1" disabled={!!isUnavailableCombo} onClick={addToCart}>
             Add to cart
           </Button>
         </div>

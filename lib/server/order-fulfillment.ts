@@ -3,7 +3,7 @@ import type { EmailEnv } from "@/lib/server/email";
 import { updateStoredOrder, type StoredOrder } from "@/lib/server/orders-store";
 import { incrementCouponUsage, recordOrderInventoryUsage } from "@/lib/server/admin-store";
 import { sendOrderConfirmedEmail, notifyAdminNewOrder } from "@/lib/server/email-templates/orders";
-import { getProductBySlug } from "@/lib/server/products-store";
+import { decrementStock, getProductBySlug } from "@/lib/server/products-store";
 import { cartChargeableWeightKg, cartPackageDimensionsCm, type ShippableLine } from "@/lib/shipping";
 import { createShipment, SkyfleetNotConfiguredError, type SkyfleetEnvironment } from "@/lib/skyfleet";
 
@@ -81,6 +81,9 @@ export async function fulfillPaidOrder(
         dataKV,
         order.items.map((item) => ({ slug: item.productSlug, color: item.color, size: item.size, qty: item.qty })),
       ).catch((error) => console.error("Could not record inventory usage.", error)),
+      ...order.items.map((item) =>
+        decrementStock(dataKV, item.productSlug, item.qty).catch((error) => console.error("Could not decrement stock.", error)),
+      ),
     ]);
   }
 

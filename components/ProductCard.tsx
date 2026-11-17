@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div className="group relative flex flex-col gap-3">
       <Link href={`/products/${product.slug}`} className="relative block">
-        <ProductImage imageKey={product.imageKey} shape={product.shape} color={product.colors[0].hex} className="aspect-square rounded-card" />
+        <ProductImage imageKey={product.imageKeys?.[0]} shape={product.shape} color={product.colors[0].hex} className="aspect-square rounded-card" />
         <AvailabilityChip status={product.availability} className="absolute left-3 top-3" />
         <button
           type="button"

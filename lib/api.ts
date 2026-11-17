@@ -2,7 +2,7 @@ const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "https://hamzaone.store").t
 
 type FetchStrategy = "revalidate" | "fresh";
 
-async function apiFetch(path: string, init?: RequestInit, strategy: FetchStrategy = "fresh") {
+async function apiFetch(path: string, init?: RequestInit, strategy: FetchStrategy = "fresh", tags?: string[]) {
   if (!API_BASE) {
     throw new Error("API origin is not configured. Set NEXT_PUBLIC_API_URL to this app's origin (see .env.example).");
   }
@@ -48,7 +48,7 @@ async function apiFetch(path: string, init?: RequestInit, strategy: FetchStrateg
         headers,
         credentials: "include",
         cache: isRevalidatable ? undefined : "no-store",
-        next: isRevalidatable ? { revalidate: 60 } : undefined,
+        next: isRevalidatable ? { revalidate: 60, tags } : undefined,
       });
     } catch (error) {
       if (attempt < maxAttempts) {
@@ -88,10 +88,10 @@ export const api = {
       const sp = new URLSearchParams();
       if (params?.category) sp.set("category", params.category);
       if (params?.featured) sp.set("featured", params.featured);
-      return apiFetch(`/api/products?${sp.toString()}`, undefined, "revalidate");
+      return apiFetch(`/api/products?${sp.toString()}`, undefined, "revalidate", ["products"]);
     },
     get: async (slug: string) => {
-      return apiFetch(`/api/products/${encodeURIComponent(slug)}`, undefined, "revalidate");
+      return apiFetch(`/api/products/${encodeURIComponent(slug)}`, undefined, "revalidate", ["products", `product:${slug}`]);
     },
     create: async (body: unknown) => {
       return apiFetch("/api/products", { method: "POST", body: JSON.stringify(body) });

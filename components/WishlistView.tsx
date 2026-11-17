@@ -7,7 +7,7 @@ import { ProductImage } from "@/components/ProductImage";
 import { PriceDisplay } from "@/components/PriceDisplay";
 import { Button } from "@/components/Button";
 
-type Product = { slug: string; name: string; price: number; shape: string; colors: Array<{ name: string; hex: string }>; imageKey?: string };
+type Product = { slug: string; name: string; price: number; shape: string; colors: Array<{ name: string; hex: string }>; imageKeys?: string[] };
 
 export function WishlistView({ products }: { products: Product[] }) {
   const { slugs, toggle } = useWishlist(
@@ -33,7 +33,7 @@ export function WishlistView({ products }: { products: Product[] }) {
         {items.map((p) => (
           <div key={p.slug} className="flex flex-col gap-2 rounded-card bg-surface p-3 shadow-sm">
             <Link href={`/products/${p.slug}`}>
-              <ProductImage imageKey={p.imageKey} shape={(p.shape as unknown as "vase")} color={p.colors[0].hex} className="aspect-square rounded-chip" />
+              <ProductImage imageKey={p.imageKeys?.[0]} shape={(p.shape as unknown as "vase")} color={p.colors[0].hex} className="aspect-square rounded-chip" />
             </Link>
             <Link href={`/products/${p.slug}`} className="text-sm font-semibold hover:text-accent-text">{p.name}</Link>
             <PriceDisplay amount={p.price} />

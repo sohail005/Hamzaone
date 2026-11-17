@@ -1,4 +1,7 @@
 import { isRecord, type KVStore } from "./kv";
+import { ORDER_STATUSES, type OrderStatus } from "@/lib/orderStatus";
+
+export { ORDER_STATUSES };
 
 export type StoredOrderItem = {
   productSlug: string;
@@ -33,15 +36,13 @@ export type StoredOrder = {
   total: number;
   currency: "INR";
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
-  status: "awaiting_payment" | "confirmed" | "processing" | "shipped" | "delivered" | "canceled";
+  status: OrderStatus;
   createdAt: string;
   updatedAt: string;
   paidAt?: string;
   trackingNumber?: string;
   carrier?: string;
 };
-
-export const ORDER_STATUSES = ["awaiting_payment", "confirmed", "processing", "shipped", "delivered", "canceled"] as const;
 
 export type TrackableOrder = {
   id: string;
@@ -98,12 +99,8 @@ export function isStoredOrder(value: unknown): value is StoredOrder {
       value.paymentStatus === "paid" ||
       value.paymentStatus === "failed" ||
       value.paymentStatus === "refunded") &&
-    (value.status === "awaiting_payment" ||
-      value.status === "confirmed" ||
-      value.status === "processing" ||
-      value.status === "shipped" ||
-      value.status === "delivered" ||
-      value.status === "canceled") &&
+    typeof value.status === "string" &&
+    (ORDER_STATUSES as readonly string[]).includes(value.status) &&
     typeof value.createdAt === "string" &&
     typeof value.updatedAt === "string" &&
     (value.paidAt === undefined || typeof value.paidAt === "string") &&

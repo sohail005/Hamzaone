@@ -344,6 +344,15 @@ export function CheckoutFlow() {
 
           {step === "shipping" && (
             <div className="flex flex-col gap-4">
+              <div className="rounded-card border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Deliver to</h3>
+                  <button onClick={() => goto("address")} className="text-xs font-semibold text-accent-text">Change</button>
+                </div>
+                <p className="mt-1 text-sm text-text-muted">
+                  {address.name} · {address.line1}{address.line2 ? `, ${address.line2}` : ""}, {address.city}, {address.state} {address.pin}
+                </p>
+              </div>
               {[
                 {
                   key: "standard",

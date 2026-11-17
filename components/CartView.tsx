@@ -154,7 +154,7 @@ export function CartView() {
             return (
               <li key={l.id} className={`flex gap-4 rounded-card bg-surface p-4 shadow-sm ${isOOS ? "opacity-60" : ""}`}>
                 <Link href={`/products/${l.slug}`} className="shrink-0">
-                  <ProductImage imageKey={product?.imageKey} shape={product?.shape ?? "vase"} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
+                  <ProductImage imageKey={product?.imageKeys?.[0]} shape={product?.shape ?? "vase"} color={product?.colors[0]?.hex} className="h-20 w-20 rounded-chip" />
                 </Link>
                 <div className="flex flex-1 flex-col gap-1">
                   <Link href={`/products/${l.slug}`} className="text-sm font-semibold hover:text-accent-text">{l.name}</Link>

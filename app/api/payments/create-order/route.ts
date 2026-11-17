@@ -151,7 +151,12 @@ export async function POST(request: Request) {
   const shippableLines: ShippableLine[] = [];
   for (const line of lines) {
     const product = await getProductBySlug(dataKV, line.productSlug);
-    if (!product || product.availability === "out-of-stock") {
+    if (
+      !product ||
+      product.published === false ||
+      product.availability === "out-of-stock" ||
+      (product.stock !== undefined && product.stock < line.qty)
+    ) {
       return jsonError("One or more products are unavailable.", 400);
     }
     if (!product.colors.some((option) => option.name === line.color)) {

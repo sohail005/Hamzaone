@@ -1,6 +1,7 @@
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { listStoredOrders, readStoredOrder, toTrackableOrder } from "@/lib/server/orders-store";
+import { getProductBySlug } from "@/lib/server/products-store";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -68,16 +69,31 @@ export async function GET(request: Request) {
 
   // Non-admin customers only see their own orders (matched by checkout email),
   // flattened to the simpler shape the account pages render.
-  const ownOrders = allOrders
-    .filter((o) => o.customer.email.toLowerCase() === requester.email.toLowerCase())
-    .map((o) => ({
-      id: o.id,
-      customer: o.customer.name,
-      total: o.total,
-      status: o.status,
-      paymentStatus: o.paymentStatus,
-      items: o.items.map((item) => ({ name: item.name })),
-      placedAt: o.createdAt,
-    }));
+  const own = allOrders.filter((o) => o.customer.email.toLowerCase() === requester.email.toLowerCase());
+
+  // The order list only shows the first line's thumbnail, so only that
+  // product needs to be resolved — look up each distinct slug once.
+  const dataKv = getKV(env, "DATA_KV");
+  const firstItemSlugs = Array.from(new Set(own.map((o) => o.items[0]?.productSlug).filter((s): s is string => !!s)));
+  const imagesBySlug = new Map<string, string | undefined>();
+  if (dataKv) {
+    await Promise.all(
+      firstItemSlugs.map(async (slug) => {
+        const product = await getProductBySlug(dataKv, slug);
+        imagesBySlug.set(slug, product?.imageKeys?.[0]);
+      }),
+    );
+  }
+
+  const ownOrders = own.map((o) => ({
+    id: o.id,
+    customer: o.customer.name,
+    total: o.total,
+    status: o.status,
+    paymentStatus: o.paymentStatus,
+    items: o.items.map((item) => ({ name: item.name })),
+    imageKey: o.items[0] ? imagesBySlug.get(o.items[0].productSlug) : undefined,
+    placedAt: o.createdAt,
+  }));
   return Response.json({ orders: ownOrders, count: ownOrders.length }, { headers: { "Cache-Control": "no-store" } });
 }

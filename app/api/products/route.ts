@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { createProduct, listProducts } from "@/lib/server/products-store";
@@ -10,11 +11,15 @@ export async function GET(request: Request) {
     return Response.json({ error: "Catalog storage is not configured." }, { status: 503 });
   }
 
+  const authKv = await getAuthKV();
+  const user = authKv ? await getUserFromRequestCookie(authKv, request) : null;
+  const isAdmin = user?.role === "admin";
+
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category") ?? undefined;
   const featured = searchParams.get("featured") === "true";
 
-  const products = await listProducts(kv, { category, featured });
+  const products = await listProducts(kv, { category, featured, includeUnpublished: isAdmin });
   return Response.json(
     { products, count: products.length },
     { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } },
@@ -38,6 +43,12 @@ export async function POST(request: Request) {
   if (!body || typeof body.name !== "string" || !body.name.trim() || typeof body.price !== "number" || body.price <= 0) {
     return Response.json({ error: "Name and a positive price are required." }, { status: 400 });
   }
+  if (!Array.isArray(body.colors) || body.colors.length === 0) {
+    return Response.json({ error: "At least one colour is required." }, { status: 400 });
+  }
+  if (body.colors.some((c) => /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.name.trim()))) {
+    return Response.json({ error: "Colour names must be descriptive, not a hex code." }, { status: 400 });
+  }
 
   const product = await createProduct(kv, {
     name: body.name.trim(),
@@ -45,12 +56,13 @@ export async function POST(request: Request) {
     price: body.price,
     availability: body.availability ?? "available",
     material: typeof body.material === "string" ? body.material : "PLA",
-    colors: Array.isArray(body.colors) ? body.colors : [],
+    colors: body.colors,
     description: typeof body.description === "string" ? body.description : "",
     shape: body.shape ?? "vase",
-    imageKey: typeof body.imageKey === "string" ? body.imageKey : undefined,
+    imageKeys: Array.isArray(body.imageKeys) ? body.imageKeys.filter((k): k is string => typeof k === "string") : undefined,
     videoKey: typeof body.videoKey === "string" ? body.videoKey : undefined,
     isNew: body.isNew,
+    published: body.published,
     largePrice: body.largePrice,
     unavailableCombo: body.unavailableCombo,
     weightKg: typeof body.weightKg === "number" && body.weightKg > 0 ? body.weightKg : undefined,
@@ -59,5 +71,6 @@ export async function POST(request: Request) {
     heightCm: typeof body.heightCm === "number" && body.heightCm > 0 ? body.heightCm : undefined,
   });
 
+  revalidateTag("products", { expire: 0 });
   return Response.json({ product }, { status: 201 });
 }

@@ -4,8 +4,7 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { Field } from "@/components/Input";
 import { Button } from "@/components/Button";
-
-const STATUSES = ["awaiting_payment", "confirmed", "processing", "shipped", "delivered", "canceled"] as const;
+import { ORDER_STATUSES, ORDER_STATUS_LABELS } from "@/lib/orderStatus";
 
 export function OrderStatusEditor({
   orderId,
@@ -53,10 +52,10 @@ export function OrderStatusEditor({
           id="order-status"
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="mt-1.5 h-12 w-full rounded-input border border-border-input bg-surface px-4 text-sm capitalize"
+          className="mt-1.5 h-12 w-full rounded-input border border-border-input bg-surface px-4 text-sm"
         >
-          {STATUSES.map((s) => (
-            <option key={s} value={s} className="capitalize">{s.replace(/_/g, " ")}</option>
+          {ORDER_STATUSES.map((s) => (
+            <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
           ))}
         </select>
       </div>
