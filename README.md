@@ -21,7 +21,7 @@ This builds with `opennextjs-cloudflare` and serves it with `wrangler`; the loca
 
 ## Environment
 
-1. Copy `.dev.vars.example` to `.dev.vars` and fill in the service credentials (Razorpay, NimbusPost). `.dev.vars` is what Wrangler/OpenNext load locally; it's the Worker equivalent of server-side secrets.
+1. Copy `.dev.vars.example` to `.dev.vars` and fill in the service credentials (Razorpay, Skyfleet). `.dev.vars` is what Wrangler/OpenNext load locally; it's the Worker equivalent of server-side secrets.
 2. Copy `.env.example` to `.env` for Next.js build-time variables (`NEXT_PUBLIC_API_URL`, `CF_DATA_KV_ID`, `CLOUDFLARE_ACCOUNT_ID`).
 3. `NEXT_PUBLIC_API_URL` tells the frontend where to call `/api/*` from. In production this points at the app's own deployed origin (self-referential, since the API now lives in this same app). For local development, point it at your local origin (e.g. `http://localhost:3000` for `next dev`, or `http://127.0.0.1:8787` for `cf:preview`) so requests don't leave your machine.
 

@@ -1,17 +1,17 @@
 export type ShippingMethod = "standard" | "express";
 
-// Flat-rate fallback, used only when a real NimbusPost quote isn't available
-// yet (no delivery address/pincode entered, or NimbusPost is unreachable) —
-// see lib/nimbuspost.ts#checkServiceability for the real per-route cost.
+// Flat-rate fallback, used only when a real Skyfleet quote isn't available
+// yet (no delivery address/pincode entered, or Skyfleet is unreachable) —
+// see lib/skyfleet.ts#checkServiceability for the real per-route cost.
 export const FALLBACK_SHIPPING: Record<ShippingMethod, number> = { standard: 79, express: 149 };
 export const DEFAULT_FREE_SHIPPING_THRESHOLD = 1499;
 
 // Coupon validity (does it exist, is it enabled, has it expired, is the minimum
 // order met) is resolved against admin-managed coupons in KV — see
 // lib/server/admin-store.ts#findValidCoupon and POST /api/coupons/validate.
-// Shipping cost is resolved by the caller too — a real NimbusPost quote for
+// Shipping cost is resolved by the caller too — a real Skyfleet quote for
 // the order's chargeable weight/route (lib/shipping.ts +
-// lib/nimbuspost.ts#checkServiceability) when known, else the flat fallback.
+// lib/skyfleet.ts#checkServiceability) when known, else the flat fallback.
 // This function only does the arithmetic once both are known.
 export function calculateCheckoutPricing(
   subtotal: number,

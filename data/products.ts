@@ -21,7 +21,7 @@ export type Product = {
   unavailableCombo?: { color: string; size: string };
   isNew?: boolean;
   // Packed-for-shipping dimensions, used for courier delivery estimates (see
-  // lib/nimbuspost.ts) and any future shipment-booking integration.
+  // lib/skyfleet.ts) and shipment-booking.
   weightKg?: number;
   lengthCm?: number;
   breadthCm?: number;

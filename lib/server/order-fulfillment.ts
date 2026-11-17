@@ -4,14 +4,14 @@ import { updateStoredOrder, type StoredOrder } from "@/lib/server/orders-store";
 import { incrementCouponUsage, recordOrderInventoryUsage } from "@/lib/server/admin-store";
 import { sendOrderConfirmedEmail, notifyAdminNewOrder } from "@/lib/server/email-templates/orders";
 import { getProductBySlug } from "@/lib/server/products-store";
-import { cartChargeableWeightKg, type ShippableLine } from "@/lib/shipping";
-import { createShipment, NimbusPostNotConfiguredError, type NimbusPostEnvironment } from "@/lib/nimbuspost";
+import { cartChargeableWeightKg, cartPackageDimensionsCm, type ShippableLine } from "@/lib/shipping";
+import { createShipment, SkyfleetNotConfiguredError, type SkyfleetEnvironment } from "@/lib/skyfleet";
 
 // Resolves each line's packed weight from the product catalog (falling back
 // to the DEFAULT_ITEM_WEIGHT_KG lib/shipping.ts already uses when a product
 // has no recorded weight, e.g. a custom-creation order with no catalog slug)
-// and books a courier AWB for the whole order in one NimbusPost call.
-async function createNimbusShipment(env: NimbusPostEnvironment, dataKV: KVStore | null, order: StoredOrder) {
+// and books a courier AWB for the whole order via Skyfleet.
+async function createSkyfleetShipment(env: SkyfleetEnvironment, dataKV: KVStore | null, order: StoredOrder) {
   const shippableLines: ShippableLine[] = await Promise.all(
     order.items.map(async (item) => {
       const product = dataKV ? await getProductBySlug(dataKV, item.productSlug) : null;
@@ -25,15 +25,16 @@ async function createNimbusShipment(env: NimbusPostEnvironment, dataKV: KVStore 
     }),
   );
   const packageWeightGrams = cartChargeableWeightKg(shippableLines) * 1000;
+  const { lengthCm, widthCm, heightCm } = cartPackageDimensionsCm(shippableLines);
 
   return createShipment(
     {
       orderNumber: order.id.slice(-20),
-      paymentType: "prepaid",
       orderAmount: order.total,
-      shippingCharges: order.shipping,
-      discount: order.discount,
       packageWeightGrams,
+      packageLengthCm: lengthCm,
+      packageWidthCm: widthCm,
+      packageHeightCm: heightCm,
       consignee: {
         name: order.address.name,
         address: order.address.line1,
@@ -83,12 +84,12 @@ export async function fulfillPaidOrder(
     ]);
   }
 
-  // A missing/misconfigured NimbusPost account must not block order
+  // A missing/misconfigured Skyfleet account must not block order
   // confirmation — an admin can still book the shipment manually (or fix the
   // config and recheck) via the existing carrier/tracking fields.
-  const shipment = await createNimbusShipment(env as NimbusPostEnvironment, dataKV, updated).catch((error) => {
-    if (!(error instanceof NimbusPostNotConfiguredError)) {
-      console.error("Could not create the NimbusPost shipment.", error);
+  const shipment = await createSkyfleetShipment(env as SkyfleetEnvironment, dataKV, updated).catch((error) => {
+    if (!(error instanceof SkyfleetNotConfiguredError)) {
+      console.error("Could not create the Skyfleet shipment.", error);
     }
     return null;
   });

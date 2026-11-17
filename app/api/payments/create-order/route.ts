@@ -5,7 +5,7 @@ import { createStoredOrder, type StoredOrder, type StoredOrderItem } from "@/lib
 import { getProductBySlug } from "@/lib/server/products-store";
 import { findValidCoupon } from "@/lib/server/admin-store";
 import { cartChargeableWeightKg, type ShippableLine } from "@/lib/shipping";
-import { checkServiceability, type NimbusPostEnvironment } from "@/lib/nimbuspost";
+import { checkServiceability, type SkyfleetEnvironment } from "@/lib/skyfleet";
 import { getStoreSettings } from "@/lib/server/store-settings-store";
 
 type CheckoutLine = {
@@ -204,18 +204,18 @@ export async function POST(request: Request) {
   }
 
   // Real courier-quoted shipping cost for this order's actual chargeable
-  // weight and delivery pincode, replacing the flat ₹79/₹149 guess. NimbusPost
+  // weight and delivery pincode, replacing the flat ₹79/₹149 guess. Skyfleet
   // being unreachable/unconfigured must not block checkout — fall back to the
   // flat rate (calculateCheckoutPricing's default) rather than failing the order.
   let realShippingCost: number | undefined;
   try {
     const chargeableWeightKg = cartChargeableWeightKg(shippableLines);
-    const serviceability = await checkServiceability(address.pin, env as NimbusPostEnvironment, chargeableWeightKg);
+    const serviceability = await checkServiceability(address.pin, env as SkyfleetEnvironment, chargeableWeightKg, subtotal);
     if (serviceability.serviceable) {
       realShippingCost = shippingMethod === "express" ? serviceability.expressShippingCost : serviceability.standardShippingCost;
     }
   } catch (error) {
-    console.error("NimbusPost shipping quote failed; falling back to flat-rate shipping.", error);
+    console.error("Skyfleet shipping quote failed; falling back to flat-rate shipping.", error);
   }
 
   const { standardShipping, expressShipping, freeShippingThreshold } = await getStoreSettings(dataKV);

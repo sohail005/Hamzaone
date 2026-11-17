@@ -61,7 +61,7 @@ export function OrderStatusEditor({
         </select>
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field id="carrier" label="Carrier" value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="e.g. NimbusPost" />
+        <Field id="carrier" label="Carrier" value={carrier} onChange={(e) => setCarrier(e.target.value)} placeholder="e.g. Delhivery" />
         <Field id="tracking-number" label="Tracking number" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} placeholder="AWB number" />
       </div>
       {error && <p className="text-sm text-error-text">{error}</p>}

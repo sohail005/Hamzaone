@@ -1,4 +1,4 @@
-import { checkServiceability, NimbusPostApiError, NimbusPostNotConfiguredError, type NimbusPostEnvironment } from "@/lib/nimbuspost";
+import { checkServiceability, SkyfleetApiError, SkyfleetNotConfiguredError, type SkyfleetEnvironment } from "@/lib/skyfleet";
 import { getWorkerEnv } from "@/lib/server/kv";
 
 function formatMessage(result: Awaited<ReturnType<typeof checkServiceability>>) {
@@ -26,16 +26,16 @@ export async function GET(request: Request) {
   const env = await getWorkerEnv();
 
   try {
-    const result = await checkServiceability(pincode, env as NimbusPostEnvironment, weightKg);
+    const result = await checkServiceability(pincode, env as SkyfleetEnvironment, weightKg);
     return Response.json({ ...result, message: formatMessage(result) });
   } catch (err) {
-    if (err instanceof NimbusPostNotConfiguredError) {
+    if (err instanceof SkyfleetNotConfiguredError) {
       return Response.json(
-        { error: "Delivery estimation isn't configured yet. Add NimbusPost credentials to enable it." },
+        { error: "Delivery estimation isn't configured yet. Add Skyfleet credentials to enable it." },
         { status: 503 },
       );
     }
-    if (err instanceof NimbusPostApiError) {
+    if (err instanceof SkyfleetApiError) {
       return Response.json({ error: err.message }, { status: 502 });
     }
     return Response.json({ error: "Couldn't check delivery estimate." }, { status: 502 });

@@ -12,6 +12,7 @@ const VOLUMETRIC_DIVISOR = 5000;
 // Used when a product has no weight/dimensions recorded yet (e.g. older
 // catalog entries added before the admin shipping-dimensions fields existed).
 export const DEFAULT_ITEM_WEIGHT_KG = 0.5;
+export const DEFAULT_ITEM_DIM_CM = 10;
 
 export type ShippableLine = {
   qty: number;
@@ -41,4 +42,16 @@ export function lineChargeableWeightKg(line: ShippableLine): number {
 // for a delivery estimate or shipment booking.
 export function cartChargeableWeightKg(lines: ShippableLine[]): number {
   return lines.reduce((sum, line) => sum + lineChargeableWeightKg(line), 0);
+}
+
+// Package dimensions for the whole order, for couriers (Skyfleet) that need
+// one L/W/H per shipment rather than a chargeable weight alone. Takes the
+// largest dimension seen in each axis across all lines as a conservative
+// single-box approximation — true multi-box packing is the same overkill
+// noted above for per-line weight.
+export function cartPackageDimensionsCm(lines: ShippableLine[]): { lengthCm: number; widthCm: number; heightCm: number } {
+  const lengthCm = Math.max(DEFAULT_ITEM_DIM_CM, ...lines.map((l) => l.lengthCm ?? 0));
+  const widthCm = Math.max(DEFAULT_ITEM_DIM_CM, ...lines.map((l) => l.breadthCm ?? 0));
+  const heightCm = Math.max(DEFAULT_ITEM_DIM_CM, ...lines.map((l) => l.heightCm ?? 0));
+  return { lengthCm, widthCm, heightCm };
 }
