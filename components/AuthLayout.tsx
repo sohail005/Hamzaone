@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ConceptRender } from "./ConceptRender";
+import { AuthCarousel } from "./AuthCarousel";
 
 export function AuthLayout({ children, title, subtitle }: { children: React.ReactNode; title: string; subtitle?: string }) {
   return (
@@ -7,7 +7,7 @@ export function AuthLayout({ children, title, subtitle }: { children: React.Reac
       <div className="hidden flex-col justify-between rounded-l-panel bg-dark p-10 text-white md:flex">
         <Link href="/" className="font-display text-xl font-extrabold">HamzaOne</Link>
         <div>
-          <ConceptRender shape="vase" color="#F97316" className="aspect-square w-full rounded-panel" />
+          <AuthCarousel />
           <p className="mt-6 text-lg font-semibold">Your Ideas. Made Real.</p>
           <p className="mt-2 text-sm text-white/60">Ready-made and custom 3D printed Design Models, made in-house in India.</p>
         </div>

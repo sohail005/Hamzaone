@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   LayoutDashboard, Package, FolderTree, ShoppingBag, Factory, FileText,
-  Users, Boxes, Ticket, CreditCard, BarChart3, Settings, ChevronsLeft, ChevronsRight, ExternalLink, Star,
+  Users, Boxes, Ticket, CreditCard, BarChart3, Settings, ChevronsLeft, ChevronsRight, ExternalLink, Star, LogOut,
 } from "lucide-react";
 import { cx } from "@/lib/format";
 
@@ -26,6 +27,19 @@ const ITEMS = [
 
 export function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function logout() {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/me", { method: "DELETE", credentials: "include" });
+    } finally {
+      router.push("/login");
+      router.refresh();
+    }
+  }
+
   return (
     <aside
       className={cx(
@@ -61,6 +75,15 @@ export function AdminSidebar({ collapsed, onToggle }: { collapsed: boolean; onTo
           <ExternalLink className="h-[18px] w-[18px] shrink-0" />
           {!collapsed && <span>View store</span>}
         </a>
+        <button
+          onClick={logout}
+          disabled={loggingOut}
+          title={collapsed ? "Log out" : undefined}
+          className="flex items-center gap-3 rounded-chip px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+        >
+          <LogOut className="h-[18px] w-[18px] shrink-0" />
+          {!collapsed && <span>{loggingOut ? "Logging out…" : "Log out"}</span>}
+        </button>
         <button onClick={onToggle} className="flex items-center gap-3 rounded-chip px-3 py-2.5 text-sm font-medium text-text-muted hover:bg-bg">
           {collapsed ? <ChevronsRight className="h-[18px] w-[18px]" /> : <ChevronsLeft className="h-[18px] w-[18px]" />}
           {!collapsed && <span>Collapse</span>}
