@@ -15,11 +15,21 @@ type Address = { id: string; line1: string; city: string; state: string; pin: st
 type OrderSummary = { id: string; total: number; status: string; paymentStatus: string; items: Array<{ name: string }> };
 
 export default async function AccountOverviewPage() {
-  const [user, { orders }, { addresses }] = await Promise.all([
+  // orders/addresses go over a self-referential HTTP round trip (lib/api.ts) that
+  // occasionally hits a transient Cloudflare edge error even after its internal
+  // retries — that must not take down the whole page (profile info doesn't need
+  // either of these), so each is settled independently with an empty fallback.
+  const [userResult, ordersResult, addressesResult] = await Promise.allSettled([
     getCurrentUser(),
     api.orders.list() as Promise<{ orders: OrderSummary[] }>,
     api.addresses.list() as Promise<{ addresses: Address[] }>,
   ]);
+  const user = userResult.status === "fulfilled" ? userResult.value : null;
+  const orders = ordersResult.status === "fulfilled" ? ordersResult.value.orders : [];
+  const addresses = addressesResult.status === "fulfilled" ? addressesResult.value.addresses : [];
+  const ordersFailed = ordersResult.status === "rejected";
+  const addressesFailed = addressesResult.status === "rejected";
+
   const greetingName = user?.name ?? "there";
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
   const recentOrders = orders.slice(0, 3);
@@ -71,7 +81,11 @@ export default async function AccountOverviewPage() {
             <div>
               <p className="text-xs text-text-muted">Address</p>
               <p className="text-sm font-medium">
-                {defaultAddress ? `${defaultAddress.city}, ${defaultAddress.state} ${defaultAddress.pin}` : "Not added yet"}
+                {addressesFailed
+                  ? "Couldn't load right now"
+                  : defaultAddress
+                    ? `${defaultAddress.city}, ${defaultAddress.state} ${defaultAddress.pin}`
+                    : "Not added yet"}
               </p>
             </div>
           </div>
@@ -87,7 +101,17 @@ export default async function AccountOverviewPage() {
           <Link href="/account/orders" className="text-xs font-semibold text-accent-text">View All Orders →</Link>
         </div>
 
-        {recentOrders.length === 0 ? (
+        {ordersFailed ? (
+          <div className="mt-6 flex flex-col items-center gap-3 py-6 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-mto-chip-bg text-accent-text">
+              <ShoppingBag className="h-6 w-6" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Couldn&apos;t load your orders right now.</p>
+              <p className="text-xs text-text-muted">Refresh the page, or check <Link href="/account/orders" className="underline">All Orders</Link>.</p>
+            </div>
+          </div>
+        ) : recentOrders.length === 0 ? (
           <div className="mt-6 flex flex-col items-center gap-3 py-6 text-center">
             <span className="flex h-14 w-14 items-center justify-center rounded-full bg-mto-chip-bg text-accent-text">
               <ShoppingBag className="h-6 w-6" />
