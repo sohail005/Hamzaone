@@ -37,7 +37,8 @@ function LoginForm() {
         return;
       }
 
-      router.push(next || "/account");
+      const role = typeof data?.user?.role === "string" ? data.user.role : "customer";
+      router.push(next || (role === "admin" ? "/admin" : "/account"));
     } catch {
       setError("Unable to sign in right now. Please try again.");
     } finally {

@@ -36,7 +36,8 @@ export function RegisterPageView() {
         return;
       }
 
-      router.push("/account?welcome=1");
+      const role = typeof data?.user?.role === "string" ? data.user.role : "customer";
+      router.push(role === "admin" ? "/admin" : "/account?welcome=1");
     } catch {
       setErrors((current) => ({ ...current, email: "Unable to create account right now." }));
     }

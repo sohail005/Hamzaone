@@ -72,7 +72,13 @@ export async function GET(request: Request) {
   }
 
   const token = await createSessionForUser(kv, user.id);
-  const destination = next && next.startsWith("/") ? next : "/account";
+  // "/account"/"/account?welcome=1" are the generic post-auth defaults the
+  // login/register pages pass when they don't know the role yet (Google's
+  // identity isn't known until after the token exchange above) — send an
+  // admin there instead of into the customer-facing store. Any other
+  // explicit `next` (e.g. the middleware's /admin redirect) is respected as-is.
+  const isGenericDefault = !next || next === "/account" || next === "/account?welcome=1";
+  const destination = next && next.startsWith("/") && !isGenericDefault ? next : user.role === "admin" ? "/admin" : "/account";
 
   return new Response(null, {
     status: 302,
