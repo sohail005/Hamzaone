@@ -5,7 +5,6 @@ import {
   getAuthKV,
   getUserByEmail,
   hashPassword,
-  isAdminEmail,
   normalizeEmail,
   putUser,
   resolveAllowedOrigin,
@@ -62,7 +61,10 @@ export async function POST(request: Request) {
 
   const userId = crypto.randomUUID();
   const passwordHash = await hashPassword(password);
-  const role = isAdminEmail(env, email) ? "admin" : "customer";
+  // Admin is never grantable through public self-registration — an unverified
+  // email match used to be enough to claim it (see commit fixing this). Admin
+  // accounts are only created by an existing admin via POST /api/admin/users.
+  const role = "customer";
   await putUser(kv, { id: userId, name, email, passwordHash, role, createdAt: new Date().toISOString(), provider: "password" });
 
   const token = await createSessionForUser(kv, userId);

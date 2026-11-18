@@ -28,6 +28,24 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const RESET_TTL_SECONDS = 60 * 15;
 const RATE_LIMIT_WINDOW_SECONDS = 60;
 
+// Admin accounts are never self-service (no register/login email-match can
+// grant this role — see app/api/auth/register and /login) — they're only
+// created by an existing admin via POST /api/admin/users, which also appends
+// here so the admin-accounts UI can list them without a KV-wide scan.
+const ADMIN_INDEX_KEY = "admins:index";
+
+export type AdminSummary = { id: string; name: string; email: string; createdAt: string };
+
+export async function listAdminUsers(kv: KVStore): Promise<AdminSummary[]> {
+  const value = await kv.get(ADMIN_INDEX_KEY, { type: "json" });
+  return Array.isArray(value) ? (value as AdminSummary[]) : [];
+}
+
+export async function addAdminToIndex(kv: KVStore, entry: AdminSummary) {
+  const current = await listAdminUsers(kv);
+  await kv.put(ADMIN_INDEX_KEY, JSON.stringify([...current, entry]));
+}
+
 function userKey(email: string) {
   return `user:${email}`;
 }

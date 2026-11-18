@@ -3,9 +3,7 @@ import {
   createSessionForUser,
   getAuthKV,
   getUserByEmail,
-  isAdminEmail,
   normalizeEmail,
-  putUser,
   resolveAllowedOrigin,
   corsHeaders,
   sessionCookieHeader,
@@ -59,11 +57,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid email or password." }, { status: 401, headers });
   }
 
-  if (user.role !== "admin" && isAdminEmail(env, user.email)) {
-    user.role = "admin";
-    await putUser(kv, user);
-  }
-
+  // Admin is never granted here by email match — see app/api/auth/register
+  // for why that's gone. Admin accounts are created with role: "admin"
+  // already set (via POST /api/admin/users), so this just reads it back.
   const token = await createSessionForUser(kv, user.id);
   headers["Set-Cookie"] = sessionCookieHeader(token);
 

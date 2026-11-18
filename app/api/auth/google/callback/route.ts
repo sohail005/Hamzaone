@@ -1,4 +1,4 @@
-import { createSessionForUser, getAuthKV, getUserByEmail, isAdminEmail, normalizeEmail, putUser, sessionCookieHeader } from "@/lib/server/auth";
+import { createSessionForUser, getAuthKV, getUserByEmail, normalizeEmail, putUser, sessionCookieHeader } from "@/lib/server/auth";
 import { getWorkerEnv } from "@/lib/server/kv";
 import { exchangeGoogleCode, fetchGoogleProfile, GOOGLE_STATE_COOKIE } from "@/lib/server/google-auth";
 
@@ -43,6 +43,10 @@ export async function GET(request: Request) {
     return Response.json({ error: "Could not read your Google account's email address." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
   }
 
+  // Admin is never granted here by email match — a new Google sign-in always
+  // lands as "customer". Admin accounts only come from POST /api/admin/users,
+  // created by an existing admin, so an existing admin's role is simply
+  // whatever was already stored (read back below, not re-derived here).
   const email = normalizeEmail(profile.email);
   let user = await getUserByEmail(kv, email);
   if (!user) {
@@ -52,23 +56,15 @@ export async function GET(request: Request) {
       email,
       avatarUrl: profile.picture,
       passwordHash: "",
-      role: isAdminEmail(env, email) ? "admin" : "customer",
+      role: "customer",
       createdAt: new Date().toISOString(),
       provider: "google",
     };
     await putUser(kv, user);
-  } else {
-    let dirty = false;
-    if (user.provider === "google" && profile.picture && user.avatarUrl !== profile.picture) {
-      // Google's photo URL can change over time — keep it fresh on each sign-in.
-      user.avatarUrl = profile.picture;
-      dirty = true;
-    }
-    if (user.role !== "admin" && isAdminEmail(env, user.email)) {
-      user.role = "admin";
-      dirty = true;
-    }
-    if (dirty) await putUser(kv, user);
+  } else if (user.provider === "google" && profile.picture && user.avatarUrl !== profile.picture) {
+    // Google's photo URL can change over time — keep it fresh on each sign-in.
+    user.avatarUrl = profile.picture;
+    await putUser(kv, user);
   }
 
   const token = await createSessionForUser(kv, user.id);

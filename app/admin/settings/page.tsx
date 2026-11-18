@@ -27,7 +27,10 @@ type StoreSettings = {
   freeShippingThreshold: string;
 };
 
+type AdminSummary = { id: string; name: string; email: string; createdAt: string };
+
 const EMPTY_SETTINGS: StoreSettings = { storeName: "", supportEmail: "", accentColor: "", standardShipping: "", expressShipping: "", freeShippingThreshold: "" };
+const EMPTY_NEW_ADMIN = { name: "", email: "", password: "" };
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const ACCENT_HINT = "6-digit hex code, e.g. #2563EB";
@@ -43,6 +46,13 @@ function SettingsContent() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [admins, setAdmins] = useState<AdminSummary[]>([]);
+  const [adminsLoaded, setAdminsLoaded] = useState(false);
+  const [newAdmin, setNewAdmin] = useState(EMPTY_NEW_ADMIN);
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [adminCreated, setAdminCreated] = useState(false);
 
   useEffect(() => {
     api.storeSettings
@@ -64,6 +74,33 @@ function SettingsContent() {
   const current = SECTIONS.find((s) => s.key === section) ?? SECTIONS[0];
   const locked = !!current.restricted && role === "Staff";
   const accentValid = form.accentColor === "" || HEX_COLOR.test(form.accentColor);
+
+  useEffect(() => {
+    if (section !== "account" || locked || adminsLoaded) return;
+    api.adminUsers
+      .list()
+      .then(({ admins: list }) => setAdmins(list))
+      .catch((err) => setAdminError(err instanceof Error ? err.message : "Could not load admin accounts."))
+      .finally(() => setAdminsLoaded(true));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, locked]);
+
+  async function createAdmin(e: React.FormEvent) {
+    e.preventDefault();
+    setCreatingAdmin(true);
+    setAdminError(null);
+    setAdminCreated(false);
+    try {
+      const { admin } = await api.adminUsers.create(newAdmin);
+      setAdmins((current) => [...current, admin]);
+      setNewAdmin(EMPTY_NEW_ADMIN);
+      setAdminCreated(true);
+    } catch (err) {
+      setAdminError(err instanceof Error ? err.message : "Could not create the admin account.");
+    } finally {
+      setCreatingAdmin(false);
+    }
+  }
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -138,6 +175,52 @@ function SettingsContent() {
           ))}
         </nav>
 
+        {section === "account" ? (
+          <div className="rounded-card bg-surface p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold">{current.label}</h2>
+            {locked ? (
+              <p className="flex items-center gap-2 text-sm text-text-muted">
+                <Lock className="h-4 w-4" /> This section is read-only for Staff accounts. Switch to Owner to make changes.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-6">
+                <ul className="flex flex-col gap-2">
+                  {admins.length === 0 && adminsLoaded && <li className="text-sm text-text-muted">No admin accounts created yet.</li>}
+                  {admins.map((admin) => (
+                    <li key={admin.id} className="flex items-center justify-between rounded-chip border border-border px-4 py-2.5">
+                      <div>
+                        <p className="text-sm font-semibold">{admin.name}</p>
+                        <p className="text-xs text-text-muted">{admin.email}</p>
+                      </div>
+                      <span className="text-xs text-text-muted">Since {new Date(admin.createdAt).toLocaleDateString()}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <form onSubmit={createAdmin} className="flex max-w-md flex-col gap-4 border-t border-border pt-5">
+                  <p className="text-xs text-text-muted">
+                    Create a login for a new admin, then share the password with them yourself — there is no public admin sign-up.
+                  </p>
+                  <Field id="new-admin-name" label="Full name" value={newAdmin.name} onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })} />
+                  <Field id="new-admin-email" label="Email" type="email" value={newAdmin.email} onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })} />
+                  <Field
+                    id="new-admin-password"
+                    label="Temporary password"
+                    type="text"
+                    value={newAdmin.password}
+                    onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                    hint="At least 8 characters. Share this with the new admin yourself."
+                  />
+                  {adminError && <p className="text-sm text-error-text">{adminError}</p>}
+                  {adminCreated && !adminError && <p className="text-sm font-semibold text-success-text">✓ Admin account created</p>}
+                  <Button type="submit" disabled={creatingAdmin} className="self-start">
+                    {creatingAdmin ? "Creating…" : "Create admin"}
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
+        ) : (
         <form onSubmit={save} className="rounded-card bg-surface p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold">{current.label}</h2>
           {locked ? (
@@ -198,6 +281,7 @@ function SettingsContent() {
             </Button>
           )}
         </form>
+        )}
       </div>
     </div>
   );

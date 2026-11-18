@@ -176,6 +176,14 @@ export const api = {
       });
     },
   },
+  adminUsers: {
+    list: async (): Promise<{ admins: Array<{ id: string; name: string; email: string; createdAt: string }> }> => {
+      return apiFetch("/api/admin/users");
+    },
+    create: async (body: { name: string; email: string; password: string }) => {
+      return apiFetch("/api/admin/users", { method: "POST", body: JSON.stringify(body) });
+    },
+  },
   storeSettings: {
     get: async (): Promise<{ settings: { storeName?: string; supportEmail?: string; accentColor?: string; standardShipping?: number; expressShipping?: number; freeShippingThreshold?: number } }> => {
       return apiFetch("/api/admin/store-settings");
