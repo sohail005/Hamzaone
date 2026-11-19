@@ -37,7 +37,7 @@ export default async function HomePage() {
 
   return (
     <main className="flex flex-col">
-      <section className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-[72px] sm:px-6" style={{ maxWidth: 1280 }}>
+      <section className="mx-auto flex w-full flex-wrap items-center gap-12 px-4 py-8 sm:px-6 sm:py-12" style={{ maxWidth: 1280 }}>
         <div className="flex flex-col gap-6" style={{ flex: "1 1 440px" }}>
           <span className="eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-text-muted">
             3D printed in India · Ready-made and custom
@@ -75,7 +75,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="mx-auto w-full px-4 py-6 sm:px-6" style={{ maxWidth: 1280 }}>
+      <section className="mx-auto w-full px-4 py-4 sm:px-6" style={{ maxWidth: 1280 }}>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <h2 className="text-[36px] font-bold">Shop by category</h2>
           <Link href="/shop" className="font-semibold text-accent-text">View all products →</Link>
