@@ -17,14 +17,14 @@ export function ProductForm({ product }: { product?: Product }) {
   const [form, setForm] = useState({
     name: product?.name ?? "",
     category: product?.category ?? "",
-    price: product?.price ?? 0,
+    price: product?.price ? String(product.price) : "",
     stock: product?.stock !== undefined ? String(product.stock) : "",
     material: product?.material ?? "PLA",
     description: product?.description ?? "",
-    weightKg: product?.weightKg ?? 0,
-    lengthCm: product?.lengthCm ?? 0,
-    breadthCm: product?.breadthCm ?? 0,
-    heightCm: product?.heightCm ?? 0,
+    weightKg: product?.weightKg ? String(product.weightKg) : "",
+    lengthCm: product?.lengthCm ? String(product.lengthCm) : "",
+    breadthCm: product?.breadthCm ? String(product.breadthCm) : "",
+    heightCm: product?.heightCm ? String(product.heightCm) : "",
     imageKeys: product?.imageKeys ?? [],
     videoKey: product?.videoKey,
     colors: product?.colors ?? [],
@@ -136,13 +136,22 @@ export function ProductForm({ product }: { product?: Product }) {
   async function publish() {
     const e: Record<string, string> = {};
     if (!form.name) e.name = "Name is required.";
-    if (!form.price || form.price <= 0) e.price = "Price must be greater than 0.";
+    if (!form.price || Number(form.price) <= 0) e.price = "Price must be greater than 0.";
     if (form.colors.length === 0) e.colors = "Select at least one colour.";
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
     const stock = form.stock.trim() === "" ? undefined : Math.max(0, Number(form.stock));
-    const payload = { ...form, stock };
+    const toNumber = (value: string) => (value.trim() === "" ? undefined : Number(value));
+    const payload = {
+      ...form,
+      price: Number(form.price),
+      stock,
+      weightKg: toNumber(form.weightKg),
+      lengthCm: toNumber(form.lengthCm),
+      breadthCm: toNumber(form.breadthCm),
+      heightCm: toNumber(form.heightCm),
+    };
 
     setSaving(true);
     try {
@@ -178,7 +187,7 @@ export function ProductForm({ product }: { product?: Product }) {
               ))}
             </select>
           </div>
-          <Field id="price" label="Price (₹)" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} error={errors.price} />
+          <Field id="price" label="Price (₹)" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} error={errors.price} />
           <Field
             id="stock"
             label="Available stock"
@@ -253,10 +262,10 @@ export function ProductForm({ product }: { product?: Product }) {
           <h2 className="mt-2 text-sm font-semibold">Shipping dimensions</h2>
           <p className="-mt-3 text-xs text-text-muted">Packed weight and size, used for courier delivery estimates.</p>
           <div className="grid grid-cols-2 gap-4">
-            <Field id="weightKg" label="Weight (kg)" type="number" step="0.01" value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: Number(e.target.value) })} />
-            <Field id="lengthCm" label="Length (cm)" type="number" value={form.lengthCm} onChange={(e) => setForm({ ...form, lengthCm: Number(e.target.value) })} />
-            <Field id="breadthCm" label="Breadth (cm)" type="number" value={form.breadthCm} onChange={(e) => setForm({ ...form, breadthCm: Number(e.target.value) })} />
-            <Field id="heightCm" label="Height (cm)" type="number" value={form.heightCm} onChange={(e) => setForm({ ...form, heightCm: Number(e.target.value) })} />
+            <Field id="weightKg" label="Weight (kg)" type="number" step="0.01" value={form.weightKg} onChange={(e) => setForm({ ...form, weightKg: e.target.value })} />
+            <Field id="lengthCm" label="Length (cm)" type="number" value={form.lengthCm} onChange={(e) => setForm({ ...form, lengthCm: e.target.value })} />
+            <Field id="breadthCm" label="Breadth (cm)" type="number" value={form.breadthCm} onChange={(e) => setForm({ ...form, breadthCm: e.target.value })} />
+            <Field id="heightCm" label="Height (cm)" type="number" value={form.heightCm} onChange={(e) => setForm({ ...form, heightCm: e.target.value })} />
           </div>
         </div>
 
