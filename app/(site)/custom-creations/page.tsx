@@ -16,6 +16,8 @@ import {
   CUSTOM_CREATION_WHY_CHOOSE_US,
 } from "@/data/customCreations";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Custom 3D Printing Services in India | HamzaOne",
   description:

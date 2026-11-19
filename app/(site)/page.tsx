@@ -15,6 +15,8 @@ import { Button } from "@/components/Button";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { Newsletter } from "@/components/Newsletter";
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   const env = await getWorkerEnv();
   const kv = getKV(env, "DATA_KV");

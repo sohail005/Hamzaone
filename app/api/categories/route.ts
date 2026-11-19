@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { createCategory, getCategoryBySlug, listCategories, updateCategory } from "@/lib/server/categories-store";
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
       name: body.name.trim(),
       description: typeof body.description === "string" ? body.description : "",
     });
+    revalidatePath("/");
     return Response.json({ category }, { status: 201 });
   } catch (error) {
     console.error("Failed to create category", error);
@@ -109,6 +111,7 @@ export async function PATCH(request: Request) {
     if (!category) {
       return Response.json({ error: "Category not found" }, { status: 404 });
     }
+    revalidatePath("/");
     return Response.json({ category });
   } catch (error) {
     console.error("Failed to update category", error);

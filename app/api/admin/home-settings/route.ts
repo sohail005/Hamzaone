@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { getHomeSettings, updateHomeSettings } from "@/lib/server/home-settings-store";
@@ -39,6 +40,7 @@ export async function PATCH(request: Request) {
     const settings = await updateHomeSettings(kv, {
       heroImageKeys: patch.heroImageKeys.filter((key): key is string => typeof key === "string" && key.length > 0),
     });
+    revalidatePath("/");
     return Response.json({ settings });
   } catch (error) {
     console.error("Failed to update home settings", error);

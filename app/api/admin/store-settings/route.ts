@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { getStoreSettings, updateStoreSettings, type StoreSettings } from "@/lib/server/store-settings-store";
@@ -52,6 +53,7 @@ export async function PATCH(request: Request) {
 
   try {
     const settings = await updateStoreSettings(kv, patch);
+    revalidatePath("/", "layout");
     return Response.json({ settings });
   } catch (error) {
     console.error("Failed to update store settings", error);

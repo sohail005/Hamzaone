@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { getAuthKV, getUserFromRequestCookie } from "@/lib/server/auth";
 import { getKV, getWorkerEnv } from "@/lib/server/kv";
 import { getCustomCreationCategoryOverrides, updateCustomCreationCategoryOverride } from "@/lib/server/custom-creation-categories-store";
@@ -41,6 +42,7 @@ export async function PATCH(request: Request) {
       imageKey: body.imageKey,
       enabled: body.enabled,
     });
+    revalidatePath("/custom-creations");
     return Response.json({ overrides });
   } catch (error) {
     console.error("Failed to update custom creation category override", error);
