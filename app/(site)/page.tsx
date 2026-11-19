@@ -15,7 +15,7 @@ import { Button } from "@/components/Button";
 import { FaqAccordion } from "@/components/FaqAccordion";
 import { Newsletter } from "@/components/Newsletter";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const env = await getWorkerEnv();
