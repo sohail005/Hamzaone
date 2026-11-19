@@ -24,17 +24,22 @@ export async function GET(request: Request) {
   const origin = resolveAllowedOrigin(request, env);
   const headers = corsHeaders(origin, "GET, PATCH, OPTIONS");
 
-  const kv = await getAuthKV();
-  if (!kv) {
-    return Response.json({ error: "Authentication is not configured." }, { status: 503, headers });
-  }
+  try {
+    const kv = await getAuthKV();
+    if (!kv) {
+      return Response.json({ error: "Authentication is not configured." }, { status: 503, headers });
+    }
 
-  const user = await getUserFromRequestCookie(kv, request);
-  if (!user) {
-    return Response.json({ error: "Unauthorized." }, { status: 401, headers });
-  }
+    const user = await getUserFromRequestCookie(kv, request);
+    if (!user) {
+      return Response.json({ error: "Unauthorized." }, { status: 401, headers });
+    }
 
-  return Response.json({ user: toPublicUser(user) }, { headers });
+    return Response.json({ user: toPublicUser(user) }, { headers });
+  } catch (error) {
+    console.error("Fetching the current user failed.", error);
+    return Response.json({ error: "Something went wrong. Please try again." }, { status: 500, headers });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -42,31 +47,36 @@ export async function PATCH(request: Request) {
   const origin = resolveAllowedOrigin(request, env);
   const headers = corsHeaders(origin, "GET, PATCH, OPTIONS");
 
-  const kv = await getAuthKV();
-  if (!kv) {
-    return Response.json({ error: "Authentication is not configured." }, { status: 503, headers });
-  }
+  try {
+    const kv = await getAuthKV();
+    if (!kv) {
+      return Response.json({ error: "Authentication is not configured." }, { status: 503, headers });
+    }
 
-  const user = await getUserFromRequestCookie(kv, request);
-  if (!user) {
-    return Response.json({ error: "Unauthorized." }, { status: 401, headers });
-  }
+    const user = await getUserFromRequestCookie(kv, request);
+    if (!user) {
+      return Response.json({ error: "Unauthorized." }, { status: 401, headers });
+    }
 
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") {
-    return Response.json({ error: "Invalid request body." }, { status: 400, headers });
-  }
-  const record = body as Record<string, unknown>;
+    const body = await request.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return Response.json({ error: "Invalid request body." }, { status: 400, headers });
+    }
+    const record = body as Record<string, unknown>;
 
-  if (typeof record.name === "string" && record.name.trim()) {
-    user.name = record.name.trim();
-  }
-  if (typeof record.phone === "string") {
-    user.phone = record.phone.trim();
-  }
-  await putUser(kv, user);
+    if (typeof record.name === "string" && record.name.trim()) {
+      user.name = record.name.trim();
+    }
+    if (typeof record.phone === "string") {
+      user.phone = record.phone.trim();
+    }
+    await putUser(kv, user);
 
-  return Response.json({ user: toPublicUser(user) }, { headers });
+    return Response.json({ user: toPublicUser(user) }, { headers });
+  } catch (error) {
+    console.error("Updating the current user failed.", error);
+    return Response.json({ error: "Something went wrong. Please try again." }, { status: 500, headers });
+  }
 }
 
 export async function DELETE(request: Request) {

@@ -21,21 +21,26 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const resource = searchParams.get("resource") ?? "all";
 
-  if (resource === "all") {
-    const all = await getAllAdminResources(kv);
-    return Response.json({
-      customers: all.customers,
-      coupons: all.coupons,
-      payments: all.payments,
-      production: all.production,
-      inventory: all.inventory,
-    });
-  }
+  try {
+    if (resource === "all") {
+      const all = await getAllAdminResources(kv);
+      return Response.json({
+        customers: all.customers,
+        coupons: all.coupons,
+        payments: all.payments,
+        production: all.production,
+        inventory: all.inventory,
+      });
+    }
 
-  if (!isAdminResource(resource)) {
-    return Response.json({ error: "Unknown resource" }, { status: 400 });
-  }
+    if (!isAdminResource(resource)) {
+      return Response.json({ error: "Unknown resource" }, { status: 400 });
+    }
 
-  const value = await getAdminResource(kv, resource);
-  return Response.json({ [resource]: value });
+    const value = await getAdminResource(kv, resource);
+    return Response.json({ [resource]: value });
+  } catch (error) {
+    console.error("Failed to load admin resource", error);
+    return Response.json({ error: "Could not load admin data." }, { status: 500 });
+  }
 }

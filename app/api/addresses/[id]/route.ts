@@ -18,33 +18,38 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
   const patch = body as Record<string, unknown>;
 
-  const existing = await getAddresses(kv, user.id);
-  const target = existing.find((a) => a.id === id);
-  if (!target) {
-    return Response.json({ error: "Address not found." }, { status: 404 });
-  }
-
-  const makeDefault = patch.isDefault === true;
-  const updated = existing.map((a) => {
-    if (a.id !== id) {
-      return makeDefault ? { ...a, isDefault: false } : a;
+  try {
+    const existing = await getAddresses(kv, user.id);
+    const target = existing.find((a) => a.id === id);
+    if (!target) {
+      return Response.json({ error: "Address not found." }, { status: 404 });
     }
-    return {
-      ...a,
-      name: typeof patch.name === "string" && patch.name.trim() ? patch.name.trim() : a.name,
-      line1: typeof patch.line1 === "string" && patch.line1.trim() ? patch.line1.trim() : a.line1,
-      line2: typeof patch.line2 === "string" ? patch.line2.trim() : a.line2,
-      landmark: typeof patch.landmark === "string" ? patch.landmark.trim() : a.landmark,
-      city: typeof patch.city === "string" && patch.city.trim() ? patch.city.trim() : a.city,
-      state: typeof patch.state === "string" && patch.state.trim() ? patch.state.trim() : a.state,
-      pin: typeof patch.pin === "string" && /^\d{6}$/.test(patch.pin) ? patch.pin : a.pin,
-      type: patch.type === "Work" || patch.type === "Home" ? patch.type : a.type,
-      isDefault: makeDefault ? true : a.isDefault,
-    };
-  });
 
-  await saveAddresses(kv, user.id, updated);
-  return Response.json({ address: updated.find((a) => a.id === id) }, { headers: { "Cache-Control": "no-store" } });
+    const makeDefault = patch.isDefault === true;
+    const updated = existing.map((a) => {
+      if (a.id !== id) {
+        return makeDefault ? { ...a, isDefault: false } : a;
+      }
+      return {
+        ...a,
+        name: typeof patch.name === "string" && patch.name.trim() ? patch.name.trim() : a.name,
+        line1: typeof patch.line1 === "string" && patch.line1.trim() ? patch.line1.trim() : a.line1,
+        line2: typeof patch.line2 === "string" ? patch.line2.trim() : a.line2,
+        landmark: typeof patch.landmark === "string" ? patch.landmark.trim() : a.landmark,
+        city: typeof patch.city === "string" && patch.city.trim() ? patch.city.trim() : a.city,
+        state: typeof patch.state === "string" && patch.state.trim() ? patch.state.trim() : a.state,
+        pin: typeof patch.pin === "string" && /^\d{6}$/.test(patch.pin) ? patch.pin : a.pin,
+        type: patch.type === "Work" || patch.type === "Home" ? patch.type : a.type,
+        isDefault: makeDefault ? true : a.isDefault,
+      };
+    });
+
+    await saveAddresses(kv, user.id, updated);
+    return Response.json({ address: updated.find((a) => a.id === id) }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("PATCH /api/addresses/[id]", error);
+    return Response.json({ error: "Could not update the address. Please try again." }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -58,17 +63,22 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const existing = await getAddresses(kv, user.id);
-  const target = existing.find((a) => a.id === id);
-  if (!target) {
-    return Response.json({ error: "Address not found." }, { status: 404 });
-  }
+  try {
+    const existing = await getAddresses(kv, user.id);
+    const target = existing.find((a) => a.id === id);
+    if (!target) {
+      return Response.json({ error: "Address not found." }, { status: 404 });
+    }
 
-  const remaining = existing.filter((a) => a.id !== id);
-  if (target.isDefault && remaining.length > 0 && !remaining.some((a) => a.isDefault)) {
-    remaining[0] = { ...remaining[0], isDefault: true };
-  }
+    const remaining = existing.filter((a) => a.id !== id);
+    if (target.isDefault && remaining.length > 0 && !remaining.some((a) => a.isDefault)) {
+      remaining[0] = { ...remaining[0], isDefault: true };
+    }
 
-  await saveAddresses(kv, user.id, remaining);
-  return Response.json({ message: "Address removed." }, { headers: { "Cache-Control": "no-store" } });
+    await saveAddresses(kv, user.id, remaining);
+    return Response.json({ message: "Address removed." }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("DELETE /api/addresses/[id]", error);
+    return Response.json({ error: "Could not remove the address. Please try again." }, { status: 500 });
+  }
 }

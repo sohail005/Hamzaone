@@ -11,12 +11,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ se
     return Response.json({ error: "Custom Creations storage is not configured." }, { status: 503 });
   }
 
-  const quotation = await getQuotationByToken(db, secureToken);
-  if (!quotation || quotation.status !== "sent") {
-    return Response.json({ error: "This quotation cannot be accepted." }, { status: 400 });
-  }
+  try {
+    const quotation = await getQuotationByToken(db, secureToken);
+    if (!quotation || quotation.status !== "sent") {
+      return Response.json({ error: "This quotation cannot be accepted." }, { status: 400 });
+    }
 
-  const request = await markQuotationAccepted(db, quotation.id);
-  await notifyAdminQuotationResponse(env, { requestNumber: request.requestNumber, requestId: request.id, accepted: true });
-  return Response.json({ status: request.status });
+    const request = await markQuotationAccepted(db, quotation.id);
+    try {
+      await notifyAdminQuotationResponse(env, { requestNumber: request.requestNumber, requestId: request.id, accepted: true });
+    } catch (error) {
+      console.error("Quotation accepted, but admin notification failed.", error);
+    }
+    return Response.json({ status: request.status });
+  } catch (error) {
+    console.error("Could not accept quotation.", error);
+    return Response.json({ error: "Could not accept this quotation." }, { status: 500 });
+  }
 }

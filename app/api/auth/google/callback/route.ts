@@ -9,79 +9,84 @@ function readCookie(request: Request, name: string) {
 }
 
 export async function GET(request: Request) {
-  const env = await getWorkerEnv();
-  const clientId = typeof env.GOOGLE_CLIENT_ID === "string" ? env.GOOGLE_CLIENT_ID : "";
-  const clientSecret = typeof env.GOOGLE_CLIENT_SECRET === "string" ? env.GOOGLE_CLIENT_SECRET : "";
-  if (!clientId || !clientSecret) {
-    return Response.json({ error: "Google sign-in is not configured." }, { status: 503 });
-  }
-
-  const kv = await getAuthKV();
-  if (!kv) {
-    return Response.json({ error: "Authentication is not configured." }, { status: 503 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  const state = searchParams.get("state") ?? "";
-  const [statePart, next] = state.split(":");
-  const expectedState = readCookie(request, GOOGLE_STATE_COOKIE);
-
   const clearStateCookie = `${GOOGLE_STATE_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
 
-  if (!code || !statePart || !expectedState || statePart !== expectedState) {
-    return Response.json({ error: "Google sign-in failed. Please try again." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
+  try {
+    const env = await getWorkerEnv();
+    const clientId = typeof env.GOOGLE_CLIENT_ID === "string" ? env.GOOGLE_CLIENT_ID : "";
+    const clientSecret = typeof env.GOOGLE_CLIENT_SECRET === "string" ? env.GOOGLE_CLIENT_SECRET : "";
+    if (!clientId || !clientSecret) {
+      return Response.json({ error: "Google sign-in is not configured." }, { status: 503 });
+    }
+
+    const kv = await getAuthKV();
+    if (!kv) {
+      return Response.json({ error: "Authentication is not configured." }, { status: 503 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get("code");
+    const state = searchParams.get("state") ?? "";
+    const [statePart, next] = state.split(":");
+    const expectedState = readCookie(request, GOOGLE_STATE_COOKIE);
+
+    if (!code || !statePart || !expectedState || statePart !== expectedState) {
+      return Response.json({ error: "Google sign-in failed. Please try again." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
+    }
+
+    const tokenResponse = await exchangeGoogleCode(code, clientId, clientSecret);
+    if (!tokenResponse.access_token) {
+      return Response.json({ error: "Google sign-in failed. Please try again." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
+    }
+
+    const profile = await fetchGoogleProfile(tokenResponse.access_token);
+    if (!profile?.email) {
+      return Response.json({ error: "Could not read your Google account's email address." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
+    }
+
+    // Admin is never granted here by email match — a new Google sign-in always
+    // lands as "customer". Admin accounts only come from POST /api/admin/users,
+    // created by an existing admin, so an existing admin's role is simply
+    // whatever was already stored (read back below, not re-derived here).
+    const email = normalizeEmail(profile.email);
+    let user = await getUserByEmail(kv, email);
+    if (!user) {
+      user = {
+        id: crypto.randomUUID(),
+        name: profile.name?.trim() || email,
+        email,
+        avatarUrl: profile.picture,
+        passwordHash: "",
+        role: "customer",
+        createdAt: new Date().toISOString(),
+        provider: "google",
+      };
+      await putUser(kv, user);
+    } else if (user.provider === "google" && profile.picture && user.avatarUrl !== profile.picture) {
+      // Google's photo URL can change over time — keep it fresh on each sign-in.
+      user.avatarUrl = profile.picture;
+      await putUser(kv, user);
+    }
+
+    const token = await createSessionForUser(kv, user.id);
+    // "/account"/"/account?welcome=1" are the generic post-auth defaults the
+    // login/register pages pass when they don't know the role yet (Google's
+    // identity isn't known until after the token exchange above) — send an
+    // admin there instead of into the customer-facing store. Any other
+    // explicit `next` (e.g. the middleware's /admin redirect) is respected as-is.
+    const isGenericDefault = !next || next === "/account" || next === "/account?welcome=1";
+    const destination = next && next.startsWith("/") && !isGenericDefault ? next : user.role === "admin" ? "/admin" : "/account";
+
+    return new Response(null, {
+      status: 302,
+      headers: [
+        ["Location", destination],
+        ["Set-Cookie", sessionCookieHeader(token)],
+        ["Set-Cookie", clearStateCookie],
+      ],
+    });
+  } catch (error) {
+    console.error("Google sign-in callback failed.", error);
+    return Response.json({ error: "Google sign-in failed. Please try again." }, { status: 500, headers: { "Set-Cookie": clearStateCookie } });
   }
-
-  const tokenResponse = await exchangeGoogleCode(code, clientId, clientSecret);
-  if (!tokenResponse.access_token) {
-    return Response.json({ error: "Google sign-in failed. Please try again." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
-  }
-
-  const profile = await fetchGoogleProfile(tokenResponse.access_token);
-  if (!profile?.email) {
-    return Response.json({ error: "Could not read your Google account's email address." }, { status: 400, headers: { "Set-Cookie": clearStateCookie } });
-  }
-
-  // Admin is never granted here by email match — a new Google sign-in always
-  // lands as "customer". Admin accounts only come from POST /api/admin/users,
-  // created by an existing admin, so an existing admin's role is simply
-  // whatever was already stored (read back below, not re-derived here).
-  const email = normalizeEmail(profile.email);
-  let user = await getUserByEmail(kv, email);
-  if (!user) {
-    user = {
-      id: crypto.randomUUID(),
-      name: profile.name?.trim() || email,
-      email,
-      avatarUrl: profile.picture,
-      passwordHash: "",
-      role: "customer",
-      createdAt: new Date().toISOString(),
-      provider: "google",
-    };
-    await putUser(kv, user);
-  } else if (user.provider === "google" && profile.picture && user.avatarUrl !== profile.picture) {
-    // Google's photo URL can change over time — keep it fresh on each sign-in.
-    user.avatarUrl = profile.picture;
-    await putUser(kv, user);
-  }
-
-  const token = await createSessionForUser(kv, user.id);
-  // "/account"/"/account?welcome=1" are the generic post-auth defaults the
-  // login/register pages pass when they don't know the role yet (Google's
-  // identity isn't known until after the token exchange above) — send an
-  // admin there instead of into the customer-facing store. Any other
-  // explicit `next` (e.g. the middleware's /admin redirect) is respected as-is.
-  const isGenericDefault = !next || next === "/account" || next === "/account?welcome=1";
-  const destination = next && next.startsWith("/") && !isGenericDefault ? next : user.role === "admin" ? "/admin" : "/account";
-
-  return new Response(null, {
-    status: 302,
-    headers: [
-      ["Location", destination],
-      ["Set-Cookie", sessionCookieHeader(token)],
-      ["Set-Cookie", clearStateCookie],
-    ],
-  });
 }

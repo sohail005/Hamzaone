@@ -14,12 +14,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return Response.json({ error: "Custom Creations storage is not configured." }, { status: 503 });
   }
 
-  const found = await getRequestById(db, id);
-  if (!found) {
-    return Response.json({ error: "Request not found." }, { status: 404 });
+  try {
+    const found = await getRequestById(db, id);
+    if (!found) {
+      return Response.json({ error: "Request not found." }, { status: 404 });
+    }
+
+    const [images, history, quotations] = await Promise.all([listImages(db, id), listHistory(db, id), listQuotations(db, id)]);
+
+    return Response.json({ request: found, images, history, quotations });
+  } catch (error) {
+    console.error("Could not load custom creation request.", error);
+    return Response.json({ error: "Could not load this request." }, { status: 500 });
   }
-
-  const [images, history, quotations] = await Promise.all([listImages(db, id), listHistory(db, id), listQuotations(db, id)]);
-
-  return Response.json({ request: found, images, history, quotations });
 }

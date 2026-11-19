@@ -9,8 +9,13 @@ export async function GET() {
   if (!kv) {
     return Response.json({ error: "Settings storage is not configured." }, { status: 503 });
   }
-  const overrides = await getCustomCreationCategoryOverrides(kv);
-  return Response.json({ overrides });
+  try {
+    const overrides = await getCustomCreationCategoryOverrides(kv);
+    return Response.json({ overrides });
+  } catch (error) {
+    console.error("Failed to load custom creation category overrides", error);
+    return Response.json({ error: "Could not load custom creation categories." }, { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -31,9 +36,14 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const overrides = await updateCustomCreationCategoryOverride(kv, body.slug, {
-    imageKey: body.imageKey,
-    enabled: body.enabled,
-  });
-  return Response.json({ overrides });
+  try {
+    const overrides = await updateCustomCreationCategoryOverride(kv, body.slug, {
+      imageKey: body.imageKey,
+      enabled: body.enabled,
+    });
+    return Response.json({ overrides });
+  } catch (error) {
+    console.error("Failed to update custom creation category override", error);
+    return Response.json({ error: "Could not save custom creation category." }, { status: 500 });
+  }
 }

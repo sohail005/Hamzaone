@@ -5,11 +5,16 @@ export async function GET(request: Request) {
   const result = await requireAdmin(request);
   if (result instanceof Response) return result;
 
-  const kv = await getAuthKV();
-  if (!kv) return Response.json({ error: "Authentication is not configured." }, { status: 503 });
+  try {
+    const kv = await getAuthKV();
+    if (!kv) return Response.json({ error: "Authentication is not configured." }, { status: 503 });
 
-  const admins = await listAdminUsers(kv);
-  return Response.json({ admins });
+    const admins = await listAdminUsers(kv);
+    return Response.json({ admins });
+  } catch (error) {
+    console.error("Listing admin users failed.", error);
+    return Response.json({ error: "Could not load admin users." }, { status: 500 });
+  }
 }
 
 // The only way to create an admin account — self-registration and login can
@@ -43,16 +48,21 @@ export async function POST(request: Request) {
     return Response.json({ error: "Password must be at least 8 characters." }, { status: 400 });
   }
 
-  const existing = await getUserByEmail(kv, email);
-  if (existing) {
-    return Response.json({ error: "An account with this email already exists." }, { status: 409 });
+  try {
+    const existing = await getUserByEmail(kv, email);
+    if (existing) {
+      return Response.json({ error: "An account with this email already exists." }, { status: 409 });
+    }
+
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+    const passwordHash = await hashPassword(password);
+    await putUser(kv, { id, name, email, passwordHash, role: "admin", createdAt, provider: "password" });
+    await addAdminToIndex(kv, { id, name, email, createdAt });
+
+    return Response.json({ admin: { id, name, email, createdAt } }, { status: 201 });
+  } catch (error) {
+    console.error("Creating admin user failed.", error);
+    return Response.json({ error: "Could not create the admin account." }, { status: 500 });
   }
-
-  const id = crypto.randomUUID();
-  const createdAt = new Date().toISOString();
-  const passwordHash = await hashPassword(password);
-  await putUser(kv, { id, name, email, passwordHash, role: "admin", createdAt, provider: "password" });
-  await addAdminToIndex(kv, { id, name, email, createdAt });
-
-  return Response.json({ admin: { id, name, email, createdAt } }, { status: 201 });
 }

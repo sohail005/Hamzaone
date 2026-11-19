@@ -30,24 +30,29 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // Already under review or further along; quotation creation does not require a transition in that case.
   }
 
-  const quotation = await createQuotation(
-    db,
-    id,
-    {
-      designCost: num(body.designCost),
-      printingCost: num(body.printingCost),
-      finishingCost: num(body.finishingCost),
-      additionalCharges: num(body.additionalCharges),
-      deliveryCharges: num(body.deliveryCharges),
-      discount: num(body.discount),
-      productionDays: num(body.productionDays),
-      validUntil: body.validUntil,
-      customerMessage: typeof body.customerMessage === "string" ? body.customerMessage : null,
-    },
-    admin.email,
-  );
+  try {
+    const quotation = await createQuotation(
+      db,
+      id,
+      {
+        designCost: num(body.designCost),
+        printingCost: num(body.printingCost),
+        finishingCost: num(body.finishingCost),
+        additionalCharges: num(body.additionalCharges),
+        deliveryCharges: num(body.deliveryCharges),
+        discount: num(body.discount),
+        productionDays: num(body.productionDays),
+        validUntil: body.validUntil,
+        customerMessage: typeof body.customerMessage === "string" ? body.customerMessage : null,
+      },
+      admin.email,
+    );
 
-  return Response.json({ quotation }, { status: 201 });
+    return Response.json({ quotation }, { status: 201 });
+  } catch (error) {
+    console.error("Could not create quotation.", error);
+    return Response.json({ error: "Could not save the quotation." }, { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -65,21 +70,30 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  await sendQuotation(db, body.quotationId);
+  try {
+    await sendQuotation(db, body.quotationId);
 
-  const quotation = await getQuotationById(db, body.quotationId);
-  if (quotation) {
-    const requestRecord = await getRequestById(db, quotation.requestId);
-    if (requestRecord) {
-      await sendQuotationEmail(env, {
-        email: requestRecord.email,
-        customerName: requestRecord.customerName,
-        requestNumber: requestRecord.requestNumber,
-        secureToken: quotation.secureToken,
-        finalAmount: quotation.finalAmount,
-      });
+    const quotation = await getQuotationById(db, body.quotationId);
+    if (quotation) {
+      const requestRecord = await getRequestById(db, quotation.requestId);
+      if (requestRecord) {
+        try {
+          await sendQuotationEmail(env, {
+            email: requestRecord.email,
+            customerName: requestRecord.customerName,
+            requestNumber: requestRecord.requestNumber,
+            secureToken: quotation.secureToken,
+            finalAmount: quotation.finalAmount,
+          });
+        } catch (error) {
+          console.error("Quotation sent, but customer notification email failed.", error);
+        }
+      }
     }
-  }
 
-  return Response.json({ ok: true });
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Could not send quotation.", error);
+    return Response.json({ error: "Could not send the quotation." }, { status: 500 });
+  }
 }

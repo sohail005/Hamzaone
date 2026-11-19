@@ -16,8 +16,13 @@ export async function GET() {
   if (!kv) {
     return Response.json({ error: "Settings storage is not configured." }, { status: 503 });
   }
-  const settings = await getStoreSettings(kv);
-  return Response.json({ settings });
+  try {
+    const settings = await getStoreSettings(kv);
+    return Response.json({ settings });
+  } catch (error) {
+    console.error("Failed to load store settings", error);
+    return Response.json({ error: "Could not load store settings." }, { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -45,6 +50,11 @@ export async function PATCH(request: Request) {
   if (typeof body.expressShipping === "number") patch.expressShipping = body.expressShipping;
   if (typeof body.freeShippingThreshold === "number") patch.freeShippingThreshold = body.freeShippingThreshold;
 
-  const settings = await updateStoreSettings(kv, patch);
-  return Response.json({ settings });
+  try {
+    const settings = await updateStoreSettings(kv, patch);
+    return Response.json({ settings });
+  } catch (error) {
+    console.error("Failed to update store settings", error);
+    return Response.json({ error: "Could not save store settings." }, { status: 500 });
+  }
 }

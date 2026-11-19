@@ -48,8 +48,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ se
     return jsonError("Razorpay could not create the payment order.", 502);
   }
 
-  await setRazorpayOrderId(db, request.id, result.id);
-  await updateStatus(db, request.id, "PAYMENT_PENDING", "system", "Payment order created.");
+  try {
+    await setRazorpayOrderId(db, request.id, result.id);
+    await updateStatus(db, request.id, "PAYMENT_PENDING", "system", "Payment order created.");
+  } catch (error) {
+    console.error("Could not persist the quotation payment order.", error);
+    return jsonError("The payment order was created but could not be saved. Please contact support before retrying.", 503);
+  }
 
   return Response.json({ keyId: credentials.keyId, orderId: result.id, amount: totalPaise, currency: "INR" });
 }

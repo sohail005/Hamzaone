@@ -19,6 +19,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return Response.json({ error: "Invalid notes." }, { status: 400 });
   }
 
-  await setAdminNotes(db, id, body.notes);
-  return Response.json({ ok: true });
+  try {
+    await setAdminNotes(db, id, body.notes);
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Could not save admin notes.", error);
+    return Response.json({ error: "Could not save notes." }, { status: 500 });
+  }
 }

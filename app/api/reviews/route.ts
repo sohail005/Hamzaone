@@ -13,8 +13,13 @@ export async function GET(request: Request) {
     return Response.json({ error: "Review storage is not configured." }, { status: 503 });
   }
 
-  const reviews = await listApprovedReviews(kv, productSlug);
-  return Response.json({ reviews }, { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } });
+  try {
+    const reviews = await listApprovedReviews(kv, productSlug);
+    return Response.json({ reviews }, { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } });
+  } catch (error) {
+    console.error("GET /api/reviews", error);
+    return Response.json({ error: "Could not load reviews. Please try again." }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -55,29 +60,34 @@ export async function POST(request: Request) {
     return Response.json({ error: "Enter a review up to 1000 characters." }, { status: 400 });
   }
 
-  const order = await readStoredOrder(ordersKv, orderId);
-  if (!order || order.customer.email.toLowerCase() !== email) {
-    return Response.json({ error: "We couldn't find an order matching those details." }, { status: 404 });
-  }
-  if (order.status !== "delivered") {
-    return Response.json({ error: "You can review an item once your order is marked delivered." }, { status: 400 });
-  }
-  const item = order.items.find((i) => i.productSlug === productSlug);
-  if (!item) {
-    return Response.json({ error: "That item isn't part of this order." }, { status: 400 });
-  }
-  if (await hasReviewForOrderItem(dataKv, orderId, productSlug)) {
-    return Response.json({ error: "You've already reviewed this item." }, { status: 409 });
-  }
+  try {
+    const order = await readStoredOrder(ordersKv, orderId);
+    if (!order || order.customer.email.toLowerCase() !== email) {
+      return Response.json({ error: "We couldn't find an order matching those details." }, { status: 404 });
+    }
+    if (order.status !== "delivered") {
+      return Response.json({ error: "You can review an item once your order is marked delivered." }, { status: 400 });
+    }
+    const item = order.items.find((i) => i.productSlug === productSlug);
+    if (!item) {
+      return Response.json({ error: "That item isn't part of this order." }, { status: 400 });
+    }
+    if (await hasReviewForOrderItem(dataKv, orderId, productSlug)) {
+      return Response.json({ error: "You've already reviewed this item." }, { status: 409 });
+    }
 
-  const review = await createReview(dataKv, {
-    orderId,
-    productSlug,
-    productName: item.name,
-    customerName: order.customer.name,
-    rating: rating as 1 | 2 | 3 | 4 | 5,
-    quote,
-  });
+    const review = await createReview(dataKv, {
+      orderId,
+      productSlug,
+      productName: item.name,
+      customerName: order.customer.name,
+      rating: rating as 1 | 2 | 3 | 4 | 5,
+      quote,
+    });
 
-  return Response.json({ review, message: "Thanks! Your review will appear once it's approved." }, { status: 201 });
+    return Response.json({ review, message: "Thanks! Your review will appear once it's approved." }, { status: 201 });
+  } catch (error) {
+    console.error("POST /api/reviews", error);
+    return Response.json({ error: "Could not save your review. Please try again." }, { status: 500 });
+  }
 }

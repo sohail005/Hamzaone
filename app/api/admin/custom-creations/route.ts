@@ -18,24 +18,29 @@ export async function GET(request: Request) {
   const search = searchParams.get("search") ?? undefined;
   const page = Number(searchParams.get("page") ?? "1");
 
-  const [{ requests, total }, statusCounts] = await Promise.all([
-    listRequests(db, { status, search, page }),
-    countByStatus(db),
-  ]);
+  try {
+    const [{ requests, total }, statusCounts] = await Promise.all([
+      listRequests(db, { status, search, page }),
+      countByStatus(db),
+    ]);
 
-  return Response.json({
-    requests: requests.map((r) => ({
-      id: r.id,
-      requestNumber: r.requestNumber,
-      customerName: r.customerName,
-      projectName: r.projectName,
-      category: r.category,
-      createdAt: r.createdAt,
-      quantity: r.quantity,
-      status: r.status,
-      quotedPrice: r.quotedPrice,
-    })),
-    total,
-    statusCounts,
-  });
+    return Response.json({
+      requests: requests.map((r) => ({
+        id: r.id,
+        requestNumber: r.requestNumber,
+        customerName: r.customerName,
+        projectName: r.projectName,
+        category: r.category,
+        createdAt: r.createdAt,
+        quantity: r.quantity,
+        status: r.status,
+        quotedPrice: r.quotedPrice,
+      })),
+      total,
+      statusCounts,
+    });
+  } catch (error) {
+    console.error("Could not load custom creation requests.", error);
+    return Response.json({ error: "Could not load requests." }, { status: 500 });
+  }
 }

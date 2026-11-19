@@ -11,8 +11,13 @@ export async function GET(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const addresses = await getAddresses(kv, user.id);
-  return Response.json({ addresses }, { headers: { "Cache-Control": "no-store" } });
+  try {
+    const addresses = await getAddresses(kv, user.id);
+    return Response.json({ addresses }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("GET /api/addresses", error);
+    return Response.json({ error: "Could not load your addresses. Please try again." }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -34,25 +39,30 @@ export async function POST(request: Request) {
     return Response.json({ error: "Name, address line 1, city, state, and a valid 6-digit PIN are required." }, { status: 400 });
   }
 
-  const existing = await getAddresses(kv, user.id);
-  const type = record.type === "Work" ? "Work" : "Home";
-  const newAddress: StoredAddress = {
-    id: crypto.randomUUID(),
-    name: String(record.name).trim(),
-    line1: String(record.line1).trim(),
-    line2: typeof record.line2 === "string" ? record.line2.trim() : undefined,
-    landmark: typeof record.landmark === "string" ? record.landmark.trim() : undefined,
-    city: String(record.city).trim(),
-    state: String(record.state).trim(),
-    pin: String(record.pin),
-    type,
-    isDefault: existing.length === 0 || record.isDefault === true,
-  };
+  try {
+    const existing = await getAddresses(kv, user.id);
+    const type = record.type === "Work" ? "Work" : "Home";
+    const newAddress: StoredAddress = {
+      id: crypto.randomUUID(),
+      name: String(record.name).trim(),
+      line1: String(record.line1).trim(),
+      line2: typeof record.line2 === "string" ? record.line2.trim() : undefined,
+      landmark: typeof record.landmark === "string" ? record.landmark.trim() : undefined,
+      city: String(record.city).trim(),
+      state: String(record.state).trim(),
+      pin: String(record.pin),
+      type,
+      isDefault: existing.length === 0 || record.isDefault === true,
+    };
 
-  const updated = newAddress.isDefault
-    ? [...existing.map((a) => ({ ...a, isDefault: false })), newAddress]
-    : [...existing, newAddress];
-  await saveAddresses(kv, user.id, updated);
+    const updated = newAddress.isDefault
+      ? [...existing.map((a) => ({ ...a, isDefault: false })), newAddress]
+      : [...existing, newAddress];
+    await saveAddresses(kv, user.id, updated);
 
-  return Response.json({ address: newAddress }, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return Response.json({ address: newAddress }, { status: 201, headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("POST /api/addresses", error);
+    return Response.json({ error: "Could not save the address. Please try again." }, { status: 500 });
+  }
 }

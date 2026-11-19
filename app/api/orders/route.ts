@@ -61,39 +61,44 @@ export async function GET(request: Request) {
     return Response.json({ error: "Order storage is not configured." }, { status: 503 });
   }
 
-  const allOrders = await listStoredOrders(ordersKv, { status, paymentStatus });
+  try {
+    const allOrders = await listStoredOrders(ordersKv, { status, paymentStatus });
 
-  if (requester.role === "admin") {
-    return Response.json({ orders: allOrders, count: allOrders.length }, { headers: { "Cache-Control": "no-store" } });
+    if (requester.role === "admin") {
+      return Response.json({ orders: allOrders, count: allOrders.length }, { headers: { "Cache-Control": "no-store" } });
+    }
+
+    // Non-admin customers only see their own orders (matched by checkout email),
+    // flattened to the simpler shape the account pages render.
+    const own = allOrders.filter((o) => o.customer.email.toLowerCase() === requester.email.toLowerCase());
+
+    // The order list only shows the first line's thumbnail, so only that
+    // product needs to be resolved — look up each distinct slug once.
+    const dataKv = getKV(env, "DATA_KV");
+    const firstItemSlugs = Array.from(new Set(own.map((o) => o.items[0]?.productSlug).filter((s): s is string => !!s)));
+    const imagesBySlug = new Map<string, string | undefined>();
+    if (dataKv) {
+      await Promise.all(
+        firstItemSlugs.map(async (slug) => {
+          const product = await getProductBySlug(dataKv, slug);
+          imagesBySlug.set(slug, product?.imageKeys?.[0]);
+        }),
+      );
+    }
+
+    const ownOrders = own.map((o) => ({
+      id: o.id,
+      customer: o.customer.name,
+      total: o.total,
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      items: o.items.map((item) => ({ name: item.name })),
+      imageKey: o.items[0] ? imagesBySlug.get(o.items[0].productSlug) : undefined,
+      placedAt: o.createdAt,
+    }));
+    return Response.json({ orders: ownOrders, count: ownOrders.length }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("GET /api/orders", error);
+    return Response.json({ error: "Could not load orders. Please try again." }, { status: 500 });
   }
-
-  // Non-admin customers only see their own orders (matched by checkout email),
-  // flattened to the simpler shape the account pages render.
-  const own = allOrders.filter((o) => o.customer.email.toLowerCase() === requester.email.toLowerCase());
-
-  // The order list only shows the first line's thumbnail, so only that
-  // product needs to be resolved — look up each distinct slug once.
-  const dataKv = getKV(env, "DATA_KV");
-  const firstItemSlugs = Array.from(new Set(own.map((o) => o.items[0]?.productSlug).filter((s): s is string => !!s)));
-  const imagesBySlug = new Map<string, string | undefined>();
-  if (dataKv) {
-    await Promise.all(
-      firstItemSlugs.map(async (slug) => {
-        const product = await getProductBySlug(dataKv, slug);
-        imagesBySlug.set(slug, product?.imageKeys?.[0]);
-      }),
-    );
-  }
-
-  const ownOrders = own.map((o) => ({
-    id: o.id,
-    customer: o.customer.name,
-    total: o.total,
-    status: o.status,
-    paymentStatus: o.paymentStatus,
-    items: o.items.map((item) => ({ name: item.name })),
-    imageKey: o.items[0] ? imagesBySlug.get(o.items[0].productSlug) : undefined,
-    placedAt: o.createdAt,
-  }));
-  return Response.json({ orders: ownOrders, count: ownOrders.length }, { headers: { "Cache-Control": "no-store" } });
 }

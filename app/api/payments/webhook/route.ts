@@ -69,6 +69,7 @@ export async function POST(request: Request) {
   const ordersKV = getKV(env, "ORDERS_KV");
   if (!ordersKV) return jsonError("Order storage is not configured. Bind the ORDERS_KV namespace.", 503);
 
+  try {
   if (payload.event === "refund.created" || payload.event === "refund.processed") {
     const order = await readOrderByRazorpayId(ordersKV, paymentEntity.order_id);
     if (!order) return jsonError("The refund does not match a saved store order.", 404);
@@ -166,19 +167,18 @@ export async function POST(request: Request) {
     }
   }
 
-  try {
-    const order = await readOrderByRazorpayId(ordersKV, paymentEntity.order_id);
-    if (!order || order.total * 100 !== paymentEntity.amount || order.currency !== "INR") {
-      return jsonError("The payment does not match a saved store order.", 404);
-    }
-    if (order.paymentStatus === "paid") {
-      return Response.json({ received: true });
-    }
-
-    await fulfillPaidOrder(env, ordersKV, getKV(env, "DATA_KV"), order, paymentEntity.id);
+  const order = await readOrderByRazorpayId(ordersKV, paymentEntity.order_id);
+  if (!order || order.total * 100 !== paymentEntity.amount || order.currency !== "INR") {
+    return jsonError("The payment does not match a saved store order.", 404);
+  }
+  if (order.paymentStatus === "paid") {
     return Response.json({ received: true });
+  }
+
+  await fulfillPaidOrder(env, ordersKV, getKV(env, "DATA_KV"), order, paymentEntity.id);
+  return Response.json({ received: true });
   } catch (error) {
-    console.error("Could not persist the Razorpay webhook event.", error);
+    console.error("Could not process the Razorpay webhook event.", error);
     return jsonError("Could not process the Razorpay webhook.", 503);
   }
 }

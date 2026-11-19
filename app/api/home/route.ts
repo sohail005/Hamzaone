@@ -64,8 +64,16 @@ export async function GET(request: Request) {
   const section = searchParams.get("section");
 
   const headers = { "Cache-Control": "no-store" };
-  const { featured, newArrivals } = await getFeaturedAndNewArrivals();
-  const homeReviews = await getHomeReviews();
+  let featured: HomeCard[];
+  let newArrivals: HomeCard[];
+  let homeReviews: Awaited<ReturnType<typeof getHomeReviews>>;
+  try {
+    ({ featured, newArrivals } = await getFeaturedAndNewArrivals());
+    homeReviews = await getHomeReviews();
+  } catch (error) {
+    console.error("Failed to load home page data", error);
+    return Response.json({ error: "Could not load home page data." }, { status: 500 });
+  }
 
   const sections: Record<string, unknown> = {
     featured,

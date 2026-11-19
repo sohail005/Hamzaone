@@ -46,6 +46,14 @@ export async function POST(request: Request) {
   if (!Array.isArray(body.colors) || body.colors.length === 0) {
     return Response.json({ error: "At least one colour is required." }, { status: 400 });
   }
+  if (
+    !body.colors.every(
+      (c): c is { name: string; hex: string } =>
+        typeof c === "object" && c !== null && typeof c.name === "string" && c.name.trim().length > 0 && typeof c.hex === "string" && c.hex.trim().length > 0,
+    )
+  ) {
+    return Response.json({ error: "Each colour needs a name and a hex value." }, { status: 400 });
+  }
   if (body.colors.some((c) => /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.name.trim()))) {
     return Response.json({ error: "Colour names must be descriptive, not a hex code." }, { status: 400 });
   }

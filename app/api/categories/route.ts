@@ -13,33 +13,38 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug");
 
-  if (slug) {
-    const category = await getCategoryBySlug(kv, slug);
-    if (!category) {
-      return Response.json({ error: "Category not found" }, { status: 404 });
+  try {
+    if (slug) {
+      const category = await getCategoryBySlug(kv, slug);
+      if (!category) {
+        return Response.json({ error: "Category not found" }, { status: 404 });
+      }
+      return Response.json(
+        { category },
+        { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } },
+      );
     }
+
+    const includeDisabled = searchParams.get("all") === "true";
+    if (includeDisabled) {
+      const authKv = await getAuthKV();
+      const user = authKv ? await getUserFromRequestCookie(authKv, request) : null;
+      if (!user || user.role !== "admin") {
+        return Response.json({ error: "Unauthorized." }, { status: 401 });
+      }
+      const categories = await listCategories(kv, { includeDisabled: true });
+      return Response.json({ categories, count: categories.length });
+    }
+
+    const categories = await listCategories(kv);
     return Response.json(
-      { category },
+      { categories, count: categories.length },
       { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } },
     );
+  } catch (error) {
+    console.error("Failed to load categories", error);
+    return Response.json({ error: "Could not load categories." }, { status: 500 });
   }
-
-  const includeDisabled = searchParams.get("all") === "true";
-  if (includeDisabled) {
-    const authKv = await getAuthKV();
-    const user = authKv ? await getUserFromRequestCookie(authKv, request) : null;
-    if (!user || user.role !== "admin") {
-      return Response.json({ error: "Unauthorized." }, { status: 401 });
-    }
-    const categories = await listCategories(kv, { includeDisabled: true });
-    return Response.json({ categories, count: categories.length });
-  }
-
-  const categories = await listCategories(kv);
-  return Response.json(
-    { categories, count: categories.length },
-    { headers: { "Cache-Control": "public, max-age=60, stale-while-revalidate=300" } },
-  );
 }
 
 export async function POST(request: Request) {
@@ -60,11 +65,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Name is required." }, { status: 400 });
   }
 
-  const category = await createCategory(kv, {
-    name: body.name.trim(),
-    description: typeof body.description === "string" ? body.description : "",
-  });
-  return Response.json({ category }, { status: 201 });
+  try {
+    const category = await createCategory(kv, {
+      name: body.name.trim(),
+      description: typeof body.description === "string" ? body.description : "",
+    });
+    return Response.json({ category }, { status: 201 });
+  } catch (error) {
+    console.error("Failed to create category", error);
+    return Response.json({ error: "Could not save category." }, { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -94,9 +104,14 @@ export async function PATCH(request: Request) {
     patch.imageKey = undefined;
   }
 
-  const category = await updateCategory(kv, slug, patch);
-  if (!category) {
-    return Response.json({ error: "Category not found" }, { status: 404 });
+  try {
+    const category = await updateCategory(kv, slug, patch);
+    if (!category) {
+      return Response.json({ error: "Category not found" }, { status: 404 });
+    }
+    return Response.json({ category });
+  } catch (error) {
+    console.error("Failed to update category", error);
+    return Response.json({ error: "Could not save category." }, { status: 500 });
   }
-  return Response.json({ category });
 }

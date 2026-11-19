@@ -58,10 +58,15 @@ export async function POST(request: Request) {
   const basename = slugify(originalName.replace(/\.[^.]+$/, "")) || "image";
   const storageKey = `custom-creations/pending/${Date.now()}-${crypto.randomUUID()}-${basename}.${ext}`;
 
-  await bucket.put(storageKey, buffer, {
-    httpMetadata: { contentType: mimeType },
-    customMetadata: { originalName, originalSize: String(originalSize) },
-  });
+  try {
+    await bucket.put(storageKey, buffer, {
+      httpMetadata: { contentType: mimeType },
+      customMetadata: { originalName, originalSize: String(originalSize) },
+    });
+  } catch (error) {
+    console.error("custom-creations upload: bucket.put failed", error);
+    return Response.json({ error: "Could not upload the file. Please try again." }, { status: 500 });
+  }
 
   return Response.json({ storageKey, originalFilename: originalName, mimeType, fileSize: buffer.byteLength });
 }

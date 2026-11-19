@@ -13,7 +13,13 @@ export async function GET(_request: Request, context: { params: Promise<{ key: s
     return Response.json({ error: "Storage is not configured." }, { status: 503 });
   }
 
-  const object = await bucket.get(storageKey);
+  let object;
+  try {
+    object = await bucket.get(storageKey);
+  } catch (error) {
+    console.error("assets route: bucket.get failed", error);
+    return Response.json({ error: "Could not load the asset." }, { status: 500 });
+  }
   if (!object) {
     return Response.json({ error: "Not found." }, { status: 404 });
   }

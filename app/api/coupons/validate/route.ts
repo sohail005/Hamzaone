@@ -13,11 +13,16 @@ export async function POST(request: Request) {
     return Response.json({ error: "Coupon lookup is not configured." }, { status: 503 });
   }
 
-  const { coupon, error } = await findValidCoupon(kv, body.code, body.subtotal);
-  if (error || !coupon) {
-    return Response.json({ valid: false, error: error ?? "Invalid coupon code." }, { status: 400 });
-  }
+  try {
+    const { coupon, error } = await findValidCoupon(kv, body.code, body.subtotal);
+    if (error || !coupon) {
+      return Response.json({ valid: false, error: error ?? "Invalid coupon code." }, { status: 400 });
+    }
 
-  const discount = coupon.type === "flat" ? coupon.value : Math.round(body.subtotal * (coupon.value / 100));
-  return Response.json({ valid: true, couponCode: coupon.code, discount, error: null }, { headers: { "Cache-Control": "no-store" } });
+    const discount = coupon.type === "flat" ? coupon.value : Math.round(body.subtotal * (coupon.value / 100));
+    return Response.json({ valid: true, couponCode: coupon.code, discount, error: null }, { headers: { "Cache-Control": "no-store" } });
+  } catch (error) {
+    console.error("POST /api/coupons/validate", error);
+    return Response.json({ error: "Could not validate the coupon. Please try again." }, { status: 500 });
+  }
 }

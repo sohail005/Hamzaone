@@ -145,6 +145,7 @@ export async function POST(request: Request) {
     return jsonError("Invalid coupon code.", 400);
   }
 
+  try {
   let subtotal = 0;
   const itemSummary: string[] = [];
   const orderItems: StoredOrderItem[] = [];
@@ -311,4 +312,8 @@ export async function POST(request: Request) {
     amount: totalPaise,
     currency: "INR",
   });
+  } catch (error) {
+    console.error("Checkout order creation failed.", error);
+    return jsonError("Could not process checkout. Please try again.", 500);
+  }
 }

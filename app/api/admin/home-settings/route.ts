@@ -8,8 +8,13 @@ export async function GET() {
   if (!kv) {
     return Response.json({ error: "Settings storage is not configured." }, { status: 503 });
   }
-  const settings = await getHomeSettings(kv);
-  return Response.json({ settings });
+  try {
+    const settings = await getHomeSettings(kv);
+    return Response.json({ settings });
+  } catch (error) {
+    console.error("Failed to load home settings", error);
+    return Response.json({ error: "Could not load home settings." }, { status: 500 });
+  }
 }
 
 export async function PATCH(request: Request) {
@@ -30,8 +35,13 @@ export async function PATCH(request: Request) {
     return Response.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const settings = await updateHomeSettings(kv, {
-    heroImageKeys: patch.heroImageKeys.filter((key): key is string => typeof key === "string" && key.length > 0),
-  });
-  return Response.json({ settings });
+  try {
+    const settings = await updateHomeSettings(kv, {
+      heroImageKeys: patch.heroImageKeys.filter((key): key is string => typeof key === "string" && key.length > 0),
+    });
+    return Response.json({ settings });
+  } catch (error) {
+    console.error("Failed to update home settings", error);
+    return Response.json({ error: "Could not save home settings." }, { status: 500 });
+  }
 }

@@ -33,6 +33,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const ordersKV = getKV(env, "ORDERS_KV");
   if (!ordersKV) return jsonError("Order storage is not configured. Bind the ORDERS_KV namespace.", 503);
 
+  try {
   const order = await readStoredOrder(ordersKV, id);
   if (!order) return jsonError("Order not found.", 404);
   if (order.paymentStatus === "paid") {
@@ -103,4 +104,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   return Response.json({ order, synced: "no_change" });
+  } catch (error) {
+    console.error("Could not recheck payment for order.", id, error);
+    return jsonError("Could not recheck payment for this order.", 500);
+  }
 }
