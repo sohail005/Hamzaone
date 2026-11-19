@@ -196,19 +196,23 @@ export function ProductDetail({ product }: { product: Product }) {
             <>
               <div>
                 <h3 className="mb-2 text-sm font-semibold">Colour</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {product.colors.map((c) => (
                     <button
                       key={c.name}
                       aria-label={c.name}
                       onClick={() => setVariant({ color: c.name })}
-                      className="flex h-10 w-10 items-center justify-center rounded-full"
+                      className="flex flex-col items-center gap-1"
                     >
-                      <span className="h-8 w-8 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
+                      <span
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${c.name === color ? "ring-2 ring-accent ring-offset-2" : ""}`}
+                      >
+                        <span className="h-8 w-8 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
+                      </span>
+                      <span className="text-xs text-text-muted">{c.name}</span>
                     </button>
                   ))}
                 </div>
-                <p className="mt-1 text-xs text-text-muted">{color}</p>
               </div>
 
               {isUnavailableCombo && (

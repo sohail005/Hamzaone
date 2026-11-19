@@ -11,6 +11,41 @@ import { Field, Textarea } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { ConceptRender } from "@/components/ConceptRender";
 
+// Suggests a swatch colour as the admin types, using the browser's own CSS
+// colour parser (not a hand-picked list) so any of the ~150 standard CSS
+// colour names (and compound names like "Ivory White") resolve to their
+// exact real value. Admins can still override via the picker.
+function cssNameToHex(value: string): string | null {
+  if (typeof document === "undefined") return null;
+  const probe = document.createElement("span");
+  probe.style.color = "";
+  probe.style.color = value;
+  if (!probe.style.color) return null;
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+  const rgb = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  const channels = rgb.match(/[\d.]+/g);
+  if (!channels || channels.length < 3) return null;
+  const toHex = (v: string) => Math.round(Number(v)).toString(16).padStart(2, "0");
+  return `#${toHex(channels[0])}${toHex(channels[1])}${toHex(channels[2])}`;
+}
+
+function suggestColorHex(name: string): string | null {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+  const direct = cssNameToHex(trimmed);
+  if (direct) return direct;
+  // Compound names (e.g. "Ivory White") aren't valid CSS values on their
+  // own — fall back to the last word, which is usually the base colour.
+  const words = trimmed.split(/\s+/);
+  for (let i = words.length - 1; i >= 0; i--) {
+    const match = cssNameToHex(words[i]);
+    if (match) return match;
+  }
+  return null;
+}
+
 export function ProductForm({ product }: { product?: Product }) {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -41,6 +76,7 @@ export function ProductForm({ product }: { product?: Product }) {
   const videoFileInput = useRef<HTMLInputElement | null>(null);
   const [newColorName, setNewColorName] = useState("");
   const [newColorHex, setNewColorHex] = useState("#cccccc");
+  const [newColorHexTouched, setNewColorHexTouched] = useState(false);
   const [newColorError, setNewColorError] = useState<string | null>(null);
 
   async function onImageFilesChosen(e: React.ChangeEvent<HTMLInputElement>) {
@@ -127,6 +163,7 @@ export function ProductForm({ product }: { product?: Product }) {
     });
     setNewColorName("");
     setNewColorHex("#cccccc");
+    setNewColorHexTouched(false);
   }
 
   function removeColor(name: string) {
@@ -236,13 +273,22 @@ export function ProductForm({ product }: { product?: Product }) {
                 type="color"
                 aria-label="Swatch colour"
                 value={newColorHex}
-                onChange={(e) => setNewColorHex(e.target.value)}
+                onChange={(e) => {
+                  setNewColorHex(e.target.value);
+                  setNewColorHexTouched(true);
+                }}
                 className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-input bg-surface p-0.5"
               />
               <input
                 type="text"
                 value={newColorName}
-                onChange={(e) => setNewColorName(e.target.value)}
+                onChange={(e) => {
+                  const name = e.target.value;
+                  setNewColorName(name);
+                  if (!newColorHexTouched) {
+                    setNewColorHex(suggestColorHex(name) ?? "#cccccc");
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
