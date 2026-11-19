@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { fetchProducts, fetchCategories } from "@/lib/server/catalog";
 import { ShopView } from "@/components/ShopView";
 
-export const revalidate = 60;
+// ISR (revalidate=60) doesn't reliably refresh on this OpenNext/Cloudflare
+// build (see ba849f2: force-dynamic rendering for home and custom-creations
+// pages) — this page hit the same bug, serving a days-stale product list.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Shop",

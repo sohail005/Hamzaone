@@ -1,18 +1,35 @@
 import Link from "next/link";
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { computeOrderStats, type OrderStatsInput } from "@/lib/server/order-stats";
+import { getD1 } from "@/lib/server/d1";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
+import { listInventory, listProduction } from "@/lib/server/admin-store";
+import { listRequests } from "@/lib/server/custom-creations-store";
+import { listStoredOrders, type StoredOrder } from "@/lib/server/orders-store";
+import { listProducts } from "@/lib/server/products-store";
 
 type OrderRow = OrderStatsInput & { id: string };
 
+// This page is rendered on the server, which runs inside the same Worker
+// that serves our own API — fetching our own /api/* routes over HTTP here
+// would round-trip through Cloudflare's edge and occasionally 522 (see the
+// comment in lib/api.ts). Reading the KV/D1 stores directly avoids that hop.
 export default async function AdminOverviewPage() {
-  const { orders } = (await api.orders.list()) as { orders: OrderRow[] };
-  const { products } = await api.products.list();
-  const { production: productionCards } = await api.admin.list("production");
-  const { inventory } = await api.admin.list("inventory");
-  const { requests: customCreations } = await api.customCreations.adminList();
+  const env = await getWorkerEnv();
+  const ordersKv = getKV(env, "ORDERS_KV");
+  const dataKv = getKV(env, "DATA_KV");
+  const db = getD1(env);
 
-  const stats = computeOrderStats(orders);
+  const [orders, products, productionCards, inventory, customCreationsResult] = await Promise.all([
+    ordersKv ? listStoredOrders(ordersKv) : Promise.resolve([] as StoredOrder[]),
+    dataKv ? listProducts(dataKv, { includeUnpublished: true }) : Promise.resolve([]),
+    dataKv ? listProduction(dataKv) : Promise.resolve([]),
+    dataKv ? listInventory(dataKv) : Promise.resolve([]),
+    db ? listRequests(db, { page: 1 }) : Promise.resolve({ requests: [], total: 0 }),
+  ]);
+  const customCreations = customCreationsResult.requests as unknown as Array<{ id: string; status: string }>;
+
+  const stats = computeOrderStats(orders as OrderRow[]);
 
   const TILES = [
     { label: "Revenue (30d)", value: formatINR(stats.revenue30d), href: "/admin/analytics" },

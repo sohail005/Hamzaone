@@ -6,7 +6,8 @@ import { ProductDetail } from "@/components/ProductDetail";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://hamzaone.pages.dev").trim().replace(/\/$/, "");
 
-export const revalidate = 60;
+// See app/(site)/shop/page.tsx — ISR doesn't reliably refresh on this build.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

@@ -1,9 +1,14 @@
 import Link from "next/link";
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
+import { getAdminResource } from "@/lib/server/admin-store";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
+
+type Customer = { id: string; name: string; email: string; orders: string[]; totalSpend: number };
 
 export default async function AdminCustomersPage() {
-  const { customers } = await api.admin.list("customers");
+  const env = await getWorkerEnv();
+  const kv = getKV(env, "DATA_KV");
+  const customers = (kv ? await getAdminResource(kv, "customers") : []) as Customer[];
 
   return (
     <div className="flex flex-col gap-5">

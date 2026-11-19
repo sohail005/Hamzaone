@@ -1,11 +1,12 @@
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
-import { computeOrderStats, type OrderStatsInput } from "@/lib/server/order-stats";
-
-type OrderRow = OrderStatsInput & { id: string };
+import { computeOrderStats } from "@/lib/server/order-stats";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
+import { listStoredOrders } from "@/lib/server/orders-store";
 
 export default async function AdminAnalyticsPage() {
-  const { orders } = (await api.orders.list()) as { orders: OrderRow[] };
+  const env = await getWorkerEnv();
+  const ordersKv = getKV(env, "ORDERS_KV");
+  const orders = ordersKv ? await listStoredOrders(ordersKv) : [];
   const stats = computeOrderStats(orders);
 
   const TILES = [

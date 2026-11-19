@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { fetchCategory, fetchProducts, fetchCategories } from "@/lib/server/catalog";
 import { ShopView } from "@/components/ShopView";
 
-export const revalidate = 60;
+// See app/(site)/shop/page.tsx — ISR doesn't reliably refresh on this build.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category } = await params;

@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
 import { StatusChip } from "@/components/StatusChip";
 import { OrderStatusEditor } from "@/components/admin/OrderStatusEditor";
 import { RecheckPaymentButton } from "@/components/admin/RecheckPaymentButton";
-import type { StoredOrder } from "@/lib/server/orders-store";
+import { readStoredOrder } from "@/lib/server/orders-store";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { order } = (await api.orders.get(id)) as { order: StoredOrder };
+  const env = await getWorkerEnv();
+  const ordersKv = getKV(env, "ORDERS_KV");
+  const order = ordersKv ? await readStoredOrder(ordersKv, id) : null;
   if (!order) notFound();
 
   return (

@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { api } from "@/lib/api";
 import { formatINR } from "@/lib/format";
+import { getAdminResource } from "@/lib/server/admin-store";
+import { getKV, getWorkerEnv } from "@/lib/server/kv";
 
 export const dynamic = "force-dynamic";
 
+type Customer = { id: string; name: string; email: string; phone: string; orders: string[]; totalSpend: number; joined: string };
+
 export default async function AdminCustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { customers } = await api.admin.list("customers");
-  const customer = (customers as Array<{ id: string; name: string; email: string; phone: string; orders: string[]; totalSpend: number; joined: string }>).find((c) => c.id === id);
+  const env = await getWorkerEnv();
+  const kv = getKV(env, "DATA_KV");
+  const customers = (kv ? await getAdminResource(kv, "customers") : []) as Customer[];
+  const customer = customers.find((c) => c.id === id);
   if (!customer) notFound();
 
   return (
