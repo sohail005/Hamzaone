@@ -67,7 +67,7 @@ export default async function HomePage() {
         {homeSettings.heroImageKeys && homeSettings.heroImageKeys.length > 0 ? (
           <HeroCarousel
             imageKeys={homeSettings.heroImageKeys}
-            className="aspect-square min-h-[320px]"
+            className="aspect-[5/4] min-h-[320px]"
             style={{ flex: "1 1 480px" }}
           />
         ) : (
