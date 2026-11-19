@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { colorNameToHex, type Product } from "@/data/products";
+import type { Product } from "@/data/products";
 import type { Category } from "@/data/categories";
 import { api } from "@/lib/api";
 import { assetUrl } from "@/lib/assets";
@@ -40,6 +40,7 @@ export function ProductForm({ product }: { product?: Product }) {
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoFileInput = useRef<HTMLInputElement | null>(null);
   const [newColorName, setNewColorName] = useState("");
+  const [newColorHex, setNewColorHex] = useState("#cccccc");
   const [newColorError, setNewColorError] = useState<string | null>(null);
 
   async function onImageFilesChosen(e: React.ChangeEvent<HTMLInputElement>) {
@@ -122,9 +123,10 @@ export function ProductForm({ product }: { product?: Product }) {
     setNewColorError(null);
     setForm((f) => {
       if (f.colors.some((c) => c.name.toLowerCase() === name.toLowerCase())) return f;
-      return { ...f, colors: [...f.colors, { name, hex: colorNameToHex(name) }] };
+      return { ...f, colors: [...f.colors, { name, hex: newColorHex }] };
     });
     setNewColorName("");
+    setNewColorHex("#cccccc");
   }
 
   function removeColor(name: string) {
@@ -222,6 +224,13 @@ export function ProductForm({ product }: { product?: Product }) {
             )}
             <div className="mt-2 flex items-center gap-2">
               <input
+                type="color"
+                aria-label="Swatch colour"
+                value={newColorHex}
+                onChange={(e) => setNewColorHex(e.target.value)}
+                className="h-10 w-10 shrink-0 cursor-pointer rounded-input border border-border-input bg-surface p-0.5"
+              />
+              <input
                 type="text"
                 value={newColorName}
                 onChange={(e) => setNewColorName(e.target.value)}
@@ -236,6 +245,7 @@ export function ProductForm({ product }: { product?: Product }) {
               />
               <Button type="button" variant="outline" size="sm" disabled={!newColorName.trim()} onClick={addColor}>Add</Button>
             </div>
+            <p className="mt-1.5 text-xs text-text-muted">Pick the swatch colour so customers see the real shade.</p>
             {newColorError && <p className="mt-1.5 text-xs text-error-text">{newColorError}</p>}
             {errors.colors && <p className="mt-1.5 text-xs text-error-text">{errors.colors}</p>}
           </div>

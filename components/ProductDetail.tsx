@@ -204,7 +204,7 @@ export function ProductDetail({ product }: { product: Product }) {
                       onClick={() => setVariant({ color: c.name })}
                       className="flex h-10 w-10 items-center justify-center rounded-full"
                     >
-                      <span className="h-8 w-8 rounded-full" style={{ backgroundColor: c.hex }} />
+                      <span className="h-8 w-8 rounded-full border border-black/10" style={{ backgroundColor: c.hex }} />
                     </button>
                   ))}
                 </div>
