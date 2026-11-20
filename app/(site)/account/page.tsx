@@ -126,12 +126,12 @@ export default async function AccountOverviewPage() {
           <ul className="mt-4 flex flex-col gap-3">
             {recentOrders.map((o) => (
               <li key={o.id}>
-                <Link href={`/account/orders/${o.id}`} className="flex items-center justify-between rounded-chip border border-border px-4 py-3 hover:bg-bg">
-                  <div>
-                    <p className="text-sm font-semibold">{o.id}</p>
+                <Link href={`/account/orders/${o.id}`} className="flex flex-col gap-2 rounded-chip border border-border px-4 py-3 hover:bg-bg sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{o.id}</p>
                     <p className="text-xs text-text-muted">{o.items.length} item(s)</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between gap-3 sm:justify-end">
                     <span className="text-sm font-semibold">{formatINR(o.total)}</span>
                     <StatusChip tone={o.status === "delivered" ? "success" : o.paymentStatus === "pending" ? "warning" : "accent"}>{o.status}</StatusChip>
                   </div>

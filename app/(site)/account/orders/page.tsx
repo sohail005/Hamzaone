@@ -49,20 +49,20 @@ export default async function AccountOrdersPage() {
       <ul className="flex flex-col gap-3">
         {orders.map((o) => (
           <li key={o.id}>
-            <Link href={`/account/orders/${o.id}`} className="flex items-center justify-between rounded-card bg-surface p-4 shadow-sm hover:shadow-md">
-              <div className="flex items-center gap-3">
+            <Link href={`/account/orders/${o.id}`} className="flex flex-col gap-3 rounded-card bg-surface p-4 shadow-sm hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-3">
                 {o.imageKey ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={assetUrl(o.imageKey)} alt="" className="h-12 w-12 shrink-0 rounded-chip object-cover" />
                 ) : (
                   <div className="h-12 w-12 shrink-0 rounded-chip bg-art-tile" />
                 )}
-                <div>
-                  <p className="text-sm font-semibold">{o.id}</p>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">{o.id}</p>
                   <p className="text-xs text-text-muted">{o.placedAt} · {o.items.length} item(s)</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between gap-3 sm:justify-end">
                 <span className="text-sm font-semibold">{formatINR(o.total)}</span>
                 <StatusChip tone={o.status === "delivered" ? "success" : o.paymentStatus === "pending" ? "warning" : "accent"}>
                   {ORDER_STATUS_LABELS[o.status as keyof typeof ORDER_STATUS_LABELS] ?? o.status}

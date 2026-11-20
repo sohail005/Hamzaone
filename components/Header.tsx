@@ -100,7 +100,7 @@ export function Header() {
 
   return (
     <>
-      <div className="bg-dark py-2 text-center text-[13px] text-bg">
+      <div className="hidden bg-dark py-2 text-center text-[13px] text-bg md:block">
         Free standard shipping on orders above {formatINR(freeShippingThreshold)} · Every order printed in-house in India
       </div>
       <header className="sticky top-0 z-30 border-b border-border bg-surface">
@@ -160,7 +160,7 @@ export function Header() {
             Custom Creations
           </Link>
 
-          <div className="flex gap-0.5">
+          <div className="hidden gap-0.5 md:flex">
             <Link href="/account" aria-label="Account" className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-black/5">
               <User className="h-[22px] w-[22px]" strokeWidth={1.8} />
             </Link>
