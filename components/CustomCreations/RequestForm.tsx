@@ -188,12 +188,12 @@ export function RequestForm() {
           <>
             <Field id="customerName" label="Full name" value={form.customerName} onChange={(e) => update("customerName", e.target.value)} error={fieldErrors.customerName} />
             <Field id="email" label="Email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} error={fieldErrors.email} />
-            <PhoneField id="phone" label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value.replace(/\D/g, "").slice(0, 10))} error={fieldErrors.phone} />
+            <PhoneField id="phone" label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value.replace(/\D/g, "").slice(-10))} error={fieldErrors.phone} />
             <PhoneField
               id="whatsapp"
               label="WhatsApp number (optional)"
               value={form.whatsappNumber}
-              onChange={(e) => update("whatsappNumber", e.target.value.replace(/\D/g, "").slice(0, 10))}
+              onChange={(e) => update("whatsappNumber", e.target.value.replace(/\D/g, "").slice(-10))}
             />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <Field id="city" label="City" value={form.deliveryCity} onChange={(e) => update("deliveryCity", e.target.value)} error={fieldErrors.deliveryCity} />

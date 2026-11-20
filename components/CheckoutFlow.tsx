@@ -33,7 +33,10 @@ export function CheckoutFlow() {
   const { lines } = useCart();
   const couponCode = useCart((state) => state.couponCode);
   const couponDiscount = useCart((state) => state.couponDiscount);
+  const setCoupon = useCart((state) => state.setCoupon);
   const [buyNowProduct, setBuyNowProduct] = useState<Product | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -212,6 +215,27 @@ export function CheckoutFlow() {
     }
   }
 
+  async function applyCoupon(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const code = String(new FormData(e.currentTarget).get("coupon") ?? "").trim().toUpperCase();
+    if (!code) {
+      setCoupon(null, 0);
+      setCouponError(null);
+      return;
+    }
+    setCouponChecking(true);
+    setCouponError(null);
+    try {
+      const result = await api.coupons.validate(code, subtotal);
+      setCoupon(result.couponCode, result.discount);
+    } catch (err) {
+      setCoupon(null, 0);
+      setCouponError(err instanceof Error ? err.message : "Could not apply this coupon.");
+    } finally {
+      setCouponChecking(false);
+    }
+  }
+
   function handleResult(
     result: "success" | "pending",
     payment?: { orderId: string; paymentId: string },
@@ -269,7 +293,7 @@ export function CheckoutFlow() {
             <div className="flex flex-col gap-4">
               <Field id="name" label="Full name" value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} error={errors.name} />
               <Field id="email" label="Email" type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} error={errors.email} />
-              <PhoneField id="phone" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} error={errors.phone} />
+              <PhoneField id="phone" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value.replace(/\D/g, "").slice(-10) })} error={errors.phone} />
               <Button onClick={validateContact} className="self-start">Continue</Button>
             </div>
           )}
@@ -429,6 +453,19 @@ export function CheckoutFlow() {
               </li>
             ))}
           </ul>
+          {buyNowProduct ? (
+            <p className="mt-3 text-xs text-text-muted">Coupons aren&apos;t available for Buy Now orders.</p>
+          ) : (
+            <form onSubmit={applyCoupon} className="mt-3 border-t border-border pt-3">
+              <div className="flex gap-2">
+                <div className="min-w-0 flex-1">
+                  <Field id="coupon" name="coupon" key={couponCode ?? "none"} defaultValue={couponCode ?? ""} placeholder="Coupon code" error={couponError ?? undefined} />
+                </div>
+                <Button type="submit" variant="outline" className="shrink-0" disabled={couponChecking}>{couponChecking ? "Checking…" : "Apply"}</Button>
+              </div>
+              {couponCode && discount > 0 && <p className="mt-2 text-sm text-success-text">Coupon {couponCode} applied — {formatINR(discount)} off.</p>}
+            </form>
+          )}
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3 text-sm">
             <div className="flex justify-between"><span className="text-text-muted">Subtotal</span><span>{formatINR(subtotal)}</span></div>
             {discount > 0 && <div className="flex justify-between text-success-text"><span>Coupon {activeCouponCode}</span><span>−{formatINR(discount)}</span></div>}
